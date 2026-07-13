@@ -48,6 +48,7 @@ export default tseslint.config(
             "tests/command-palette.test.ts",
             "tests/command-registry.test.ts",
             "tests/file-workspace.test.ts",
+            "tests/instrument-workspace.test.ts",
             "tests/navigator-contracts.test.ts",
             "tests/navigator-mode-coordinator.test.ts",
             "tests/css-var-contract.test.ts",

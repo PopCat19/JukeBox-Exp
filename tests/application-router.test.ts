@@ -46,7 +46,7 @@ describe("application router", () => {
 		const router = new ApplicationRouter({
 			openGlobal: () => {},
 			navigator: {
-				open: (route) => { opened.push(route); return Promise.resolve(); },
+				open: (route) => { opened.push(route); return Promise.resolve(true); },
 				focus: () => { focusCount++; },
 			},
 		});
@@ -75,7 +75,7 @@ describe("application router", () => {
 		const router = new ApplicationRouter({
 			openGlobal: (route) => globals.push(route),
 			navigator: {
-				open: (route) => { opened.push(route); return Promise.resolve(); },
+				open: (route) => { opened.push(route); return Promise.resolve(true); },
 				focus: () => { focusCount++; },
 			},
 		});
@@ -99,7 +99,7 @@ describe("application router", () => {
 		const router = new ApplicationRouter({
 			openGlobal: () => {},
 			navigator: {
-				open: (route) => { opened.push(route); return Promise.resolve(); },
+				open: (route) => { opened.push(route); return Promise.resolve(true); },
 				focus: () => {},
 			},
 		});
@@ -131,7 +131,7 @@ describe("application router", () => {
 		const adapter = readFileSync("editor/navigator/navigator-route-host.ts", "utf8");
 		expect(songEditor).toContain("new NavigatorRuntime(");
 		expect(songEditor).toContain("this._promptContainer.append(this._navigatorShell.container);");
-		expect(songEditor).toContain("await this._navigatorMode.open(route);");
+		expect(songEditor).toContain("open: (route) => this._navigatorMode.open(route)");
 		expect(songEditor).toContain('const opened = await this._navigatorMode.open({ paneId: "import" });\n\t\tif (!opened) return;\n\t\tthis._fileWorkspace.deliverImportFile(file, rafWin);');
 		expect(songEditor).toContain("await this.handleImportFile(file);");
 		expect(adapter).toContain("interface ImportFileTransientSink");
@@ -161,11 +161,24 @@ describe("application router", () => {
 		}
 	});
 
+	test("denied Navigator open skips focus side effects", async () => {
+		let focusCount = 0;
+		const router = new ApplicationRouter({
+			openGlobal: () => {},
+			navigator: {
+				open: () => Promise.resolve(false),
+				focus: () => { focusCount++; },
+			},
+		});
+		await router.routePrompt("importInstrument");
+		expect(focusCount).toBe(0);
+	});
+
 	test("rejects invalid routes before invoking targets", async () => {
 		let opens = 0;
 		const router = new ApplicationRouter({
 			openGlobal: () => { opens++; },
-			navigator: { open: () => { opens++; return Promise.resolve(); }, focus: () => {} },
+			navigator: { open: () => { opens++; return Promise.resolve(true); }, focus: () => {} },
 		});
 		expect(await rejectionMessage(router.route({ presentation: "global", scope: "" }))).toContain(
 			"non-empty string",

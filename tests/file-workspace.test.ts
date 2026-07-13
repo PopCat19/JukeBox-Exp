@@ -40,8 +40,8 @@ describe("FileWorkspace", () => {
 
 	test("Project Data owns one bounded content host and PMD tabs", () => {
 		const css = buildNavigatorPanesCSS();
-		expect(css).toMatch(/\.navigator-project-data \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
-		expect(css).toMatch(/\.navigator-file-right-host \{[^}]*overflow: auto/s);
+		expect(css).toMatch(/\.navigator-project-data,[^{]*\.navigator-instrument-data \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
+		expect(css).toMatch(/\.navigator-file-right-host,[^{]*\.navigator-instrument-host \{[^}]*overflow: auto/s);
 		expect(css).toMatch(/\.navigator-file-tabs[^}]*max-width: 100%[^}]*overflow-x: auto[^}]*border-radius: 16px/s);
 		expect(css).toMatch(/\.navigator-file-tabs > \.tabButton\.active \{[^}]*background: var\(--cta-bg\)/s);
 		expect(css).not.toContain("navigator-file-left-host");
@@ -114,7 +114,7 @@ describe("FileWorkspace", () => {
 		expect(parent.classList.contains("navigatorVisible")).toBeTrue();
 		expect(parent.style.display).toBe("none");
 		expect(getComputedStyle(parent).display).toBe("flex");
-		expect(shell.container.querySelectorAll("[role='tab']").length).toBe(3);
+		expect(shell.container.querySelectorAll(".navigator-project-data [role='tab']").length).toBe(3);
 		expect(shell.container.querySelector("[role='tabpanel']")?.id).toBe("navigator-file-panel");
 		await workspace.close();
 		expect(parent.classList.contains("navigatorVisible")).toBeFalse();

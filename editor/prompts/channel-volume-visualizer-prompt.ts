@@ -494,6 +494,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Top bar — play/pause, volume meter, stats
 		div(
 			{
+				class: "cvvHeader",
 				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 4px 12px 0px 12px;",
 			},
 			this._playPauseButton,
@@ -502,7 +503,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._barPosLabel,
 			this._tempoLabel,
 			span(
-				{ style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;` },
+				{
+					class: "cvvHeaderStats",
+					style: `display: inline-flex; gap: 10px; flex-wrap: nowrap;`,
+				},
 				this._masterDbPeakLabel,
 				this._masterDbAvgLabel,
 				this._masterDbMinMaxLabel,

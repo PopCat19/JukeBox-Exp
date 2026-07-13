@@ -714,17 +714,20 @@ describe("navigator runtime", () => {
 		expect(effects).toEqual(["mount:first", "focus:first"]);
 	});
 
-	test("denied replacement disposes the rejected owner", async () => {
+	test("denied replacement has zero destination factory side effects", async () => {
 		resetDocument();
 		const effects: string[] = [];
+		let factoryCalls = 0;
 		const runtime = new NavigatorRuntime(new NavigatorShell(), (route) => {
+			factoryCalls++;
 			const next = runtimeOwner(route, effects);
 			if (route.paneId === "first") next.lifecycle.requestLeave = () => "deny";
 			return next;
 		});
 		await runtime.open({ paneId: "first" });
-		await runtime.open({ paneId: "second" });
-		expect(effects).toEqual(["mount:first", "dispose:second"]);
+		expect(await runtime.open({ paneId: "second" })).toBeFalse();
+		expect(factoryCalls).toBe(1);
+		expect(effects).toEqual(["mount:first"]);
 	});
 });
 
@@ -855,7 +858,7 @@ describe("native navigator extraction", () => {
 describe("navigator shell", () => {
 	test("catalog defines Project Data and dashboard composition metadata", () => {
 		expect(navigatorRouteCatalog.map((group) => group.title)).toEqual([
-			"Project Data", "File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Focused Instr. Config",
+			"Project Data", "File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Instrument Data", "Focused Instr. Config", "Help",
 		]);
 		const projectData = navigatorRouteCatalog[0].items[0];
 		expect(projectData.kind).toBe("tabs");
@@ -865,7 +868,14 @@ describe("navigator shell", () => {
 		expect(visualThemes.kind).toBe("tabs");
 		if (visualThemes.kind !== "tabs") throw new Error("missing Visual tabs");
 		expect(visualThemes.routes.map((route) => route.id)).toEqual(["theme", "customTheme", "customThemeRaw"]);
-		expect(navigatorRouteCatalog[6].items[0].kind).toBe("split");
+		const instrumentData = navigatorRouteCatalog[6].items[0];
+		expect(instrumentData.kind).toBe("tabs");
+		if (instrumentData.kind !== "tabs") throw new Error("missing Instrument Data tabs");
+		expect(instrumentData.routes.map((route) => route.id)).toEqual(["importInstrument", "exportInstrument"]);
+		expect(navigatorRouteCatalog[8].items[0]).toEqual({
+			kind: "route",
+			route: { id: "tipPromptScope", title: "Help" },
+		});
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("instrumentTags");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("tipPromptScope");
 		expect(navigatorOtherRoutes.map((route) => route.id)).toContain("keyboardShortcuts");
@@ -970,7 +980,7 @@ describe("navigator shell", () => {
 		const search = shell.container.querySelector<HTMLInputElement>(".navigator-route-search");
 		expect(shell.container.querySelectorAll(".navigator-route").length).toBeGreaterThan(30);
 		expect(Array.from(shell.container.querySelectorAll(".navigator-route-group-title"), (heading) => heading.textContent)).toEqual([
-			"Project Data", "File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Focused Instr. Config", "Other tools",
+			"Project Data", "File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Instrument Data", "Focused Instr. Config", "Help", "Other tools",
 		]);
 		const groups = shell.container.querySelectorAll(".navigator-route-group");
 		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual(["Project Data"]);
@@ -980,8 +990,11 @@ describe("navigator shell", () => {
 		expect(Array.from(groups[5].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
 			"Channel Visualizer", "Layout", "Theme", "Custom Theme", "Custom Theme Raw",
 		]);
-		expect(Array.from(groups[6].querySelectorAll(".navigator-route"), (button) => button.textContent).slice(0, 2)).toEqual([
-			"Import Instrument", "Export Instrument",
+		expect(Array.from(groups[6].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
+			"Instrument Data",
+		]);
+		expect(Array.from(groups[8].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
+			"Help",
 		]);
 		expect(shell.container.querySelector(".navigator-route-split, .navigator-route-tab-strip, .navigator-route-tab-item")).toBeNull();
 		expect(shell.container.querySelector(".navigator-route-list [role='tablist'], .navigator-route-list [role='tab'], .navigator-route-list [aria-selected]")).toBeNull();
@@ -1186,7 +1199,9 @@ describe("navigator shell", () => {
 		const adapter = new LegacyPromptPaneFactory(
 			prompts,
 			() => runtime.closeNavigator(),
-			(scope) => runtime.open({ paneId: scope }),
+			async (scope) => {
+				await runtime.open({ paneId: scope });
+			},
 		);
 		runtime = new NavigatorRuntime(shell, adapter.create);
 		document.body.append(shell.container);
@@ -1213,16 +1228,9 @@ describe("navigator shell", () => {
 		await runtime.open({ paneId: "instrumentTags" });
 		expect(shell.container.textContent).toContain("domain:instrumentTags");
 		expect(leaveRequests).toBe(2);
-		expect(effects).toEqual([
-			"discard:instrumentTags",
-			"cleanup:instrumentTags",
-			"discard:export",
-			"cleanup:export",
-		]);
+		expect(effects).toEqual(["discard:export", "cleanup:export"]);
 		expect(await runtime.closeNavigator()).toBeTrue();
 		expect(effects).toEqual([
-			"discard:instrumentTags",
-			"cleanup:instrumentTags",
 			"discard:export",
 			"cleanup:export",
 			"discard:instrumentTags",

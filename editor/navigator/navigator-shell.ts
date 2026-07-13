@@ -30,11 +30,16 @@ export class NavigatorShell implements PaneHost {
 	private readonly workspace: HTMLElement;
 	private readonly detachButton: HTMLButtonElement | null;
 	readonly fileRightHost: PaneHost;
+	readonly instrumentHost: PaneHost;
 	private readonly fileWorkspace: HTMLDivElement;
 	private readonly importTab: HTMLButtonElement;
 	private readonly exportTab: HTMLButtonElement;
 	private readonly recoveryTab: HTMLButtonElement;
 	private readonly fileRightPanel: HTMLDivElement;
+	private readonly instrumentWorkspace: HTMLDivElement;
+	private readonly instrumentImportTab: HTMLButtonElement;
+	private readonly instrumentExportTab: HTMLButtonElement;
+	private readonly instrumentPanel: HTMLDivElement;
 	private readonly routes: readonly NavigatorRoute[];
 	private readonly onRoute: ((id: string) => void) | undefined;
 	private activeRouteId: string | undefined;
@@ -143,6 +148,33 @@ export class NavigatorShell implements PaneHost {
 			},
 		});
 		this.fileRightHost = host(this.fileRightPanel);
+		this.instrumentWorkspace = document.createElement("div");
+		this.instrumentWorkspace.className = "navigator-instrument-data compactSearchPrompt";
+		this.instrumentWorkspace.hidden = true;
+		const instrumentTabs = document.createElement("div");
+		instrumentTabs.className =
+			"navigator-instrument-tabs navigator-file-tabs tabBar toggle-group";
+		instrumentTabs.setAttribute("role", "tablist");
+		this.instrumentImportTab = tabButton("Import", true);
+		this.instrumentExportTab = tabButton("Export");
+		for (const [button, routeId, suffix] of [
+			[this.instrumentImportTab, "importInstrument", "import"],
+			[this.instrumentExportTab, "exportInstrument", "export"],
+		] as const) {
+			button.dataset.instrumentRoute = routeId;
+			button.id = `navigator-instrument-tab-${suffix}`;
+			button.setAttribute("role", "tab");
+			button.setAttribute("aria-controls", "navigator-instrument-panel");
+			button.addEventListener("click", () => this.onRoute?.(routeId));
+		}
+		instrumentTabs.append(this.instrumentImportTab, this.instrumentExportTab);
+		this.instrumentPanel = document.createElement("div");
+		this.instrumentPanel.className = "navigator-instrument-host navigator-pane-host";
+		this.instrumentPanel.id = "navigator-instrument-panel";
+		this.instrumentPanel.setAttribute("role", "tabpanel");
+		this.instrumentWorkspace.append(instrumentTabs, this.instrumentPanel);
+		this.workspace.append(this.instrumentWorkspace);
+		this.instrumentHost = host(this.instrumentPanel);
 		for (const tab of [this.importTab, this.exportTab, this.recoveryTab]) {
 			tab.addEventListener("click", () => this.onRoute?.(tab.dataset.fileRoute!));
 		}
@@ -162,6 +194,21 @@ export class NavigatorShell implements PaneHost {
 		this.importTab.addEventListener("keydown", onTabKey);
 		this.exportTab.addEventListener("keydown", onTabKey);
 		this.recoveryTab.addEventListener("keydown", onTabKey);
+		const onInstrumentTabKey = (event: KeyboardEvent): void => {
+			const tabs = [this.instrumentImportTab, this.instrumentExportTab];
+			const current = tabs.indexOf(event.currentTarget as HTMLButtonElement);
+			let next = current;
+			if (event.key === "ArrowRight") next = (current + 1) % tabs.length;
+			else if (event.key === "ArrowLeft") next = (current - 1 + tabs.length) % tabs.length;
+			else if (event.key === "Home") next = 0;
+			else if (event.key === "End") next = tabs.length - 1;
+			else return;
+			event.preventDefault();
+			tabs[next].focus();
+			this.onRoute?.(tabs[next].dataset.instrumentRoute!);
+		};
+		this.instrumentImportTab.addEventListener("keydown", onInstrumentTabKey);
+		this.instrumentExportTab.addEventListener("keydown", onInstrumentTabKey);
 		content.append(sidebar, this.workspace);
 		this.container.append(content);
 		this.renderRoutes(routes);
@@ -183,6 +230,13 @@ export class NavigatorShell implements PaneHost {
 	attach(root: PaneRoot): void {
 		this.container.classList.remove("shaded");
 		this.container.hidden = false;
+		this.body.hidden = false;
+		this.fileWorkspace.hidden = true;
+		this.instrumentWorkspace.hidden = true;
+		if (this.detachButton !== null) {
+			this.detachButton.disabled = false;
+			this.detachButton.hidden = false;
+		}
 		const routeId = root.element.dataset.navigatorScope;
 		this.activeRouteId = routeId;
 		this.normalRouteId = routeId;
@@ -215,6 +269,7 @@ export class NavigatorShell implements PaneHost {
 		this.body.hidden = active;
 		this.activeTitle.hidden = false;
 		this.fileWorkspace.hidden = !active;
+		if (active) this.instrumentWorkspace.hidden = true;
 		if (this.detachButton !== null) {
 			this.detachButton.disabled = active;
 			this.detachButton.hidden = active;
@@ -224,6 +279,45 @@ export class NavigatorShell implements PaneHost {
 		} else if (this.body.childElementCount > 0) {
 			this.restoreNormalRoute();
 		}
+	}
+
+	setInstrumentWorkspace(active: boolean): void {
+		if (active) this.container.classList.remove("shaded");
+		this.container.hidden = !active && this.body.childElementCount === 0;
+		this.updateVisibility(active || this.body.childElementCount > 0);
+		this.body.hidden = active;
+		this.activeTitle.hidden = false;
+		this.instrumentWorkspace.hidden = !active;
+		if (active) this.fileWorkspace.hidden = true;
+		if (this.detachButton !== null) {
+			this.detachButton.disabled = active;
+			this.detachButton.hidden = active;
+		}
+		if (!active && this.body.childElementCount > 0) this.restoreNormalRoute();
+	}
+
+	setInstrumentActiveRoute(activeRoute: "importInstrument" | "exportInstrument"): void {
+		this.activeRouteId = activeRoute;
+		this.activeTitle.textContent = "Instrument Data";
+		const buttons = this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
+		for (let index = 0; index < buttons.length; index++) {
+			const button = buttons[index];
+			const active =
+				button.textContent === "Instrument Data"
+					? ["importInstrument", "exportInstrument"].includes(activeRoute)
+					: button.dataset.routeId === activeRoute;
+			setSelectableRowActive(button, active);
+			button.setAttribute("aria-current", active ? "page" : "false");
+		}
+		const tabs = [this.instrumentImportTab, this.instrumentExportTab];
+		for (const tab of tabs) {
+			const active = tab.dataset.instrumentRoute === activeRoute;
+			tab.classList.toggle("active", active);
+			tab.setAttribute("aria-selected", String(active));
+			tab.tabIndex = active ? 0 : -1;
+		}
+		const activeTab = tabs.find((tab) => tab.dataset.instrumentRoute === activeRoute)!;
+		this.instrumentPanel.setAttribute("aria-labelledby", activeTab.id);
 	}
 
 	setFileActiveRoute(activeRoute: "import" | "export" | "songRecovery"): void {
@@ -275,9 +369,11 @@ export class NavigatorShell implements PaneHost {
 	}
 
 	focus(): void {
-		const pane = this.fileWorkspace.hidden
-			? this.body.firstElementChild
-			: this.fileWorkspace.querySelector(".navigator-native-pane");
+		const pane = !this.fileWorkspace.hidden
+			? this.fileWorkspace.querySelector(".navigator-native-pane")
+			: !this.instrumentWorkspace.hidden
+				? this.instrumentWorkspace.querySelector(".navigator-native-pane")
+				: this.body.firstElementChild;
 		if (pane instanceof HTMLElement) {
 			pane.focus({ preventScroll: true });
 		} else {
@@ -333,6 +429,14 @@ export class NavigatorShell implements PaneHost {
 				group.append(
 					this.createRouteButton({ id: "export", title: "Project Data", category }),
 				);
+			} else if (category === "Instrument Data") {
+				const target =
+					query !== "" && orderedMatches.length === 1
+						? orderedMatches[0].id
+						: "importInstrument";
+				group.append(
+					this.createRouteButton({ id: target, title: "Instrument Data", category }),
+				);
 			} else {
 				for (const route of orderedMatches) group.append(this.createRouteButton(route));
 			}
@@ -350,7 +454,9 @@ export class NavigatorShell implements PaneHost {
 		const active =
 			route.title === "Project Data"
 				? ["import", "export", "songRecovery"].includes(this.activeRouteId ?? "")
-				: route.id === this.activeRouteId;
+				: route.title === "Instrument Data"
+					? ["importInstrument", "exportInstrument"].includes(this.activeRouteId ?? "")
+					: route.id === this.activeRouteId;
 		selectableRow(button, active);
 		button.setAttribute("aria-current", active ? "page" : "false");
 		button.addEventListener("click", () => this.onRoute?.(route.id));

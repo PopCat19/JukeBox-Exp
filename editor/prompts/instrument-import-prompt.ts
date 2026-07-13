@@ -98,16 +98,20 @@ export class InstrumentImportPrompt extends BasePrompt {
 		const channel: Channel = this._doc.song.channels[this._doc.channel];
 		const currentInstrum: Instrument = channel.instruments[this._doc.getCurrentInstrument()];
 		window.localStorage.setItem("instrumentImportStrategy", this._importStrategySelect.value);
+		let replacementIndex = 1;
 
 		switch (this._importStrategySelect.value) {
 			case "replace":
 				this._doc.record(new ChangePasteInstrument(this._doc, currentInstrum, file[0]));
-				for (let i = 1; i < file.length; i++) {
+				while (replacementIndex < file.length) {
 					if (!this._validate_instrument_limit(channel)) {
 						alert("Max instruments reached! Some instruments were not imported.");
 						break;
 					}
-					this._doc.record(new ChangeAppendInstrument(this._doc, channel, file[i]));
+					this._doc.record(
+						new ChangeAppendInstrument(this._doc, channel, file[replacementIndex]),
+					);
+					replacementIndex++;
 				}
 				break;
 			case "all":
@@ -138,8 +142,8 @@ export class InstrumentImportPrompt extends BasePrompt {
 					: this._doc.getCurrentInstrument(),
 			),
 		);
-		this._doc.prompt = null;
 		this._doc.notifier.changed();
+		this._close();
 	};
 
 	private _validate_instrument_limit = (channel: Channel): boolean => {
@@ -173,8 +177,8 @@ export class InstrumentImportPrompt extends BasePrompt {
 				}
 				break;
 		}
-		this._doc.prompt = null;
 		this._doc.notifier.changed();
+		this._close();
 	};
 
 	protected override _saveChanges(): void {

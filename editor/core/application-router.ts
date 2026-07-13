@@ -18,7 +18,7 @@ export interface GlobalApplicationRoute {
 export type ApplicationRoute = GlobalApplicationRoute | NavigatorCommandReference;
 
 export interface NavigatorRouteTarget {
-	open(route: PaneRoute): Promise<void>;
+	open(route: PaneRoute): Promise<boolean>;
 	focus(): void;
 }
 
@@ -88,7 +88,6 @@ export class ApplicationRouter {
 		}
 		const navigator = this.targets.navigator;
 		if (navigator === undefined) throw new Error("navigator routing is not configured");
-		await navigator.open(snapshotPaneRoute(route.route));
-		navigator.focus();
+		if (await navigator.open(snapshotPaneRoute(route.route))) navigator.focus();
 	}
 }

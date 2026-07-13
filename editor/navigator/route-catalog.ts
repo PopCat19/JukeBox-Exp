@@ -26,11 +26,6 @@ const tabs = (...routes: readonly NavigatorCatalogRoute[]): NavigatorCatalogItem
 	kind: "tabs",
 	routes,
 });
-const split = (...slots: readonly NavigatorCatalogItem[]): NavigatorCatalogItem => ({
-	kind: "split",
-	slots,
-});
-
 export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.freeze([
 	{
 		title: "Project Data",
@@ -82,12 +77,12 @@ export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.fr
 		],
 	},
 	{
+		title: "Instrument Data",
+		items: [tabs(route("importInstrument", "Import"), route("exportInstrument", "Export"))],
+	},
+	{
 		title: "Focused Instr. Config",
 		items: [
-			split(
-				routeItem("importInstrument", "Import Instrument"),
-				routeItem("exportInstrument", "Export Instrument"),
-			),
 			routeItem("instrumentBrowser", "Instrument Browser"),
 			routeItem("customChipSettings", "Custom Chip Settings"),
 			routeItem("harmonicsSettings", "Harmonics Settings"),
@@ -95,6 +90,10 @@ export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.fr
 			routeItem("customEQFilterSettings", "Custom EQ Filter Settings"),
 			routeItem("visualLoopControls", "Visual Loop Controls"),
 		],
+	},
+	{
+		title: "Help",
+		items: [routeItem("tipPromptScope", "Help")],
 	},
 ]);
 

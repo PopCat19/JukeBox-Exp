@@ -17,6 +17,7 @@ const { div, h2, h3, p, a } = HTML;
 
 export class TipPrompt extends BasePrompt {
 	private readonly _tipTitles: Record<string, string> = {
+		tipPromptScope: "Help",
 		scale: "Scale",
 		key: "Song Key",
 		key_octave: "Octave",
@@ -124,12 +125,7 @@ export class TipPrompt extends BasePrompt {
 		customFilterSettings: "Custom Filter",
 	};
 
-	public readonly container: HTMLDivElement = div(
-		{ class: "prompt tipPrompt noSelection" },
-		h2(this._getTipTitle()),
-		div({ class: "prompt-tip-content" }, this._renderTip()),
-		this._cancelButton,
-	);
+	public readonly container: HTMLDivElement;
 
 	private _getTipTitle(): string {
 		if (this._tipName.indexOf("modSetInfo") >= 0) {
@@ -145,6 +141,12 @@ export class TipPrompt extends BasePrompt {
 		private _tipName: string,
 	) {
 		super(doc);
+		this.container = div(
+			{ class: "prompt tipPrompt noSelection" },
+			h2(this._getTipTitle()),
+			div({ class: "prompt-tip-content" }, this._renderTip()),
+			this._cancelButton,
+		);
 		this.buildTitlebar();
 		setTimeout(() => {
 			this._cancelButton.focus();
@@ -152,11 +154,16 @@ export class TipPrompt extends BasePrompt {
 	}
 
 	protected override _saveChanges(): void {
-		this._doc.prompt = null;
+		this._close();
 	}
 
 	private _renderTip(): HTMLElement {
 		switch (this._tipName) {
+			case "tipPromptScope":
+				return div(
+					p("Editor tips explain controls throughout the song and instrument editors."),
+					p("Select a highlighted control label to open its detailed Editor Tip."),
+				);
 			case "scale":
 				return div(
 					p(

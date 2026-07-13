@@ -97,6 +97,7 @@ import { type PromptEditorRefs, type PromptHost, PromptManager } from "./core/pr
 
 import { MidiInputHandler } from "./io/midi-input";
 import { FileWorkspace } from "./navigator/file-workspace";
+import { InstrumentWorkspace } from "./navigator/instrument-workspace";
 import { NativePaneFactory } from "./navigator/native-panes";
 import { NavigatorDetachedHost } from "./navigator/navigator-detached-host";
 import { NavigatorModeCoordinator } from "./navigator/navigator-mode-coordinator";
@@ -2269,16 +2270,21 @@ export class SongEditor
 		undefined,
 		(scope) => this._applicationRouter.routePrompt(scope),
 	);
+	private readonly _instrumentWorkspace = new InstrumentWorkspace(
+		this.doc,
+		this._navigatorShell,
+		undefined,
+		(scope) => this._applicationRouter.routePrompt(scope),
+	);
 	private readonly _navigatorMode = new NavigatorModeCoordinator(
 		this._navigatorRuntime,
 		this._fileWorkspace,
+		this._instrumentWorkspace,
 	);
 	private readonly _applicationRouter: ApplicationRouter = new ApplicationRouter({
 		openGlobal: () => undefined,
 		navigator: {
-			open: async (route) => {
-				await this._navigatorMode.open(route);
-			},
+			open: (route) => this._navigatorMode.open(route),
 			focus: () => {
 				this._navigatorShell.focus();
 			},
@@ -3971,6 +3977,7 @@ export class SongEditor
 	}
 
 	public popoutCurrentPrompt(): void {
+		if (this._fileWorkspace.isOpen() || this._instrumentWorkspace.isOpen()) return;
 		const host = NavigatorDetachedHost.open();
 		if (host === null) return;
 		void this._navigatorRuntime
@@ -4009,9 +4016,15 @@ export class SongEditor
 	// Skips if focus is on an input, textarea, select, button, or contenteditable element.
 	private _handleGlobalKeyDown(event: KeyboardEvent): void {
 		if (event.isComposing) return; // Skip during IME composition
-		if (this._fileWorkspace.isOpen() && event.key === "Escape") {
-			void this._fileWorkspace.forwardKeyboard(event);
-			return;
+		if (event.key === "Escape") {
+			if (this._fileWorkspace.isOpen()) {
+				void this._fileWorkspace.forwardKeyboard(event);
+				return;
+			}
+			if (this._instrumentWorkspace.isOpen()) {
+				void this._instrumentWorkspace.forwardKeyboard(event);
+				return;
+			}
 		}
 
 		// If mainLayer has focus, its own handler already processes keys.

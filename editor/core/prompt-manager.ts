@@ -614,6 +614,9 @@ export class PromptManager {
 			case "keyboardShortcuts":
 				newPrompt = new KeyboardShortcutsPrompt(doc);
 				break;
+			case "tipPromptScope":
+				newPrompt = new TipPrompt(doc, "tipPromptScope");
+				break;
 			default:
 				newPrompt = new TipPrompt(doc, promptName);
 				break;

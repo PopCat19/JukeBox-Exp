@@ -113,24 +113,29 @@ export class PaneOwnership {
 		}
 	}
 
-	async replace(
+	async requestReplace(
+		token: OwnershipToken,
+		lease: HostLease,
+		identity: PaneIdentity,
+	): Promise<boolean> {
+		if (this.busy || !this.isCurrent(token) || !this.isLeaseCurrent(lease)) return false;
+		if (this.owner!.identity === identity) return true;
+		const decision = await this.owner!.lifecycle.requestLeave();
+		return decision === "allow" && this.isCurrent(token) && this.isLeaseCurrent(lease);
+	}
+
+	replaceApproved(
 		token: OwnershipToken,
 		lease: HostLease,
 		newOwner: PaneOwner,
-	): Promise<OwnershipToken | null> {
-		if (this.busy) return null;
-		if (!this.isCurrent(token)) return null;
-		if (!this.isLeaseCurrent(lease)) return null;
+	): OwnershipToken | null {
+		if (this.busy || !this.isCurrent(token) || !this.isLeaseCurrent(lease)) return null;
 		if (this.owner!.identity === newOwner.identity) {
 			this.invoke(() => {
 				this.owner!.focus();
 			});
 			return this.token();
 		}
-		const decision = await this.owner!.lifecycle.requestLeave();
-		if (!this.isCurrent(token)) return null;
-		if (!this.isLeaseCurrent(lease)) return null;
-		if (decision !== "allow") return null;
 		const previous = this.owner;
 		this.generation++;
 		this.owner = newOwner;
@@ -141,6 +146,15 @@ export class PaneOwnership {
 			previous!.lifecycle.dispose();
 		});
 		return { generation: this.generation, identity: newOwner.identity };
+	}
+
+	async replace(
+		token: OwnershipToken,
+		lease: HostLease,
+		newOwner: PaneOwner,
+	): Promise<OwnershipToken | null> {
+		if (!(await this.requestReplace(token, lease, newOwner.identity))) return null;
+		return this.replaceApproved(token, lease, newOwner);
 	}
 
 	async close(token: OwnershipToken, lease: HostLease): Promise<boolean> {

@@ -61,7 +61,8 @@ export function buildNavigatorPanesCSS(): string {
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
 }
-.beepboxEditor .navigator-project-data {
+.beepboxEditor .navigator-project-data,
+.beepboxEditor .navigator-instrument-data {
 	display: flex;
 	flex: 1 1 auto;
 	flex-direction: column;
@@ -69,8 +70,10 @@ export function buildNavigatorPanesCSS(): string {
 	min-height: 0;
 	overflow: hidden;
 }
-.beepboxEditor .navigator-project-data[hidden] { display: none; }
-.beepboxEditor .navigator-file-right-host {
+.beepboxEditor .navigator-project-data[hidden],
+.beepboxEditor .navigator-instrument-data[hidden] { display: none; }
+.beepboxEditor .navigator-file-right-host,
+.beepboxEditor .navigator-instrument-host {
 	flex: 1 1 auto;
 	min-width: 0;
 	min-height: 0;
@@ -108,6 +111,15 @@ export function buildNavigatorPanesCSS(): string {
 	font-weight: 600;
 }
 .beepboxEditor .navigator-file-tabs > .tabButton.active:hover { border-color: var(--editor-background); }
+.beepboxEditor .navigator-pane-host > .cvvPrompt .cvvContentGrid {
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	min-width: 0;
+}
+.beepboxEditor .navigator-pane-host > .cvvPrompt .cvvHeader,
+.beepboxEditor .navigator-pane-host > .cvvPrompt .cvvHeaderStats {
+	flex-wrap: wrap !important;
+	min-width: 0;
+}
 .beepboxEditor .navigator-native-pane > .prompt-titlebar,
 .beepboxEditor .navigator-native-pane > .cancelButton,
 .beepboxEditor .navigator-native-pane > .prompt-button-row > .cancelButton {
