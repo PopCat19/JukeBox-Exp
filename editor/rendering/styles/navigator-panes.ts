@@ -100,7 +100,7 @@ export function buildNavigatorPanesCSS(): string {
 	flex: 1;
 	height: 32px;
 	padding: 0 var(--padding-10);
-	background: var(--tab-inactive-bg);
+	background: var(--ui-widget-background);
 	border: 2px solid transparent;
 	border-radius: 8px;
 	color: var(--tab-inactive-fg);

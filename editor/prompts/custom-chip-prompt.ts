@@ -28,6 +28,9 @@ export class CustomChipPromptCanvas {
 	private _lastAmp: number = 0;
 	private _mouseDown: boolean = false;
 	private _svgRect: DOMRect | null = null;
+	private readonly _invalidateSvgRect = (): void => {
+		this._svgRect = null;
+	};
 	public chipData: Float32Array = new Float32Array(64);
 	public startingChipData: Float32Array = new Float32Array(64);
 	private _undoHistoryState: number = 0;
@@ -123,8 +126,11 @@ export class CustomChipPromptCanvas {
 			this._doc.channel,
 		).primaryNote;
 
-		for (let i: number = 0; i <= 64; i++) {
-			const val: number = this._doc.getCurrentInstrumentObj().customChipWave[i];
+		const customChipWave: Float32Array = this._doc.getCurrentInstrumentObj().customChipWave;
+		for (let i: number = 0; i < this.chipData.length; i++) {
+			const sourceValue: number | undefined = customChipWave[i];
+			const val: number =
+				sourceValue !== undefined && Number.isFinite(sourceValue) ? sourceValue : 0;
 			this.chipData[i] = val;
 			this.startingChipData[i] = val;
 			this._blocks.appendChild(
@@ -143,11 +149,11 @@ export class CustomChipPromptCanvas {
 		this.container.addEventListener("mousedown", this._whenMousePressed);
 		document.addEventListener("mousemove", this._whenMouseMoved);
 		document.addEventListener("mouseup", this._whenCursorReleased);
-		window.addEventListener("scroll", () => (this._svgRect = null), {
+		window.addEventListener("scroll", this._invalidateSvgRect, {
 			capture: true,
 			passive: true,
 		});
-		window.addEventListener("resize", () => (this._svgRect = null), { passive: true });
+		window.addEventListener("resize", this._invalidateSvgRect, { passive: true });
 
 		this.container.addEventListener("touchstart", this._whenTouchPressed);
 		this.container.addEventListener("touchmove", this._whenTouchMoved);
@@ -332,6 +338,8 @@ export class CustomChipPromptCanvas {
 	public cleanUp(): void {
 		document.removeEventListener("mousemove", this._whenMouseMoved);
 		document.removeEventListener("mouseup", this._whenCursorReleased);
+		window.removeEventListener("scroll", this._invalidateSvgRect, { capture: true });
+		window.removeEventListener("resize", this._invalidateSvgRect);
 	}
 }
 

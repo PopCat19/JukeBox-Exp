@@ -922,6 +922,13 @@ describe("navigator shell", () => {
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-content \{[^}]*max-width: 100%[^}]*overflow-x: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-sidebar \{[^}]*box-sizing: border-box[^}]*max-width: 100%[^}]*overflow: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*max-width: 100%[^}]*flex-direction: row[^}]*overflow-x: auto/);
+		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-workspace,[^{]*\.navigator-pane-host \{[^}]*box-sizing: border-box[^}]*max-width: 100%/);
+		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-pane-host > \.sampleBrowserPrompt \.paneContainer \{[^}]*flex: 1 1 0 !important[^}]*flex-direction: column !important[^}]*height: auto !important[^}]*min-height: 320px[^}]*overflow: hidden !important/);
+		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-pane-host > \.sampleBrowserPrompt \.sbpLeftPane,[^{]*\.sbpRightPane \{[^}]*box-sizing: border-box[^}]*width: 100%[^}]*min-width: 0[^}]*min-height: 0/);
+		expect(css).toMatch(/\.navigator-pane-host > \.sampleBrowserPrompt \.sbpLeftPane \{[^}]*flex: 1 1 45%[^}]*max-height: 50%[^}]*overflow-x: hidden[^}]*overflow-y: auto/);
+		expect(css).toMatch(/\.navigator-pane-host > \.sampleBrowserPrompt \.sbpListContainer \{[^}]*flex: 1 1 0[^}]*min-height: 0/);
+		expect(css).toMatch(/\.navigator-pane-host > \.sampleBrowserPrompt \.sbpRightPane \{[^}]*flex: 1 1 55%[^}]*overflow-y: auto/);
+		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-pane-host > \.keyboardShortcutsPrompt \.shortcutDescText,[^{]*\.shortcutDetail \{[^}]*overflow: visible[^}]*white-space: normal[^}]*overflow-wrap: anywhere/);
 		expect(css).not.toMatch(/box-shadow|linear-gradient|radial-gradient/);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: auto/s);
 	});

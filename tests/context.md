@@ -62,7 +62,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `prompt-shell-contract.test.ts`, Structural contracts for harmonics, spectrum, and custom filter prompt titlebars and button rows
 - `prompt-drag.test.ts`, Behavioral tests for whole-surface prompt dragging, exclusions, clamping, cleanup, and PromptManager wiring
 - `svg-editor-rect-contract.test.ts`, Regression contracts for fresh graph editor geometry on press and cache invalidation on release
-- `svg-prompt-transaction-contract.test.ts`, Transaction contracts for discard restoration and save-before-close ordering in live SVG prompts
+- `svg-prompt-transaction-contract.test.ts`, Transaction contracts for discard restoration, save-before-close ordering, fixed 64-block custom chip geometry, malformed wave handling, and listener cleanup
 - `editor-selector-scope.test.ts`, Selector scoping guard: editor CSS class selectors must root under .beepboxEditor or be baseline-allowed page-level exceptions
 - `website-html-contract.test.ts`, Guard that 20 migrated website HTML pages keep semantic landmarks and reject inline style=, inline event handlers, and inline <style> blocks
 

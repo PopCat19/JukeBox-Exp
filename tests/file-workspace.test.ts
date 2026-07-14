@@ -61,6 +61,8 @@ describe("FileWorkspace", () => {
 		expect(css).toMatch(/\.navigator-project-data,[^{]*\.navigator-instrument-data \{[^}]*align-self: stretch[^}]*flex: 1 1 auto[^}]*width: 100%[^}]*min-width: 0[^}]*overflow: hidden/s);
 		expect(css).toMatch(/\.navigator-file-right-host,[^{]*\.navigator-instrument-host \{[^}]*display: flex[^}]*flex: 1 1 0[^}]*width: 100%[^}]*overflow: auto/s);
 		expect(css).toMatch(/\.navigator-file-tabs[^}]*max-width: 100%[^}]*overflow-x: auto[^}]*border-radius: 16px/s);
+		expect(css).toMatch(/\.navigator-file-tabs > \.tabButton \{[^}]*background: var\(--ui-widget-background\)[^}]*color: var\(--tab-inactive-fg\)/s);
+		expect(css).not.toMatch(/\.navigator-file-tabs > \.tabButton \{[^}]*background: var\(--tab-inactive-bg\)/s);
 		expect(css).toMatch(/\.navigator-file-tabs > \.tabButton\.active \{[^}]*background: var\(--cta-bg\)/s);
 		expect(css).not.toContain("navigator-file-left-host");
 	});

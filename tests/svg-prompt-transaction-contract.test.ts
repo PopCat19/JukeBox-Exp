@@ -7,7 +7,13 @@
 // - Verifies commit marks state saved before closing
 
 import { describe, expect, test } from "bun:test";
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { readFileSync } from "node:fs";
+import { CustomChipPromptCanvas } from "../editor/prompts/custom-chip-prompt";
+import type { SongDocument } from "../editor/song-document";
+import { ColorConfig } from "../shared/color-config";
+
+if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
 
 const managerSource = readFileSync("editor/core/prompt-manager.ts", "utf8");
 const filterEditorSource = readFileSync("editor/components/filter-editor.ts", "utf8");
@@ -40,6 +46,48 @@ function methodBody(source: string, signature: string): string {
 }
 
 describe("SVG prompt transactions", () => {
+	test("custom chip creates 64 finite blocks and removes window listeners", () => {
+		const customChipWave = new Float32Array(65);
+		customChipWave[1] = Number.NaN;
+		const doc = {
+			channel: 0,
+			song: { pitchChannelCount: 1, noiseChannelCount: 0 },
+			getCurrentInstrumentObj: () => ({ customChipWave }),
+		} as unknown as SongDocument;
+		const originalGetChannelColor = ColorConfig.getChannelColor;
+		const originalAddEventListener = window.addEventListener;
+		const originalRemoveEventListener = window.removeEventListener;
+		const added = new Map<string, EventListenerOrEventListenerObject>();
+		const removed = new Map<string, EventListenerOrEventListenerObject>();
+		window.addEventListener = ((type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean) => {
+			if (type === "scroll" || type === "resize") added.set(type, listener);
+			originalAddEventListener.call(window, type, listener, options);
+		}) as typeof window.addEventListener;
+		window.removeEventListener = ((type: string, listener: EventListenerOrEventListenerObject, options?: EventListenerOptions | boolean) => {
+			if (type === "scroll" || type === "resize") removed.set(type, listener);
+			originalRemoveEventListener.call(window, type, listener, options);
+		}) as typeof window.removeEventListener;
+		ColorConfig.getChannelColor = () => ({ primaryNote: "#fff" }) as ReturnType<typeof ColorConfig.getChannelColor>;
+		try {
+			const canvas = new CustomChipPromptCanvas(doc);
+			const blockLayer = canvas.container.querySelector("svg > svg:last-child");
+			const blocks = Array.from(blockLayer?.querySelectorAll("rect") ?? []);
+
+			expect(customChipWave.length).toBe(65);
+			expect(blocks.length).toBe(64);
+			for (const block of blocks) {
+				expect(Number.isFinite(Number(block.getAttribute("y")))).toBeTrue();
+			}
+			canvas.cleanUp();
+			expect(removed.get("scroll")).toBe(added.get("scroll"));
+			expect(removed.get("resize")).toBe(added.get("resize"));
+		} finally {
+			ColorConfig.getChannelColor = originalGetChannelColor;
+			window.addEventListener = originalAddEventListener;
+			window.removeEventListener = originalRemoveEventListener;
+		}
+	});
+
 	for (const [name, source] of Object.entries(sources)) {
 		test(`${name} discard is idempotent across close and cleanup`, () => {
 			const restore = methodBody(source, "_restoreOpeningState(): void");
