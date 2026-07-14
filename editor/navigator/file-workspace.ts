@@ -75,8 +75,21 @@ export class FileWorkspace {
 	}
 
 	deliverImportFile(file: File, rafWin?: Window): void {
-		if (this.importPrompt === null) throw new Error("Import workspace is not open");
-		this.importPrompt.handleExternalFile(file, rafWin);
+		const prompt = this.importPrompt;
+		if (prompt === null) throw new Error("Import workspace is not open");
+		const generation = this.generation;
+		const importGeneration = ++this.importGeneration;
+		prompt.handleExternalFile(
+			file,
+			rafWin,
+			() => {
+				void this.completeExternalImport(generation, importGeneration, prompt);
+			},
+			() =>
+				generation === this.generation &&
+				importGeneration === this.importGeneration &&
+				prompt === this.importPrompt,
+		);
 	}
 
 	close(): Promise<boolean> {
@@ -126,6 +139,24 @@ export class FileWorkspace {
 		this.importPrompt = null;
 		this.shell.setFileWorkspace(false);
 		return true;
+	}
+
+	private completeExternalImport(
+		generation: number,
+		importGeneration: number,
+		prompt: ImportPrompt,
+	): Promise<boolean> {
+		return this.serialize(async () => {
+			if (
+				generation !== this.generation ||
+				importGeneration !== this.importGeneration ||
+				prompt !== this.importPrompt ||
+				this.token === null ||
+				this.activeRoute.paneId !== "import"
+			)
+				return false;
+			return this.closeImpl();
+		});
 	}
 
 	private completeImport(generation: number, importGeneration: number): Promise<boolean> {

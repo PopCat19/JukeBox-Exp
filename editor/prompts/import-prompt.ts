@@ -9,7 +9,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { Note, type Song } from "../../synth";
+import { Note, Song } from "../../synth";
 import { clearSamples } from "../../synth/song-utilities";
 import { Config } from "../../synth/synth-config";
 import { ChangeReplacePatterns, ChangeSong, removeDuplicatePatterns } from "../changes";
@@ -19,6 +19,8 @@ import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, p, input, select, option, button } = HTML;
+
+type ImportCompletion = () => unknown;
 
 export class ImportPrompt extends BasePrompt {
 	private readonly _fileInput: HTMLInputElement = input({
@@ -43,6 +45,11 @@ export class ImportPrompt extends BasePrompt {
 		option({ value: "slarmoosbox" }, "Slarmoo's Box"),
 	);
 
+	private _operation = 0;
+	private _disposed = false;
+	private _activeReader: FileReader | null = null;
+	private _initialNodes: ChildNode[] = [];
+
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt importPrompt noSelection" },
 		h2("Import"),
@@ -63,14 +70,18 @@ export class ImportPrompt extends BasePrompt {
 	constructor(doc: SongDocument) {
 		super(doc);
 		this.buildTitlebar();
-		this._browseButton.addEventListener("click", () => {
-			this._fileInput.click();
-		});
+		this._initialNodes = Array.from(this.container.childNodes);
+		this._browseButton.addEventListener("click", this._whenBrowseClicked);
 		this._fileInput.addEventListener("change", this._whenFileSelected);
 	}
 
 	public override cleanUp(): void {
+		this._disposed = true;
+		this._operation++;
+		this._activeReader?.abort();
+		this._activeReader = null;
 		super.cleanUp();
+		this._browseButton.removeEventListener("click", this._whenBrowseClicked);
 		this._fileInput.removeEventListener("change", this._whenFileSelected);
 	}
 
@@ -78,69 +89,169 @@ export class ImportPrompt extends BasePrompt {
 		this._fileInput.click();
 	}
 
-	private _whenFileSelected = (): void => {
-		const file: File = this._fileInput.files![0];
-		if (!file) return;
-		this._handleFile(file);
+	private _whenBrowseClicked = (): void => {
+		this._fileInput.click();
 	};
 
-	private _handleFile(file: File, rafWin?: Window): void {
+	private _whenFileSelected = (): void => {
+		const file = this._fileInput.files?.[0];
+		if (!file) return;
+		this._handleFile(file, undefined, this._close as unknown as ImportCompletion, true);
+	};
+
+	private _beginOperation(): number {
+		this._activeReader?.abort();
+		this._activeReader = null;
+		return ++this._operation;
+	}
+
+	private _isCurrent(operation: number, isCurrent: () => boolean): boolean {
+		return !this._disposed && operation === this._operation && isCurrent();
+	}
+
+	private _handleFile(
+		file: File,
+		rafWin: Window | undefined,
+		onSuccess: ImportCompletion,
+		closeOnFailure: boolean,
+		externalPlaybackSnapshot?: boolean,
+		isCurrent: () => boolean = () => true,
+	): void {
+		const operation = this._beginOperation();
 		const fileName: string = file.name;
 		const extension: string = fileName
 			.slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2)
 			.toLowerCase();
 		if (extension === "json") {
-			const reader: FileReader = new FileReader();
-			reader.addEventListener("load", (_event: Event): void => {
-				this._showLoading();
+			const reader = new FileReader();
+			this._activeReader = reader;
+			reader.addEventListener("error", () => {
+				if (this._isCurrent(operation, isCurrent)) this._failImport(closeOnFailure);
+			});
+			reader.addEventListener("load", (): void => {
+				if (!this._isCurrent(operation, isCurrent)) return;
+				this._activeReader = null;
 				// Schedule the heavy ChangeSong on the provided window when
 				// given (the visible popup that received the drop), else the
 				// main window. The main window's rAF is throttled to ~1fps
 				// when backgrounded behind a popup, which previously deferred
 				// the load until the editor regained visibility.
 				//
-				// Do NOT set doc.prompt = null here. The original code did
-				// that to dismiss this prompt via the notifier sync, but
-				// sync(null) -> close(null) closes whichever prompt is
-				// focused at notify time. Under a concurrent second import
-				// (e.g. a second drop landing while this reader is still
-				// loading), the first import's record-notify would have
-				// already closed this prompt and refocused the prompt
-				// underneath; the second import's record-notify would then
-				// close that refocused prompt. Closing ourselves explicitly
-				// via _close() after record keeps the dismissal scoped to
-				// this prompt regardless of what is focused.
+				// Completion runs after the import commit. External delivery uses
+				// it to close the owning workspace with generation checks.
 				const raf: Window = rafWin ?? window;
 				raf.requestAnimationFrame(() => {
-					this._doc.goBackToStart();
-					this._doc.record(
-						new ChangeSong(
-							this._doc,
-							<string>reader.result,
-							this._modeImportSelect.value,
-						),
-						false,
-						true,
-					);
-					this._doc.notifier.notifyWatchers();
-					this._close();
+					if (!this._isCurrent(operation, isCurrent)) return;
+					try {
+						const songText = <string>reader.result;
+						this._validateJsonSong(songText);
+						if (!this._isCurrent(operation, isCurrent)) return;
+						this._showLoading();
+						this._doc.goBackToStart();
+						this._doc.record(
+							new ChangeSong(this._doc, songText, this._modeImportSelect.value),
+							false,
+							true,
+						);
+						this._doc.notifier.notifyWatchers();
+						void this._completeImport(
+							operation,
+							isCurrent,
+							externalPlaybackSnapshot,
+							onSuccess,
+						);
+					} catch (error) {
+						console.error("Failed to import song JSON.", error);
+						if (this._isCurrent(operation, isCurrent)) this._failImport(closeOnFailure);
+					}
 				});
 			});
 			reader.readAsText(file);
 		} else if (extension === "midi" || extension === "mid") {
-			const reader: FileReader = new FileReader();
-			reader.addEventListener("load", (_event: Event): void => {
-				this._parseMidiFile(<ArrayBuffer>reader.result, fileName);
+			const reader = new FileReader();
+			this._activeReader = reader;
+			reader.addEventListener("error", () => {
+				if (this._isCurrent(operation, isCurrent)) this._failImport(closeOnFailure);
+			});
+			reader.addEventListener("load", (): void => {
+				if (!this._isCurrent(operation, isCurrent)) return;
+				this._activeReader = null;
+				if (this._parseMidiFile(<ArrayBuffer>reader.result, fileName)) {
+					void this._completeImport(
+						operation,
+						isCurrent,
+						externalPlaybackSnapshot,
+						onSuccess,
+					);
+				} else this._failImport(closeOnFailure);
 			});
 			reader.readAsArrayBuffer(file);
 		} else {
 			console.error("Unrecognized file extension.");
-			this._close();
+			this._failImport(closeOnFailure);
 		}
 	}
 
-	public handleExternalFile(file: File, rafWin?: Window): void {
-		this._handleFile(file, rafWin);
+	public handleExternalFile(
+		file: File,
+		rafWin?: Window,
+		onSuccess: ImportCompletion = this._close as unknown as ImportCompletion,
+		isCurrent: () => boolean = () => true,
+	): void {
+		this._handleFile(file, rafWin, onSuccess, false, this._doc.synth.playing, isCurrent);
+	}
+
+	private async _completeImport(
+		operation: number,
+		isCurrent: () => boolean,
+		externalPlaybackSnapshot: boolean | undefined,
+		onSuccess: ImportCompletion,
+	): Promise<void> {
+		try {
+			if (!this._isCurrent(operation, isCurrent)) return;
+			if (externalPlaybackSnapshot !== undefined) {
+				this._doc.synth.pause();
+				this._doc.synth.goToBar(0);
+				if (externalPlaybackSnapshot) await this._doc.performance.play();
+			}
+			if (!this._isCurrent(operation, isCurrent)) return;
+			const closed = await onSuccess();
+			if (closed === false && this._isCurrent(operation, isCurrent)) {
+				this._restoreInitialUi();
+			}
+		} catch (error) {
+			console.error("Failed to restore transport after song import.", error);
+			if (this._isCurrent(operation, isCurrent)) this._restoreInitialUi();
+		}
+	}
+
+	private _validateJsonSong(songText: string): void {
+		let json: unknown;
+		try {
+			json = JSON.parse(songText);
+		} catch {
+			throw new Error("Invalid JSON syntax");
+		}
+		if (
+			typeof json !== "object" ||
+			json === null ||
+			!Array.isArray((json as { channels?: unknown }).channels) ||
+			(json as { channels: unknown[] }).channels.length === 0
+		) {
+			throw new Error("Song JSON must contain at least one channel");
+		}
+		const tempSong = new Song();
+		tempSong.fromJsonObject(json, this._modeImportSelect.value);
+		if (tempSong.channels.length === 0) throw new Error("Song JSON has no supported channels");
+	}
+
+	private _failImport(closeOnFailure: boolean): void {
+		this._restoreInitialUi();
+		if (closeOnFailure) this._close();
+	}
+
+	private _restoreInitialUi(): void {
+		this.container.replaceChildren(...this._initialNodes);
 	}
 
 	private _showLoading(): void {
@@ -153,12 +264,9 @@ export class ImportPrompt extends BasePrompt {
 		this.container.appendChild(loadingMsg);
 	}
 
-	private _parseMidiFile(buffer: ArrayBuffer, fileName?: string): void {
+	private _parseMidiFile(buffer: ArrayBuffer, fileName?: string): boolean {
 		const result = parseMidiFile(buffer, fileName);
-		if (result == null) {
-			this._close();
-			return;
-		}
+		if (result == null) return false;
 		const {
 			pitchChannels,
 			noiseChannels,
@@ -239,7 +347,9 @@ export class ImportPrompt extends BasePrompt {
 					}
 				}
 				if (finalFixed > 0)
-					console.warn("[MIDI Import] Final validation fixed " + finalFixed + " notes");
+					console.warn(
+						`[MIDI Import] Final validation fixed ${String(finalFixed)} notes`,
+					);
 				doc.synth.computeLatestModValues();
 				doc.synth.pause();
 				doc.synth.goToBar(0);
@@ -251,9 +361,6 @@ export class ImportPrompt extends BasePrompt {
 		for (const channel of this._doc.song.channels) channel.muted = false;
 		this._doc.record(new ChangeImportMidi(this._doc), false, true);
 		this._doc.notifier.notifyWatchers();
-		// Close this prompt explicitly rather than via doc.prompt = null;
-		// see _handleFile for the rationale (concurrent imports would
-		// otherwise close the wrong prompt on a stale notify).
-		this._close();
+		return true;
 	}
 }
