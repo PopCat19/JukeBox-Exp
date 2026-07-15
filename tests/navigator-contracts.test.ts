@@ -10,6 +10,7 @@ import { PromptPlaybackOwnership, PromptRootOwnership } from "../editor/core/pro
 import { PopoutDocumentSync } from "../editor/core/popout-document-sync";
 import { PromptPopout } from "../editor/core/prompt-popout";
 import { PromptFocusController } from "../editor/core/prompt-focus-controller";
+import { ColorConfig } from "../shared/color-config";
 import { applyPMDToDOM, pmdGenerateColors } from "../shared/pmd-adapter";
 import type { CloseDecision, CommandReference, HostLease, LeaveDecision, PaneHost, PaneLifecycle, SerializableValue } from "../editor/navigator/contracts";
 import { isSerializableValue, validateRetainedState } from "../editor/navigator/contracts";
@@ -19,6 +20,8 @@ import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
 import { buildPromptShellCSS } from "../editor/rendering/styles/prompt-shell";
 import { getExportPaneAuthority } from "../editor/prompts/export-prompt";
 import type { Prompt } from "../editor/prompts/prompt";
+import { ThemePrompt } from "../editor/prompts/theme-prompt";
+import { SongDocument } from "../editor/song-document";
 import { NavigatorDetachedHost } from "../editor/navigator/navigator-detached-host";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
@@ -1366,6 +1369,68 @@ describe("PromptPopout sync lifecycle", () => {
 	});
 });
 
+describe("attached Navigator theme lifecycle", () => {
+	test("preview and cancellation preserve attached ownership and restore theme", () => {
+		const priorStoredTheme = window.localStorage.getItem("colorTheme");
+		ColorConfig.setTheme(ColorConfig.defaultTheme);
+		const themeStyle = (ColorConfig as unknown as { _styleElement: HTMLStyleElement })
+			._styleElement;
+		const priorPresentation = themeStyle.textContent;
+		const priorRoot = document.documentElement;
+		window.localStorage.setItem("colorTheme", "forest");
+		ColorConfig.setTheme("forest");
+		const forestPresentation = themeStyle.textContent;
+		const prompt = new ThemePrompt(new SongDocument());
+		const owner = createPromptPaneOwner(
+			{ paneId: "theme" },
+			prompt,
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
+		);
+		const attachedHost: PaneHost = {
+			attach: (root) => { document.body.append(root.element); },
+			detach: (root) => { root.element.remove(); },
+		};
+		let mounted = false;
+		let restoredPresentation: string | null = null;
+		try {
+			owner.lifecycle.mount(attachedHost);
+			mounted = true;
+			const attachedRoot = owner.lifecycle.root.element;
+			const select = attachedRoot.querySelector("select") as HTMLSelectElement;
+			select.value = "nebula";
+			select.dispatchEvent(new Event("change"));
+			expect(owner.lifecycle.root.element).toBe(attachedRoot);
+			expect(document.body.contains(attachedRoot)).toBeTrue();
+			expect(themeStyle.textContent).not.toBe(forestPresentation);
+			const escape = new KeyboardEvent("keydown", {
+				key: "Escape",
+				bubbles: true,
+				cancelable: true,
+			});
+			Object.defineProperty(escape, "keyCode", { value: 27 });
+			attachedRoot.dispatchEvent(escape);
+			expect(themeStyle.textContent).toBe(forestPresentation);
+			expect(owner.lifecycle.root.element).toBe(attachedRoot);
+			expect(document.documentElement).toBe(priorRoot);
+		} finally {
+			try {
+				if (mounted) owner.lifecycle.unmount();
+			} finally {
+				try {
+					owner.lifecycle.dispose();
+				} finally {
+					ColorConfig.setTheme(priorStoredTheme ?? ColorConfig.defaultTheme);
+					restoredPresentation = themeStyle.textContent;
+					if (priorStoredTheme === null) window.localStorage.removeItem("colorTheme");
+					else window.localStorage.setItem("colorTheme", priorStoredTheme);
+				}
+			}
+		}
+		expect(restoredPresentation).toBe(priorPresentation);
+	});
+});
+
 describe("Navigator detached host theme sync", () => {
 	function openDetached(): { parent: Window; child: Window; host: NavigatorDetachedHost } {
 		const parent = new Window();
@@ -1572,6 +1637,60 @@ describe("branded owner operations", () => {
 		const token = ownership.open(pane);
 		expect(token.identity).toBe(pane.identity);
 		expect(typeof token.identity).toBe("string");
+	});
+});
+
+describe("Navigator Escape authority", () => {
+	test("child consumes first Escape before parent closes second", async () => {
+		const shell = new NavigatorShell();
+		document.body.append(shell.container);
+		let consume = true;
+		let parentCloses = 0;
+		let runtime: NavigatorRuntime;
+		const prompt: Prompt = {
+			id: 4401,
+			name: "escape-child",
+			container: document.createElement("div"),
+			discard: () => {},
+			cleanUp: () => {},
+			whenKeyPressed: (event) => {
+				if (consume) event.preventDefault();
+			},
+		};
+		runtime = new NavigatorRuntime(shell, (route) =>
+			createPromptPaneOwner(
+				route,
+				prompt,
+				() => runtime.closeNavigator(),
+				() => Promise.resolve(),
+			),
+		);
+		shell.container.addEventListener("keydown", (event) => {
+			if (event.key === "Escape" && !event.defaultPrevented) {
+				parentCloses++;
+				void runtime.closeNavigator();
+			}
+		});
+		try {
+			expect(await runtime.open({ paneId: "escape-child" })).toBeTrue();
+			prompt.container.dispatchEvent(new KeyboardEvent("keydown", {
+				key: "Escape",
+				bubbles: true,
+				cancelable: true,
+			}));
+			expect(parentCloses).toBe(0);
+			consume = false;
+			prompt.container.dispatchEvent(new KeyboardEvent("keydown", {
+				key: "Escape",
+				bubbles: true,
+				cancelable: true,
+			}));
+			await Promise.resolve();
+			expect(parentCloses).toBe(1);
+		} finally {
+			await runtime.closeNavigator();
+			shell.container.remove();
+		}
 	});
 });
 

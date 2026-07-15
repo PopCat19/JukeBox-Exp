@@ -47,6 +47,12 @@ export class AddSamplesPrompt extends BasePrompt {
 	private _lastInteraction: "keyboard" | "mouse" | "hover" | null = null;
 	private _activePane: "list" | "details" | null = "list";
 	private _hoveredPane: "list" | "details" | null = null;
+	private _scrollRAF: number | null = null;
+	private _scrollRAFWindow: Window = window;
+	private _scrollGeneration = 0;
+	private _paneActive = true;
+	private readonly _ownedTimers = new Set<ReturnType<typeof setTimeout>>();
+	private _disposed = false;
 
 	// Persistent UI
 	private _orderNote: HTMLParagraphElement;
@@ -298,9 +304,17 @@ export class AddSamplesPrompt extends BasePrompt {
 		this._reconfigureAddButton();
 		this._render();
 
-		setTimeout(() => {
+		this._setOwnedTimeout(() => {
 			this._searchInput.focus();
 		}, 100);
+	}
+
+	private _setOwnedTimeout(callback: () => void, delay = 0): void {
+		const timer = setTimeout(() => {
+			this._ownedTimers.delete(timer);
+			if (this._paneActive && !this._disposed) callback();
+		}, delay);
+		this._ownedTimers.add(timer);
 	}
 
 	private _hasUnsavedSampleChanges(): boolean {
@@ -324,8 +338,25 @@ export class AddSamplesPrompt extends BasePrompt {
 		return generateAllSampleURLs(this._entries);
 	}
 
+	public suspendPane(): void {
+		this._paneActive = false;
+		this._cancelScrollFrame();
+	}
+
+	public resumePane(): void {
+		if (this._disposed) return;
+		this._paneActive = true;
+		if (this._selectedIndex >= 0) this._scrollToSelected();
+	}
+
 	public override cleanUp(): void {
+		if (this._disposed) return;
+		this._disposed = true;
+		this._paneActive = false;
 		super.cleanUp();
+		this._cancelScrollFrame();
+		for (const timer of this._ownedTimers) clearTimeout(timer);
+		this._ownedTimers.clear();
 		const list = this._sampleList;
 		while (list.firstChild) list.removeChild(list.firstChild);
 	}
@@ -626,7 +657,7 @@ export class AddSamplesPrompt extends BasePrompt {
 		(this._leftPane.querySelector(".sbpBtnRow") as HTMLElement).style.display = "none";
 		(this._leftPane.querySelector(".sbpBulkOverlay") as HTMLElement).style.display = "flex";
 		this._bulkTextarea.value = "";
-		setTimeout(() => {
+		this._setOwnedTimeout(() => {
 			this._bulkTextarea.focus();
 		});
 	};
@@ -799,10 +830,32 @@ export class AddSamplesPrompt extends BasePrompt {
 		}
 	}
 
+	private _cancelScrollFrame(): void {
+		this._scrollGeneration++;
+		if (this._scrollRAF !== null) {
+			this._scrollRAFWindow.cancelAnimationFrame(this._scrollRAF);
+			this._scrollRAF = null;
+		}
+	}
+
 	private _scrollToSelected(): void {
-		requestAnimationFrame(() => {
+		if (!this._paneActive || this._disposed) return;
+		this._cancelScrollFrame();
+		const owner = (this.container.ownerDocument.defaultView as Window | null) ?? window;
+		const generation = ++this._scrollGeneration;
+		let id = 0;
+		id = owner.requestAnimationFrame(() => {
+			if (
+				generation !== this._scrollGeneration ||
+				owner !== this._scrollRAFWindow ||
+				id !== this._scrollRAF
+			)
+				return;
+			this._scrollRAF = null;
 			this._scrollItemIntoView(this._selectedIndex);
 		});
+		this._scrollRAFWindow = owner;
+		this._scrollRAF = id;
 	}
 
 	private _updateHighlight = (): void => {

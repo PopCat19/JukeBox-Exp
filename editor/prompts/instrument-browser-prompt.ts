@@ -80,8 +80,13 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 	private _hoveredPresetIndex: number | null = null;
 	private _lastInteraction: "hover" | "keyboard" | null = null;
 	private _infoPanelRAF: number | null = null;
+	private _infoPanelRAFWindow: Window = window;
+	private _infoPanelGeneration = 0;
+	private _paneActive = true;
 	private _commitTooltip: HTMLDivElement;
 	private _commitTooltipTimer: ReturnType<typeof setTimeout> | null = null;
+	private readonly _ownedTimers = new Set<ReturnType<typeof setTimeout>>();
+	private _disposed = false;
 	private _lastMouseX: number = 0;
 	private _lastMouseY: number = 0;
 
@@ -299,7 +304,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._renderPresets();
 			this._activePane = "presets";
 			this._updateHighlight();
-			setTimeout(() => {
+			this._setOwnedTimeout(() => {
 				this._scrollItemIntoView(
 					this._categoryItems,
 					this._selectedCategoryIndex,
@@ -338,10 +343,18 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 		this._switchToTab(this._openTab, false);
 
-		setTimeout(() => {
+		this._setOwnedTimeout(() => {
 			if (this._openTab === "presets") this._searchInput.focus();
 			else this._tagSearchInput.focus();
 		});
+	}
+
+	private _setOwnedTimeout(callback: () => void, delay = 0): void {
+		const timer = setTimeout(() => {
+			this._ownedTimers.delete(timer);
+			if (this._paneActive && !this._disposed) callback();
+		}, delay);
+		this._ownedTimers.add(timer);
 	}
 
 	public closeWithoutUndo = (): void => {
@@ -365,15 +378,15 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		}
 		if (focusSearch) {
 			if (tab === "presets") {
-				setTimeout(() => {
+				this._setOwnedTimeout(() => {
 					this._searchInput.focus();
 				});
 			} else if (tab === "types") {
-				setTimeout(() => {
+				this._setOwnedTimeout(() => {
 					(this._typesTabContent.firstChild as HTMLElement)?.focus();
 				});
 			} else {
-				setTimeout(() => {
+				this._setOwnedTimeout(() => {
 					this._tagSearchInput.focus();
 				});
 			}
@@ -471,6 +484,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			if (this._clickTimer) clearTimeout(this._clickTimer);
 			this._clickTarget = `${target}-${index}`;
 			this._clickTimer = setTimeout(() => {
+				if (!this._paneActive || this._disposed) return;
 				this._clickTimer = null;
 				this._clickTarget = null;
 			}, 300);
@@ -668,13 +682,23 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		}
 		// Info panel DOM rebuild is heavy. RAF to coalesce rapid
 		// mouse moves into a single frame update.
-		if (this._infoPanelRAF !== null) {
-			cancelAnimationFrame(this._infoPanelRAF);
-		}
-		this._infoPanelRAF = requestAnimationFrame(() => {
+		this._cancelInfoPanelFrame();
+		if (!this._paneActive || this._disposed) return;
+		const owner = (this.container.ownerDocument.defaultView as Window | null) ?? window;
+		const generation = ++this._infoPanelGeneration;
+		let id = 0;
+		id = owner.requestAnimationFrame(() => {
+			if (
+				generation !== this._infoPanelGeneration ||
+				owner !== this._infoPanelRAFWindow ||
+				id !== this._infoPanelRAF
+			)
+				return;
 			this._infoPanelRAF = null;
 			this._updateInfoPanel();
 		});
+		this._infoPanelRAFWindow = owner;
+		this._infoPanelRAF = id;
 	}
 
 	private _updateInfoPanel(): void {
@@ -878,6 +902,7 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 			this._commitTooltip.style.display = "block";
 			if (this._commitTooltipTimer !== null) clearTimeout(this._commitTooltipTimer);
 			this._commitTooltipTimer = setTimeout(() => {
+				if (!this._paneActive || this._disposed) return;
 				this._commitTooltip.style.display = "none";
 				this._commitTooltipTimer = null;
 			}, 1500);
@@ -1568,15 +1593,55 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 		this._lastMouseY = e.clientY;
 	};
 
+	private _cancelInfoPanelFrame(): void {
+		this._infoPanelGeneration++;
+		if (this._infoPanelRAF !== null) {
+			this._infoPanelRAFWindow.cancelAnimationFrame(this._infoPanelRAF);
+			this._infoPanelRAF = null;
+		}
+	}
+
+	public suspendPane(): void {
+		this._paneActive = false;
+		this._cancelInfoPanelFrame();
+		if (this._clickTimer !== null) {
+			clearTimeout(this._clickTimer);
+			this._clickTimer = null;
+		}
+		this._clickTarget = null;
+		if (this._commitTooltipTimer !== null) {
+			clearTimeout(this._commitTooltipTimer);
+			this._commitTooltipTimer = null;
+		}
+		this._commitTooltip.style.display = "none";
+	}
+
+	public resumePane(): void {
+		if (this._disposed) return;
+		this._paneActive = true;
+		this._updateHighlight();
+	}
+
 	public override cleanUp = (): void => {
+		if (this._disposed) return;
+		this._disposed = true;
+		this._paneActive = false;
 		super.cleanUp();
+		this._cancelInfoPanelFrame();
+		for (const timer of this._ownedTimers) clearTimeout(timer);
+		this._ownedTimers.clear();
 		document.removeEventListener("mousemove", this._onMouseMove);
 		if (this._commitTooltipTimer !== null) {
 			clearTimeout(this._commitTooltipTimer);
 			this._commitTooltipTimer = null;
 		}
+		this._commitTooltip.style.display = "none";
 		this._commitTooltip.remove();
-		if (this._clickTimer) clearTimeout(this._clickTimer);
+		if (this._clickTimer !== null) {
+			clearTimeout(this._clickTimer);
+			this._clickTimer = null;
+		}
+		this._clickTarget = null;
 		this._doc.notifier.unwatch(this._onDocumentChanged);
 		this._searchInput.removeEventListener("input", this._onSearchInput);
 		this._searchInput.removeEventListener("keydown", this._onSearchKeyDown);

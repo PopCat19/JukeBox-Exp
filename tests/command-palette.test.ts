@@ -6,8 +6,13 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { readFileSync } from "node:fs";
 import { CommandPalette } from "../editor/components/command-palette";
+import { ApplicationRouter } from "../editor/core/application-router";
+import type { KeyboardHandler, KeyboardHandlerHost } from "../editor/core/keyboard-handler";
 import type { MenuHandlerHost } from "../editor/core/menu-handler";
 import type { CommandExecutionContext } from "../editor/navigator/command-registry";
+import { canonicalRouteIdentity } from "../editor/navigator/route-identity";
+import type { Prompt } from "../editor/prompts/prompt";
+import { SongDocument } from "../editor/song-document";
 
 let registeredHappyDom = false;
 beforeAll(() => {
@@ -25,29 +30,208 @@ function setup(): {
 	readonly visits: number[];
 	readonly selections: [number, number][];
 	readonly routes: string[];
+	readonly state: {
+		bar: number;
+		selection: [number, number];
+		playhead: number;
+		prompt: string | null;
+		focus: string;
+	};
 } {
 	const visits: number[] = [];
 	const selections: [number, number][] = [];
 	const routes: string[] = [];
+	const state = {
+		bar: 7,
+		selection: [2, 5] as [number, number],
+		playhead: 3.25,
+		prompt: "navigator" as string | null,
+		focus: "stage",
+	};
 	const context: CommandExecutionContext = {
 		getBarCount: () => 64,
 		openNavigator: (route) => {
 			routes.push(route.paneId);
+			state.prompt = route.paneId;
+			state.focus = "navigator";
 			return Promise.resolve();
 		},
-		goToBar: (bar) => visits.push(bar),
-		selectBars: (first, last) => selections.push([first, last]),
+		goToBar: (bar) => {
+			visits.push(bar);
+			state.bar = bar;
+			state.playhead = bar;
+		},
+		selectBars: (first, last) => {
+			selections.push([first, last]);
+			state.selection = [first, last];
+		},
 	};
 	const palette = new CommandPalette(context, () => undefined);
 	document.body.append(palette.container);
-	return { palette, visits, selections, routes };
+	return { palette, visits, selections, routes, state };
 }
 
 function enter(input: HTMLInputElement): void {
 	input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
 }
 
+function keyboardEvent(
+	key: string,
+	keyCode: number,
+	target?: HTMLElement,
+	options: KeyboardEventInit = {},
+): KeyboardEvent {
+	const event = new KeyboardEvent("keydown", {
+		key,
+		bubbles: true,
+		cancelable: true,
+		...options,
+	});
+	Object.defineProperty(event, "keyCode", { value: keyCode });
+	if (target !== undefined) Object.defineProperty(event, "target", { value: target });
+	return event;
+}
+
+type KeyboardHandlerConstructor = new (host: KeyboardHandlerHost) => KeyboardHandler;
+
+function keyboardHarness(KeyboardHandlerClass: KeyboardHandlerConstructor, prompt: Prompt | null = null): {
+	readonly handler: KeyboardHandler;
+	readonly effects: string[];
+	readonly doc: SongDocument;
+} {
+	const effects: string[] = [];
+	const doc = new SongDocument();
+	const mainLayer = document.createElement("div");
+	const input = document.createElement("input");
+	const patternEditor = {
+		editingModLabel: false,
+		shiftMode: false,
+		handleTrackerKey: () => false,
+		setTrackerMode: () => {},
+	};
+	const host = new Proxy({
+		doc,
+		mainLayer,
+		prompt,
+		patternEditor,
+		muteEditor: {},
+		envelopeEditor: {
+			pitchStartBoxes: [], pitchEndBoxes: [], perEnvelopeLowerBoundBoxes: [],
+			perEnvelopeUpperBoundBoxes: [], randomStepsBoxes: [], LFOStepsBoxes: [],
+		},
+		keyboardLayout: { handleKeyEvent: () => effects.push("note") },
+		promptShouldReceiveKeys: () => true,
+		closePrompt: () => effects.push("close"),
+		openCommandPalette: () => effects.push("palette"),
+		openShortcuts: () => effects.push("shortcuts"),
+		setCtrlHeld: () => {},
+		setShiftHeld: () => {},
+		songTitleInputBox: input,
+		tempoStepper: input,
+		upperNoteLimitInputBox: input,
+		lowerNoteLimitInputBox: input,
+		panSliderInputBox: input,
+		pwmSliderInputBox: input,
+		detuneSliderInputBox: input,
+		instrumentVolumeSliderInputBox: input,
+		chipWaveLoopStartStepper: input,
+		chipWaveLoopEndStepper: input,
+		chipWaveStartOffsetStepper: input,
+		octaveStepper: input,
+		unisonVoicesInputBox: input,
+		unisonSpreadInputBox: input,
+		unisonOffsetInputBox: input,
+		unisonExpressionInputBox: input,
+		unisonSignInputBox: input,
+		monophonicNoteInputBox: input,
+	}, {
+		get(target, property) {
+			if (property in target) return target[property as keyof typeof target];
+			return () => {};
+		},
+	}) as unknown as KeyboardHandlerHost;
+	return { handler: new KeyboardHandlerClass(host), effects, doc };
+}
+
 describe("command palette", () => {
+	test("menu and keybinding converge on canonical Navigator identity", async () => {
+		const { KeyboardHandler } = await import("../editor/core/keyboard-handler");
+		const { MenuHandler } = await import("../editor/core/menu-handler");
+		const identities: string[] = [];
+		const router = new ApplicationRouter({
+			openGlobal: () => {},
+			navigator: {
+				open: (route) => {
+					identities.push(canonicalRouteIdentity(route));
+					return Promise.resolve(true);
+				},
+				focus: () => {},
+			},
+		});
+		const key = keyboardHarness(KeyboardHandler);
+		(key.handler as unknown as { _host: KeyboardHandlerHost })._host.openPrompt =
+			(scope) => { void router.routePrompt(scope); };
+		key.handler.handleKeyDown(keyboardEvent("s", 83, undefined, { ctrlKey: true }));
+		const menuHost = {
+			doc: key.doc,
+			openPrompt: (scope: string) => { void router.routePrompt(scope); },
+			openShortcuts: () => {},
+			openCommandPalette: () => {},
+			copyTextToClipboard: () => {},
+			refocusStage: () => {},
+		};
+		const fileMenu = document.createElement("select");
+		for (const [label, value] of [["", ""], ["Export", "export"], ["Share", "shareUrl"]]) {
+			const option = document.createElement("option");
+			option.textContent = label;
+			option.value = value;
+			fileMenu.append(option);
+		}
+		const editMenu = document.createElement("select");
+		const optionsMenu = document.createElement("select");
+		new MenuHandler(menuHost, fileMenu, editMenu, optionsMenu);
+		fileMenu.value = "export";
+		fileMenu.dispatchEvent(new Event("change"));
+		await Promise.resolve();
+		expect(identities).toEqual([
+			canonicalRouteIdentity({ paneId: "export" }),
+			canonicalRouteIdentity({ paneId: "export" }),
+		]);
+	});
+
+	test("slash opens only on ordinary stage through production KeyboardHandler", async () => {
+		const { KeyboardHandler } = await import("../editor/core/keyboard-handler");
+		const recording = keyboardHarness(KeyboardHandler);
+		Object.defineProperty(recording.doc.synth, "recording", { configurable: true, value: true });
+		recording.handler.handleKeyDown(keyboardEvent("/", 191));
+		expect(recording.effects).toEqual(["note"]);
+
+		const liveNote = keyboardHarness(KeyboardHandler);
+		liveNote.doc.prefs.pressControlForShortcuts = true;
+		liveNote.handler.handleKeyDown(keyboardEvent("/", 191));
+		expect(liveNote.effects).toEqual(["note"]);
+
+		const ownedPrompt = keyboardHarness(KeyboardHandler, {
+			id: 2,
+			name: "child",
+			container: document.createElement("div"),
+			discard: () => {},
+			cleanUp: () => {},
+		});
+		ownedPrompt.handler.handleKeyDown(keyboardEvent("/", 191, undefined, { ctrlKey: true }));
+		expect(ownedPrompt.effects).toEqual([]);
+
+		for (const target of [document.createElement("input"), document.createElement("div")]) {
+			if (target.tagName === "DIV") target.contentEditable = "true";
+			const editable = keyboardHarness(KeyboardHandler);
+			editable.handler.handleKeyDown(keyboardEvent("/", 191, target, { ctrlKey: true }));
+			expect(editable.effects).toEqual([]);
+		}
+
+		const ordinary = keyboardHarness(KeyboardHandler);
+		ordinary.handler.handleKeyDown(keyboardEvent("/", 191, undefined, { ctrlKey: true }));
+		expect(ordinary.effects).toEqual(["palette"]);
+	});
 	test("renders only input, compact results, hint, and error", () => {
 		const { palette } = setup();
 		expect(Array.from(palette.container.children, (child) => child.className)).toEqual([
@@ -190,8 +374,9 @@ describe("command palette", () => {
 		expect(editor).not.toContain("this.doc.selection.boxSelectionX1 = lastBar");
 	});
 
-	test("Escape cancels without executing", () => {
-		const { palette, visits, selections, routes } = setup();
+	test("Escape cancels without changing editor-facing state", () => {
+		const { palette, visits, selections, routes, state } = setup();
+		const before = structuredClone(state);
 		palette.open();
 		const input = palette.container.querySelector("input")!;
 		input.value = "select 4..12";
@@ -200,5 +385,6 @@ describe("command palette", () => {
 		expect(visits).toEqual([]);
 		expect(selections).toEqual([]);
 		expect(routes).toEqual([]);
+		expect(state).toEqual(before);
 	});
 });

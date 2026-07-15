@@ -152,6 +152,7 @@ function formatTime(seconds: number): string {
 
 export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _animationId: number = 0;
+	private _animationGeneration: number = 0;
 	// Window the current rAF id is scheduled on. Tracked so cancel targets the
 	// correct window (main and popout have separate rAF id spaces) and so the
 	// animate loop reschedules on whichever window currently hosts the container.
@@ -161,6 +162,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// reads (outVolumeCap, per-channel audioRing, playhead) is written by the
 	// AudioWorklet on the audio thread, independent of either window's visibility.
 	private _rafWin: Window = window;
+	private _paneActive = true;
+	private _disposed = false;
+	private readonly _ownedTimers = new Set<ReturnType<typeof setTimeout>>();
+	private _dragWindow: Window | null = null;
+	private _dragMoveListener: ((event: PointerEvent) => void) | null = null;
+	private _dragUpListener: (() => void) | null = null;
 
 	private readonly _contentContainer: HTMLDivElement = div({
 		class: "cvvContentGrid",
@@ -532,7 +539,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	) {
 		super(doc);
 		this.buildTitlebar();
-		this._animate = this._animate.bind(this);
 		this._onDocChange = this._renderChannelList.bind(this);
 		this._doc.notifier.watch(this._onDocChange);
 		this._onThemeChange = this._refreshSpectrumColors.bind(this);
@@ -549,10 +555,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// and reschedule on whichever window owns the container now.
 		this._popoutObserver = new MutationObserver(() => {
 			const attr = this.container.getAttribute("data-popout");
-			if (attr === "true" || attr === null) {
-				// Reschedule on the current owner window (popout on adoption,
-				// main window on close). Cancel the old one first.
-				this._rafWin.cancelAnimationFrame(this._animationId);
+			if ((attr === "true" || attr === null) && this._paneActive && !this._disposed) {
+				this._cancelFrame();
 				this._scheduleFrame();
 			}
 		});
@@ -566,7 +570,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._loopButton.addEventListener("mouseenter", this._onLoopMouseEnter);
 		this._loopButton.addEventListener("mouseleave", this._updateLoopButton);
 		this._scrubTrack.addEventListener("pointerdown", this._onScrubPointerDown);
-		setTimeout(() => {
+		this._setOwnedTimeout(() => {
 			this.container.focus();
 		});
 
@@ -653,6 +657,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// docking happens after the last render and the pane style would
 		// otherwise stay stale until the next doc change.
 		this._dockClassObserver = new MutationObserver(() => {
+			if (!this._paneActive || this._disposed) return;
 			this._applyChannelsPaneScroll(this._channelDivs.size);
 		});
 		this._dockClassObserver.observe(this.container, {
@@ -662,6 +667,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	}
 
 	private _onThemeChange!: (name: string) => void;
+
+	private _setOwnedTimeout(callback: () => void, delay = 0): void {
+		const timer = setTimeout(() => {
+			this._ownedTimers.delete(timer);
+			if (this._paneActive && !this._disposed) callback();
+		}, delay);
+		this._ownedTimers.add(timer);
+	}
 
 	private _togglePlayPause = (): void => {
 		// Any explicit play/pause action cancels a pending shift+click
@@ -712,6 +725,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._updatePlayPauseButton();
 		this._scheduledPlayTimer = setTimeout(() => {
 			this._scheduledPlayTimer = null;
+			if (this._disposed) return;
 			this._doc.performance.play();
 			this._updatePlayPauseButton();
 		}, 3000);
@@ -755,18 +769,31 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._scrubDragging = true;
 		this._seekToPointer(event.clientX);
 		const win = (this.container.ownerDocument.defaultView as Window | null) ?? window;
-		const onMove = (e: PointerEvent): void => {
+		this._removeDragListeners();
+		this._dragWindow = win;
+		this._dragMoveListener = (e: PointerEvent): void => {
 			if (!this._scrubDragging) return;
 			this._seekToPointer(e.clientX);
 		};
-		const onUp = (): void => {
+		this._dragUpListener = (): void => {
 			this._scrubDragging = false;
-			win.removeEventListener("pointermove", onMove);
-			win.removeEventListener("pointerup", onUp);
+			this._removeDragListeners();
 		};
-		win.addEventListener("pointermove", onMove);
-		win.addEventListener("pointerup", onUp);
+		win.addEventListener("pointermove", this._dragMoveListener);
+		win.addEventListener("pointerup", this._dragUpListener);
 	};
+
+	private _removeDragListeners(): void {
+		if (this._dragWindow !== null && this._dragMoveListener !== null) {
+			this._dragWindow.removeEventListener("pointermove", this._dragMoveListener);
+		}
+		if (this._dragWindow !== null && this._dragUpListener !== null) {
+			this._dragWindow.removeEventListener("pointerup", this._dragUpListener);
+		}
+		this._dragWindow = null;
+		this._dragMoveListener = null;
+		this._dragUpListener = null;
+	}
 
 	private _updatePlayPauseButton = (): void => {
 		this._playPauseButton.textContent = this._doc.synth.playing ? "⏸" : "▶";
@@ -814,11 +841,11 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	}
 
 	public suspendPane(): void {
+		this._paneActive = false;
 		this._doc.synth.channelAudioCaptureEnabled = false;
-		if (this._animationId !== 0) {
-			this._rafWin.cancelAnimationFrame(this._animationId);
-			this._animationId = 0;
-		}
+		this._cancelFrame();
+		this._removeDragListeners();
+		this._scrubDragging = false;
 		if (this._scheduledPlayTimer !== null) {
 			clearTimeout(this._scheduledPlayTimer);
 			this._scheduledPlayTimer = null;
@@ -827,12 +854,17 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	}
 
 	public resumePane(): void {
+		if (this._disposed) return;
+		this._paneActive = true;
 		this._doc.synth.channelAudioCaptureEnabled = true;
 		this._setupResizeObserver();
 		if (this._animationId === 0) this._scheduleFrame();
 	}
 
 	public override cleanUp = (): void => {
+		if (this._disposed) return;
+		this._disposed = true;
+		this._paneActive = false;
 		super.cleanUp();
 		this._doc.synth.channelAudioCaptureEnabled = false;
 		this._doc.notifier.unwatch(this._onDocChange);
@@ -845,15 +877,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._dockClassObserver.disconnect();
 			this._dockClassObserver = null;
 		}
-		if (this._animationId !== 0) {
-			try {
-				this._rafWin.cancelAnimationFrame(this._animationId);
-			} catch {
-				// The rAF window may already be closed (popout X-button close path);
-				// a closed window auto-cancels its pending rAF callbacks on close.
-			}
-			this._animationId = 0;
+		if (this._popoutObserver != null) {
+			this._popoutObserver.disconnect();
+			this._popoutObserver = null;
 		}
+		this._removeDragListeners();
+		this._cancelFrame();
+		for (const timer of this._ownedTimers) clearTimeout(timer);
+		this._ownedTimers.clear();
 		// Cancel any pending shift+click scheduled play so the timer
 		// cannot fire performance.play() after the prompt is torn down.
 		if (this._scheduledPlayTimer != null) {
@@ -896,12 +927,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._scrubTrack.removeEventListener("pointerdown", this._onScrubPointerDown);
 		this._songEditor.muteEditor.setHoveredChannel(-1);
 		this._songEditor.trackEditor.setHoveredChannel(-1);
-		// Invalidate cached bounding rects in other components
-		// Use setTimeout to ensure DOM has settled after prompt removal
-		setTimeout(() => {
-			window.dispatchEvent(new Event("resize"));
-			window.dispatchEvent(new Event("scroll"));
-		}, 0);
+		window.dispatchEvent(new Event("resize"));
+		window.dispatchEvent(new Event("scroll"));
 	};
 
 	private _onDocChange!: () => void;
@@ -1058,12 +1085,40 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// has been adopted into it, otherwise the main window. Falling back to the
 	// main window covers the close path where the container may be momentarily
 	// detached. Tracking _rafWin lets cleanUp cancel on the same window.
-	private _scheduleFrame(): void {
-		this._rafWin = (this.container.ownerDocument.defaultView as Window | null) ?? window;
-		this._animationId = this._rafWin.requestAnimationFrame(this._animate);
+	private _cancelFrame(): void {
+		this._animationGeneration++;
+		const id = this._animationId;
+		const owner = this._rafWin;
+		this._animationId = 0;
+		if (id === 0) return;
+		try {
+			owner.cancelAnimationFrame(id);
+		} catch {
+			// A closed popout window releases its own frame queue.
+		}
 	}
 
-	private _animate = (): void => {
+	private _scheduleFrame(): void {
+		if (!this._paneActive || this._disposed || this._animationId !== 0) return;
+		const owner = (this.container.ownerDocument.defaultView as Window | null) ?? window;
+		const generation = ++this._animationGeneration;
+		let id = 0;
+		id = owner.requestAnimationFrame(() => {
+			if (
+				generation !== this._animationGeneration ||
+				owner !== this._rafWin ||
+				id !== this._animationId
+			)
+				return;
+			this._animationId = 0;
+			this._animate();
+		});
+		this._rafWin = owner;
+		this._animationId = id;
+	}
+
+	private _animate(): void {
+		if (!this._paneActive || this._disposed) return;
 		// Show spectrum only when popped out; when docked the editor's
 		// main spectrum already fills the viewport.
 		const isPopout = this.container.ownerDocument.defaultView !== window;
@@ -1746,7 +1801,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._spectrumFrameToggle = !this._spectrumFrameToggle;
 		this._playerFrameToggle = !this._playerFrameToggle;
 		this._scheduleFrame();
-	};
+	}
 
 	private _renderChannelList = (): void => {
 		const song = this._doc.song;
@@ -2051,9 +2106,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	private _setupResizeObserver(): void {
 		if (this._resizeObserver != null) {
 			this._resizeObserver.disconnect();
+			this._resizeObserver = null;
 		}
+		if (!this._paneActive || this._disposed) return;
 		const dpr = window.devicePixelRatio || 1;
 		const measure = (): void => {
+			if (this._disposed || !this._paneActive) return;
 			for (const [channelIndex, cvs] of this._channelSpectrumCanvases) {
 				const parent = cvs.parentElement;
 				if (parent) {

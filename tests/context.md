@@ -7,7 +7,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `test-helpers.ts`, Shared test fixtures (Song factories, assertion helpers)
 - `TESTING.md`, Conventions doc + source-to-test cross-reference table
 - `application-router.test.ts`, Behavioral and structural tests for all-scope Navigator routing, funnel convergence, immutable context, and ordered import delivery
-- `command-palette.test.ts`, Behavioral tests for compact rendering, execution close, inline errors, and Escape cancellation
+- `command-palette.test.ts`, Behavioral tests for rendering, state-preserving Escape, prompt Escape order, slash guards, and menu/key route convergence
 - `command-registry.test.ts`, Behavioral tests for shared command metadata, fuzzy ranking, routing, and one-based bar conversion
 - `barrel-exports.test.ts`, Barrel re-export contract tests for synth, editor/ui, shared
 - `interactions-behavior.test.ts`, Behavioral tests for editor/ui/interactions.ts using a hand-rolled DOM mock (classList adds/removes, style custom props, dataset writes, native disabled property writes, setDisabled helper, tagged style injection dedupe)
@@ -16,11 +16,12 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `dsp-utils.test.ts`, Unit tests for pure DSP utility functions (applyFilters, sanitizeDelayLine, findRandomZeroCrossing)
 - `filtering.test.ts`, Unit tests for digital filter coefficient computation and frequency response
 - `input-inventory.test.ts`, Unit tests for input binding inventory and concern modules
-- `navigator-contracts.test.ts`, Behavioral tests for canonical route identity, native content extraction, attached full-size geometry without inner outlines, detached root theme sync and disposal, bounded shell layout, searchable routing, cleanup/focus, generation-safe ownership, and host transfer
+- `navigator-contracts.test.ts`, Behavioral tests for canonical identity, native extraction, attached theme preview/cancellation, detached theme sync, shell layout, cleanup, ownership, and host transfer
 - `file-workspace.test.ts`, File aggregate composition, full-size active host geometry, Import refresh, focus deduplication, detach lockout, and transactional right-tab replacement
 - `instrument-workspace.test.ts`, Instrument Data composition, full-size active host geometry, transactional tabs, denial, serialization, Escape, stale callbacks, and responsive CVV scope
 - `navigator-mode-coordinator.test.ts`, Serialized normal/File/Instrument transitions, denial, route races, and queued close/open behavior
 - `navigator-dock.test.ts`, Shared PromptDock edge snap, padding, undock, cleanup, mobile fallback, and prompt regression behavior
+- `stress-pane-lifecycle.test.ts`, Behavioral fake-frame lifecycle coverage for Navigator stress panes from issue #44
 - `workspace-runtime.test.ts`, Transactional aggregate pane ownership, preflight, rollback, duplicate, detach, and stale-token tests
 - `notes.test.ts`, Unit tests for note and pattern data structures
 - `pattern-editor-contract.test.ts`, Structural contract tests for pattern-editor.ts rendering invariants (stale canvas path, SVG/canvas y-center alignment)
