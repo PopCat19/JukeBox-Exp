@@ -383,7 +383,10 @@ const PICKER_BTN_STYLE =
 export class PalettePrompt extends BasePrompt {
 	private readonly _slots: ColorSlot[] = buildColorSlots();
 	private readonly _values: Map<string, string>;
+	private readonly _initialCss: string;
+	private readonly _initialPreviewCss: string | null;
 	private _activePicker: HTMLElement | null = null;
+	private _committed = false;
 
 	private readonly _scrollArea: HTMLDivElement = div({
 		style: "flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: 4px;",
@@ -424,6 +427,9 @@ export class PalettePrompt extends BasePrompt {
 		this.buildTitlebar();
 
 		const storedCss = getStoredCss();
+		this._initialPreviewCss =
+			document.head.querySelector<HTMLStyleElement>("style[data-jb-style='palette-preview']")
+				?.textContent ?? null;
 		this._values = parseCustomCss(storedCss);
 
 		for (const slot of this._slots) {
@@ -431,6 +437,7 @@ export class PalettePrompt extends BasePrompt {
 				this._values.set(slot.varName, slot.defaultValue);
 			}
 		}
+		this._initialCss = mapToCss(this._values);
 
 		this._renderAll();
 		applyCssToDoc(mapToCss(this._values));
@@ -636,18 +643,33 @@ export class PalettePrompt extends BasePrompt {
 	}
 
 	protected override _close = (): void => {
-		removePreviewCss();
-		this._closePicker();
-		this._doc.prompt = null;
+		this.discard();
+		this._finishClose();
 	};
+
+	public override discard(): void {
+		if (this._committed) return;
+		if (this._initialPreviewCss === null) removePreviewCss();
+		else applyCssToDoc(this._initialPreviewCss);
+		this._closePicker();
+	}
+
+	public requestPaneLeave(): boolean {
+		return this._requestDiscard();
+	}
+
+	public requestPaneClose(): boolean {
+		return this._requestDiscard();
+	}
 
 	public override cleanUp(): void {
 		super.cleanUp();
-		removePreviewCss();
+		this.discard();
 		this._closePicker();
 	}
 
 	protected override _saveChanges(): void {
+		this._committed = true;
 		const css = mapToCss(this._values);
 		localStorage.setItem("customColors", css);
 		window.localStorage.setItem("colorTheme", "custom");
@@ -656,9 +678,22 @@ export class PalettePrompt extends BasePrompt {
 		this._doc.prefs.colorTheme = "custom";
 		this._doc.prefs.save();
 
-		this._doc.prompt = null;
+		this._finishClose();
 		setTimeout(() => {
 			window.location.reload();
 		}, 50);
+	}
+
+	private _finishClose(): void {
+		if (this.closeCallback) this.closeCallback(this);
+		else this._doc.prompt = null;
+	}
+
+	private _requestDiscard(): boolean {
+		return (
+			this._committed ||
+			mapToCss(this._values) === this._initialCss ||
+			window.confirm("Discard unsaved palette changes?")
+		);
 	}
 }

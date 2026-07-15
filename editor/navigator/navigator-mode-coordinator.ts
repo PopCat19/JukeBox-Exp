@@ -3,6 +3,7 @@
 import type { PaneRoute } from "./contracts";
 import type { FileRouteId } from "./file-workspace";
 import type { InstrumentRouteId } from "./instrument-workspace";
+import type { VisualRouteId } from "./visual-workspace";
 
 export interface NormalNavigatorMode {
 	open(route: PaneRoute): Promise<boolean>;
@@ -17,8 +18,9 @@ export interface AggregateNavigatorMode<RouteId extends string> {
 
 export type FileNavigatorMode = AggregateNavigatorMode<FileRouteId>;
 export type InstrumentNavigatorMode = AggregateNavigatorMode<InstrumentRouteId>;
+export type VisualNavigatorMode = AggregateNavigatorMode<VisualRouteId>;
 
-type NavigatorMode = "normal" | "file" | "instrument" | "none";
+type NavigatorMode = "normal" | "file" | "instrument" | "visual" | "none";
 
 export class NavigatorTransitionError extends Error {
 	constructor(
@@ -32,6 +34,7 @@ export class NavigatorTransitionError extends Error {
 
 const instrumentRoutes: readonly string[] = ["importInstrument", "exportInstrument"];
 const fileRoutes: readonly string[] = ["import", "export", "songRecovery"];
+const visualRoutes: readonly string[] = ["theme", "customTheme", "customThemeRaw"];
 
 export class NavigatorModeCoordinator {
 	private queue: Promise<unknown> = Promise.resolve();
@@ -39,11 +42,13 @@ export class NavigatorModeCoordinator {
 	private normalRoute: PaneRoute | null = null;
 	private fileRoute: FileRouteId = "export";
 	private instrumentRoute: InstrumentRouteId = "importInstrument";
+	private visualRoute: VisualRouteId = "theme";
 
 	constructor(
 		private readonly normal: NormalNavigatorMode,
 		private readonly file: FileNavigatorMode,
 		private readonly instrument?: InstrumentNavigatorMode,
+		private readonly visual?: VisualNavigatorMode,
 	) {}
 
 	open(route: PaneRoute): Promise<boolean> {
@@ -77,6 +82,7 @@ export class NavigatorModeCoordinator {
 
 	private modeFor(route: PaneRoute): NavigatorMode {
 		if (fileRoutes.includes(route.paneId)) return "file";
+		if (visualRoutes.includes(route.paneId) && this.visual !== undefined) return "visual";
 		if (instrumentRoutes.includes(route.paneId) && this.instrument !== undefined)
 			return "instrument";
 		return "normal";
@@ -85,6 +91,7 @@ export class NavigatorModeCoordinator {
 	private detectMode(): NavigatorMode {
 		if (this.file.isOpen()) return "file";
 		if (this.instrument?.isOpen()) return "instrument";
+		if (this.visual?.isOpen()) return "visual";
 		return this.mode;
 	}
 
@@ -94,6 +101,8 @@ export class NavigatorModeCoordinator {
 				return this.file.close();
 			case "instrument":
 				return this.instrument?.close() ?? true;
+			case "visual":
+				return this.visual?.close() ?? true;
 			case "normal":
 				return this.normal.closeNavigator();
 			case "none":
@@ -119,6 +128,16 @@ export class NavigatorModeCoordinator {
 				if (opened) {
 					this.instrumentRoute = instrumentRoute;
 					this.mode = "instrument";
+				}
+				return opened;
+			}
+			case "visual": {
+				if (this.visual === undefined) return false;
+				const visualRoute = route.paneId as VisualRouteId;
+				const opened = await this.visual.open(visualRoute);
+				if (opened) {
+					this.visualRoute = visualRoute;
+					this.mode = "visual";
 				}
 				return opened;
 			}
@@ -156,6 +175,10 @@ export class NavigatorModeCoordinator {
 					return false;
 				this.mode = "instrument";
 				return true;
+			case "visual":
+				if (!this.visual || !(await this.visual.open(this.visualRoute))) return false;
+				this.mode = "visual";
+				return true;
 			case "normal":
 				if (this.normalRoute === null || !(await this.normal.open(this.normalRoute)))
 					return false;
@@ -169,6 +192,7 @@ export class NavigatorModeCoordinator {
 	private actualAggregateMode(): NavigatorMode {
 		if (this.file.isOpen()) return "file";
 		if (this.instrument?.isOpen()) return "instrument";
+		if (this.visual?.isOpen()) return "visual";
 		return "none";
 	}
 

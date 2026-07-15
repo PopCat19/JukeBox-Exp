@@ -142,6 +142,9 @@ export class ThemePrompt extends BasePrompt {
 		this._cancelButton,
 	);
 	private readonly lastTheme: string | null = window.localStorage.getItem("colorTheme");
+	private readonly lastHue: number = ColorConfig.pmdHue;
+	private readonly lastDark: boolean = ColorConfig.pmdDark;
+	private committed = false;
 
 	constructor(doc: SongDocument) {
 		super(doc);
@@ -183,19 +186,52 @@ export class ThemePrompt extends BasePrompt {
 	}
 
 	protected override _close = (): void => {
-		if (this.lastTheme != null) {
-			ColorConfig.setTheme(this.lastTheme);
-		} else {
-			ColorConfig.setTheme(ColorConfig.defaultTheme);
-		}
-		this._doc.prompt = null;
+		this.discard();
+		this._finishClose();
 	};
 
+	public override discard(): void {
+		if (this.committed) return;
+		if (this.lastTheme != null) window.localStorage.setItem("colorTheme", this.lastTheme);
+		else window.localStorage.removeItem("colorTheme");
+		ColorConfig.setPMD(this.lastHue, this.lastDark);
+		ColorConfig.setTheme(this.lastTheme ?? ColorConfig.defaultTheme);
+		this._doc.notifier.changed();
+	}
+
+	public requestPaneLeave(): boolean {
+		return this._requestDiscard();
+	}
+
+	public requestPaneClose(): boolean {
+		return this._requestDiscard();
+	}
+
 	protected override _saveChanges = (): void => {
+		this.committed = true;
 		window.localStorage.setItem("colorTheme", this._themeSelect.value);
-		this._doc.prompt = null;
 		this._doc.prefs.colorTheme = this._themeSelect.value;
+		this._finishClose();
 	};
+
+	private _finishClose(): void {
+		if (this.closeCallback) this.closeCallback(this);
+		else this._doc.prompt = null;
+	}
+
+	private _requestDiscard(): boolean {
+		return (
+			this.committed || !this._isDirty() || window.confirm("Discard unsaved theme changes?")
+		);
+	}
+
+	private _isDirty(): boolean {
+		return (
+			this._themeSelect.value !== (this.lastTheme ?? ColorConfig.defaultTheme) ||
+			ColorConfig.pmdHue !== this.lastHue ||
+			ColorConfig.pmdDark !== this.lastDark
+		);
+	}
 
 	private _previewTheme = (): void => {
 		ColorConfig.setTheme(this._themeSelect.value);

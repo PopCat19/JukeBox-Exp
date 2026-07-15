@@ -32,6 +32,7 @@ export class NavigatorShell implements PaneHost {
 	private readonly detachButton: HTMLButtonElement | null;
 	readonly fileRightHost: PaneHost;
 	readonly instrumentHost: PaneHost;
+	readonly visualHost: PaneHost;
 	private readonly fileWorkspace: HTMLDivElement;
 	private readonly importTab: HTMLButtonElement;
 	private readonly exportTab: HTMLButtonElement;
@@ -41,6 +42,9 @@ export class NavigatorShell implements PaneHost {
 	private readonly instrumentImportTab: HTMLButtonElement;
 	private readonly instrumentExportTab: HTMLButtonElement;
 	private readonly instrumentPanel: HTMLDivElement;
+	private readonly visualWorkspace: HTMLDivElement;
+	private readonly visualTabs: readonly HTMLButtonElement[];
+	private readonly visualPanel: HTMLDivElement;
 	private readonly routes: readonly NavigatorRoute[];
 	private readonly onRoute: ((id: string) => void) | undefined;
 	private activeRouteId: string | undefined;
@@ -179,6 +183,48 @@ export class NavigatorShell implements PaneHost {
 		this.instrumentWorkspace.append(instrumentTabs, this.instrumentPanel);
 		this.workspace.append(this.instrumentWorkspace);
 		this.instrumentHost = host(this.instrumentPanel);
+		this.visualWorkspace = document.createElement("div");
+		this.visualWorkspace.className = "navigator-visual-data compactSearchPrompt";
+		this.visualWorkspace.hidden = true;
+		const visualTabs = document.createElement("div");
+		visualTabs.className = "navigator-visual-tabs navigator-file-tabs tabBar toggle-group";
+		visualTabs.setAttribute("role", "tablist");
+		const visualSpecs = [
+			["Theme", "theme"],
+			["Custom Theme", "customTheme"],
+			["Custom Theme Raw", "customThemeRaw"],
+		] as const;
+		this.visualTabs = visualSpecs.map(([label, routeId], index) => {
+			const tab = tabButton(label, index === 0);
+			tab.dataset.visualRoute = routeId;
+			tab.id = `navigator-visual-tab-${routeId}`;
+			tab.setAttribute("role", "tab");
+			tab.setAttribute("aria-controls", "navigator-visual-panel");
+			tab.addEventListener("click", () => this.onRoute?.(routeId));
+			return tab;
+		});
+		visualTabs.append(...this.visualTabs);
+		this.visualPanel = document.createElement("div");
+		this.visualPanel.className = "navigator-visual-host navigator-pane-host";
+		this.visualPanel.id = "navigator-visual-panel";
+		this.visualPanel.setAttribute("role", "tabpanel");
+		this.visualWorkspace.append(visualTabs, this.visualPanel);
+		this.workspace.append(this.visualWorkspace);
+		this.visualHost = host(this.visualPanel);
+		const onVisualTabKey = (event: KeyboardEvent): void => {
+			const current = this.visualTabs.indexOf(event.currentTarget as HTMLButtonElement);
+			let next = current;
+			if (event.key === "ArrowRight") next = (current + 1) % this.visualTabs.length;
+			else if (event.key === "ArrowLeft")
+				next = (current - 1 + this.visualTabs.length) % this.visualTabs.length;
+			else if (event.key === "Home") next = 0;
+			else if (event.key === "End") next = this.visualTabs.length - 1;
+			else return;
+			event.preventDefault();
+			this.visualTabs[next].focus();
+			this.onRoute?.(this.visualTabs[next].dataset.visualRoute!);
+		};
+		for (const tab of this.visualTabs) tab.addEventListener("keydown", onVisualTabKey);
 		for (const tab of [this.importTab, this.exportTab, this.recoveryTab]) {
 			tab.addEventListener("click", () => this.onRoute?.(tab.dataset.fileRoute!));
 		}
@@ -260,6 +306,7 @@ export class NavigatorShell implements PaneHost {
 		this.body.hidden = false;
 		this.fileWorkspace.hidden = true;
 		this.instrumentWorkspace.hidden = true;
+		this.visualWorkspace.hidden = true;
 		this.aggregateMode = false;
 		this.updateDetachAvailability();
 		const routeId = root.element.dataset.navigatorScope;
@@ -294,7 +341,10 @@ export class NavigatorShell implements PaneHost {
 		this.body.hidden = active;
 		this.activeTitle.hidden = false;
 		this.fileWorkspace.hidden = !active;
-		if (active) this.instrumentWorkspace.hidden = true;
+		if (active) {
+			this.instrumentWorkspace.hidden = true;
+			this.visualWorkspace.hidden = true;
+		}
 		this.aggregateMode = active;
 		this.updateDetachAvailability();
 		if (active) {
@@ -311,10 +361,51 @@ export class NavigatorShell implements PaneHost {
 		this.body.hidden = active;
 		this.activeTitle.hidden = false;
 		this.instrumentWorkspace.hidden = !active;
-		if (active) this.fileWorkspace.hidden = true;
+		if (active) {
+			this.fileWorkspace.hidden = true;
+			this.visualWorkspace.hidden = true;
+		}
 		this.aggregateMode = active;
 		this.updateDetachAvailability();
 		if (!active && this.body.childElementCount > 0) this.restoreNormalRoute();
+	}
+
+	setVisualWorkspace(active: boolean): void {
+		if (active) this.container.classList.remove("shaded");
+		this.container.hidden = !active && this.body.childElementCount === 0;
+		this.updateVisibility(active || this.body.childElementCount > 0);
+		this.body.hidden = active;
+		this.activeTitle.hidden = false;
+		this.visualWorkspace.hidden = !active;
+		if (active) {
+			this.fileWorkspace.hidden = true;
+			this.instrumentWorkspace.hidden = true;
+		}
+		this.aggregateMode = active;
+		this.updateDetachAvailability();
+		if (!active && this.body.childElementCount > 0) this.restoreNormalRoute();
+	}
+
+	setVisualActiveRoute(activeRoute: "theme" | "customTheme" | "customThemeRaw"): void {
+		this.activeRouteId = activeRoute;
+		this.activeTitle.textContent = "Visual Themes";
+		const buttons = this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
+		for (let index = 0; index < buttons.length; index++) {
+			const button = buttons[index];
+			const active =
+				["theme", "customTheme", "customThemeRaw"].includes(activeRoute) &&
+				["theme", "customTheme", "customThemeRaw"].includes(button.dataset.routeId ?? "");
+			setSelectableRowActive(button, active);
+			button.setAttribute("aria-current", active ? "page" : "false");
+		}
+		for (const tab of this.visualTabs) {
+			const active = tab.dataset.visualRoute === activeRoute;
+			tab.classList.toggle("active", active);
+			tab.setAttribute("aria-selected", String(active));
+			tab.tabIndex = active ? 0 : -1;
+		}
+		const activeTab = this.visualTabs.find((tab) => tab.dataset.visualRoute === activeRoute)!;
+		this.visualPanel.setAttribute("aria-labelledby", activeTab.id);
 	}
 
 	setInstrumentActiveRoute(activeRoute: "importInstrument" | "exportInstrument"): void {
@@ -395,7 +486,9 @@ export class NavigatorShell implements PaneHost {
 			? this.fileWorkspace.querySelector(".navigator-native-pane")
 			: !this.instrumentWorkspace.hidden
 				? this.instrumentWorkspace.querySelector(".navigator-native-pane")
-				: this.body.firstElementChild;
+				: !this.visualWorkspace.hidden
+					? this.visualWorkspace.querySelector(".navigator-native-pane")
+					: this.body.firstElementChild;
 		if (pane instanceof HTMLElement) {
 			pane.focus({ preventScroll: true });
 		} else {

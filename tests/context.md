@@ -19,7 +19,8 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `navigator-contracts.test.ts`, Behavioral tests for canonical identity, native extraction, attached theme preview/cancellation, detached theme sync, shell layout, cleanup, ownership, and host transfer
 - `file-workspace.test.ts`, File aggregate composition, full-size active host geometry, Import refresh, focus deduplication, detach lockout, and transactional right-tab replacement
 - `instrument-workspace.test.ts`, Instrument Data composition, full-size active host geometry, transactional tabs, denial, serialization, Escape, stale callbacks, and responsive CVV scope
-- `navigator-mode-coordinator.test.ts`, Serialized normal/File/Instrument transitions, denial, route races, and queued close/open behavior
+- `visual-workspace.test.ts`, Visual prompt rollback lifecycles, transactional tabs, denial, serialization, Escape, and stale callbacks
+- `navigator-mode-coordinator.test.ts`, Serialized normal/File/Instrument/Visual transitions, denial, rollback, route races, and queued close/open behavior
 - `navigator-dock.test.ts`, Shared PromptDock edge snap, padding, undock, cleanup, mobile fallback, and prompt regression behavior
 - `stress-pane-lifecycle.test.ts`, Behavioral fake-frame lifecycle coverage for Navigator stress panes and LimiterPrompt cleanup
 - `workspace-runtime.test.ts`, Transactional aggregate pane ownership, preflight, rollback, duplicate, detach, and stale-token tests

@@ -104,6 +104,7 @@ import { NavigatorModeCoordinator } from "./navigator/navigator-mode-coordinator
 import { LegacyPromptPaneFactory } from "./navigator/navigator-route-host";
 import { NavigatorRuntime } from "./navigator/navigator-runtime";
 import { NavigatorShell } from "./navigator/navigator-shell";
+import { createVisualPromptFactory, VisualWorkspace } from "./navigator/visual-workspace";
 import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
 import type { Prompt } from "./prompts/prompt";
 import {
@@ -2276,10 +2277,17 @@ export class SongEditor
 		undefined,
 		(scope) => this._applicationRouter.routePrompt(scope),
 	);
+	private readonly _visualWorkspace = new VisualWorkspace(
+		this.doc,
+		this._navigatorShell,
+		createVisualPromptFactory(this),
+		(scope) => this._applicationRouter.routePrompt(scope),
+	);
 	private readonly _navigatorMode = new NavigatorModeCoordinator(
 		this._navigatorRuntime,
 		this._fileWorkspace,
 		this._instrumentWorkspace,
+		this._visualWorkspace,
 	);
 	private readonly _applicationRouter: ApplicationRouter = new ApplicationRouter({
 		openGlobal: () => undefined,
@@ -4026,6 +4034,10 @@ export class SongEditor
 			}
 			if (this._instrumentWorkspace.isOpen()) {
 				void this._instrumentWorkspace.forwardKeyboard(event);
+				return;
+			}
+			if (this._visualWorkspace.isOpen()) {
+				void this._visualWorkspace.forwardKeyboard(event);
 				return;
 			}
 		}

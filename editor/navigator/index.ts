@@ -9,4 +9,5 @@ export * from "./navigator-runtime";
 export * from "./navigator-shell";
 export * from "./ownership";
 export * from "./route-identity";
+export * from "./visual-workspace";
 export * from "./workspace-runtime";

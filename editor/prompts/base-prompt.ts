@@ -73,11 +73,15 @@ export abstract class BasePrompt implements Prompt {
 
 	constructor(protected _doc: SongDocument) {
 		this._okayButton.addEventListener("click", this._onOkayClick);
-		this._cancelButton.addEventListener("click", this._close);
+		this._cancelButton.addEventListener("click", this._onCancelClick);
 	}
 
 	private _onOkayClick = (): void => {
 		this._saveChanges();
+	};
+
+	private _onCancelClick = (): void => {
+		this._close();
 	};
 
 	protected _close = (): void => {
@@ -92,7 +96,7 @@ export abstract class BasePrompt implements Prompt {
 
 	public cleanUp(): void {
 		this._okayButton.removeEventListener("click", this._onOkayClick);
-		this._cancelButton.removeEventListener("click", this._close);
+		this._cancelButton.removeEventListener("click", this._onCancelClick);
 	}
 
 	public whenKeyPressed = (event: KeyboardEvent): void => {

@@ -13,7 +13,7 @@ import { BasePrompt } from "./base-prompt";
 
 const { div, h2, input, p, a, button } = HTML;
 
-let doReload = false;
+const STORAGE_KEYS = ["colorTheme", "customTheme", "customTheme2", "customColors"] as const;
 
 export class CustomThemePrompt extends BasePrompt {
 	private readonly _fileInput: HTMLInputElement = input({
@@ -152,6 +152,16 @@ export class CustomThemePrompt extends BasePrompt {
 		{ class: "ctResetButton" },
 		"Reset to defaults",
 	);
+	private readonly _initialStorage = new Map(
+		STORAGE_KEYS.map((key) => [key, window.localStorage.getItem(key)] as const),
+	);
+	private readonly _initialColorTheme: string;
+	private readonly _initialBackgrounds: readonly [string, string, string, string, string | null];
+	private _editorReader: FileReader | null = null;
+	private _websiteReader: FileReader | null = null;
+	private _doReload = false;
+	private _committed = false;
+	private _disposed = false;
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt customThemePrompt noSelection" },
@@ -187,6 +197,14 @@ export class CustomThemePrompt extends BasePrompt {
 		private _pattern3: HTMLElement,
 	) {
 		super(doc);
+		this._initialColorTheme = doc.colorTheme;
+		this._initialBackgrounds = [
+			this._pattern._svg.style.backgroundImage,
+			document.body.style.backgroundImage,
+			this._pattern2.style.backgroundImage,
+			this._pattern3.style.backgroundImage,
+			document.getElementById("secondImage")?.style.backgroundImage ?? null,
+		];
 		this.buildTitlebar();
 		this._fileInput.addEventListener("change", this._whenFileSelected);
 		this._fileInput2.addEventListener("change", this._whenFileSelected2);
@@ -195,8 +213,9 @@ export class CustomThemePrompt extends BasePrompt {
 	}
 
 	protected override _close = (): void => {
-		this._doc.prompt = null;
-		if (doReload) {
+		if (!this._committed) this.discard();
+		this._finishClose();
+		if (this._doReload) {
 			setTimeout(() => {
 				window.location.reload();
 			}, 50);
@@ -205,6 +224,9 @@ export class CustomThemePrompt extends BasePrompt {
 
 	public override cleanUp(): void {
 		super.cleanUp();
+		this._disposed = true;
+		this._cancelReaders();
+		if (!this._committed) this.discard();
 		this._resetButton.removeEventListener("click", this._reset);
 		this._fileInput.removeEventListener("change", this._whenFileSelected);
 		this._fileInput2.removeEventListener("change", this._whenFileSelected2);
@@ -224,7 +246,8 @@ export class CustomThemePrompt extends BasePrompt {
 		if (secondImage != null) {
 			secondImage.style.backgroundImage = "";
 		}
-		doReload = true;
+		this._doReload = true;
+		this._committed = true;
 		this._close();
 	};
 
@@ -232,14 +255,20 @@ export class CustomThemePrompt extends BasePrompt {
 		localStorage.setItem("customColors", this._colorInput.value);
 		window.localStorage.setItem("colorTheme", "custom");
 		this._doc.colorTheme = "custom";
-		doReload = true;
+		this._doReload = true;
 	};
 
 	private _whenFileSelected = (): void => {
 		const file: File = this._fileInput.files![0];
 		if (!file) return;
+		this._editorReader?.abort();
 		const reader: FileReader = new FileReader();
+		this._editorReader = reader;
+		reader.addEventListener("loadend", () => {
+			if (this._editorReader === reader) this._editorReader = null;
+		});
 		reader.addEventListener("load", (_event: Event): void => {
+			if (this._disposed || this._editorReader !== reader) return;
 			const base64 = <string>reader.result;
 			window.localStorage.setItem("customTheme", base64);
 			const value = `url("${window.localStorage.getItem("customTheme")}")`;
@@ -251,8 +280,14 @@ export class CustomThemePrompt extends BasePrompt {
 	private _whenFileSelected2 = (): void => {
 		const file: File = this._fileInput2.files![0];
 		if (!file) return;
+		this._websiteReader?.abort();
 		const reader: FileReader = new FileReader();
+		this._websiteReader = reader;
+		reader.addEventListener("loadend", () => {
+			if (this._websiteReader === reader) this._websiteReader = null;
+		});
 		reader.addEventListener("load", (_event: Event): void => {
+			if (this._disposed || this._websiteReader !== reader) return;
 			const base64 = <string>reader.result;
 			window.localStorage.setItem("customTheme2", base64);
 			const value = `url("${window.localStorage.getItem("customTheme2")}")`;
@@ -267,7 +302,69 @@ export class CustomThemePrompt extends BasePrompt {
 		reader.readAsDataURL(file);
 	};
 
+	public override discard(): void {
+		this._cancelReaders();
+		for (const [key, value] of this._initialStorage) {
+			if (value === null) window.localStorage.removeItem(key);
+			else window.localStorage.setItem(key, value);
+		}
+		this._doc.colorTheme = this._initialColorTheme;
+		this._pattern._svg.style.backgroundImage = this._initialBackgrounds[0];
+		document.body.style.backgroundImage = this._initialBackgrounds[1];
+		this._pattern2.style.backgroundImage = this._initialBackgrounds[2];
+		this._pattern3.style.backgroundImage = this._initialBackgrounds[3];
+		const secondImage = document.getElementById("secondImage");
+		if (secondImage && this._initialBackgrounds[4] !== null) {
+			secondImage.style.backgroundImage = this._initialBackgrounds[4];
+		}
+		this._doReload = false;
+	}
+
+	public requestPaneLeave(): boolean {
+		return this._requestDiscard();
+	}
+
+	public requestPaneClose(): boolean {
+		return this._requestDiscard();
+	}
+
 	protected override _saveChanges(): void {
+		this._committed = true;
 		this._close();
+	}
+
+	private _cancelReaders(): void {
+		this._editorReader?.abort();
+		this._websiteReader?.abort();
+		this._editorReader = null;
+		this._websiteReader = null;
+	}
+
+	private _finishClose(): void {
+		if (this.closeCallback) this.closeCallback(this);
+		else this._doc.prompt = null;
+	}
+
+	private _requestDiscard(): boolean {
+		return (
+			this._committed ||
+			!this._isDirty() ||
+			window.confirm("Discard unsaved custom theme changes?")
+		);
+	}
+
+	private _isDirty(): boolean {
+		if (this._doReload || this._doc.colorTheme !== this._initialColorTheme) return true;
+		for (const [key, value] of this._initialStorage) {
+			if (window.localStorage.getItem(key) !== value) return true;
+		}
+		return (
+			this._pattern._svg.style.backgroundImage !== this._initialBackgrounds[0] ||
+			document.body.style.backgroundImage !== this._initialBackgrounds[1] ||
+			this._pattern2.style.backgroundImage !== this._initialBackgrounds[2] ||
+			this._pattern3.style.backgroundImage !== this._initialBackgrounds[3] ||
+			document.getElementById("secondImage")?.style.backgroundImage !==
+				(this._initialBackgrounds[4] ?? undefined)
+		);
 	}
 }

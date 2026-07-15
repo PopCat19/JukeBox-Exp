@@ -13,6 +13,7 @@ Purpose: Defines navigator contracts, persistent shell, runtime, and identity ow
 - `instrument-workspace.ts` - Single-host transactional Instrument Data tab coordinator for Import and Export
 - `route-identity.ts` - Canonical finite-JSON pane route identity
 - `workspace-runtime.ts` - Transactional aggregate ownership for canonical child panes
+- `visual-workspace.ts` - Single-host transactional Visual tab coordinator for Theme, Custom Theme, and Raw
 - `route-catalog.ts` - Authoritative dashboard groups, route labels, composition metadata, and Other tools derivation
 - `ownership.ts` - Generation-safe ownership for one live pane
 - `navigator-mode-coordinator.ts` - Serialized ownership transitions among normal, Project Data, and Instrument Data modes

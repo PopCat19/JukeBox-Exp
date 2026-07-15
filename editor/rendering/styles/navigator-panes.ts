@@ -65,7 +65,8 @@ export function buildNavigatorPanesCSS(): string {
 	-webkit-backdrop-filter: none !important;
 }
 .beepboxEditor .navigator-project-data,
-.beepboxEditor .navigator-instrument-data {
+.beepboxEditor .navigator-instrument-data,
+.beepboxEditor .navigator-visual-data {
 	display: flex;
 	box-sizing: border-box;
 	align-self: stretch;
@@ -78,9 +79,11 @@ export function buildNavigatorPanesCSS(): string {
 	overflow: hidden;
 }
 .beepboxEditor .navigator-project-data[hidden],
-.beepboxEditor .navigator-instrument-data[hidden] { display: none; }
+.beepboxEditor .navigator-instrument-data[hidden],
+.beepboxEditor .navigator-visual-data[hidden] { display: none; }
 .beepboxEditor .navigator-file-right-host,
-.beepboxEditor .navigator-instrument-host {
+.beepboxEditor .navigator-instrument-host,
+.beepboxEditor .navigator-visual-host {
 	display: flex;
 	flex: 1 1 0;
 	flex-direction: column;

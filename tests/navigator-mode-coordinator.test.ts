@@ -6,6 +6,7 @@ import { describe, expect, test } from "bun:test";
 import type { PaneRoute } from "../editor/navigator/contracts";
 import type { FileRouteId } from "../editor/navigator/file-workspace";
 import type { InstrumentRouteId } from "../editor/navigator/instrument-workspace";
+import type { VisualRouteId } from "../editor/navigator/visual-workspace";
 import {
 	NavigatorModeCoordinator,
 	NavigatorTransitionError,
@@ -97,6 +98,58 @@ async function rejectionMessage(promise: Promise<unknown>): Promise<string> {
 }
 
 describe("NavigatorModeCoordinator", () => {
+	test("Visual denial preserves dirty source and failed destination restores Visual route", async () => {
+		let normalOpen = false;
+		let visualOpen = false;
+		let denyVisualClose = true;
+		let failNormal = false;
+		const visualRoutes: VisualRouteId[] = [];
+		const coordinator = new NavigatorModeCoordinator(
+			{
+				open: () => {
+					if (failNormal) return Promise.reject(new Error("normal open failed"));
+					normalOpen = true;
+					return Promise.resolve(true);
+				},
+				closeNavigator: () => {
+					normalOpen = false;
+					return Promise.resolve(true);
+				},
+			},
+			{
+				open: () => Promise.resolve(true),
+				close: () => Promise.resolve(true),
+				isOpen: () => false,
+			},
+			undefined,
+			{
+				open: (route) => {
+					visualRoutes.push(route);
+					visualOpen = true;
+					return Promise.resolve(true);
+				},
+				close: () => {
+					if (denyVisualClose) return Promise.resolve(false);
+					visualOpen = false;
+					return Promise.resolve(true);
+				},
+				isOpen: () => visualOpen,
+			},
+		);
+		await coordinator.open({ paneId: "customThemeRaw" });
+		expect(await coordinator.open({ paneId: "layout" })).toBeFalse();
+		expect(visualOpen).toBeTrue();
+		expect(normalOpen).toBeFalse();
+		denyVisualClose = false;
+		failNormal = true;
+		expect(await rejectionMessage(coordinator.open({ paneId: "layout" }))).toBe(
+			"normal open failed",
+		);
+		expect(visualOpen).toBeTrue();
+		expect(normalOpen).toBeFalse();
+		expect(visualRoutes).toEqual(["customThemeRaw", "customThemeRaw"]);
+	});
+
 	test("serializes normal to File and File to normal route bursts", async () => {
 		const f = fixture();
 		await Promise.all([
