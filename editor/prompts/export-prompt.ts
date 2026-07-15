@@ -13,13 +13,15 @@ import { Synth } from "../../synth";
 import { toJukeboxExpJson, toLegacyCompatJson } from "../../synth/formats";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
-import { promptLabel, promptRowBetween, selectField, setDisabled } from "../ui";
+import { setDisabled } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { exportToMidi } from "./export-midi";
 import type { Prompt } from "./prompt";
 import { save } from "./save";
 
-const { div, h2, input, select, option } = HTML;
+const { div, h2, input, label, option, output, select } = HTML;
+
+let nextExportPromptLabelId: number = 0;
 
 export function getExportPaneAuthority(state: { outputStarted: boolean; keepOpen: boolean }): {
 	allowLeave: boolean;
@@ -40,12 +42,17 @@ export class ExportPrompt extends BasePrompt {
 	private totalChunks: number;
 	private currentChunk: number;
 	private outputStarted: boolean = false;
+	private readonly _playbackLabelId: string =
+		`export-playback-label-${nextExportPromptLabelId++}`;
 	private readonly _fileName: HTMLInputElement = input({
 		type: "text",
 		maxlength: 250,
 		autofocus: "autofocus",
 	});
-	private readonly _computedSamplesLabel: HTMLDivElement = div({ class: "exportValue" }, "0:00");
+	private readonly _computedSamplesLabel: HTMLOutputElement = output(
+		{ class: "exportValue" },
+		"0:00",
+	);
 	private readonly _enableIntro: HTMLInputElement = input({ type: "checkbox" });
 	private readonly _loopDropDown: HTMLInputElement = input({
 		type: "number",
@@ -90,38 +97,69 @@ export class ExportPrompt extends BasePrompt {
 		{ class: "prompt exportPrompt noSelection" },
 		h2("Export Options"),
 		div(
-			{ class: "exportPromptBody" },
-			promptRowBetween(promptLabel("File name:"), this._fileName),
-			promptRowBetween(promptLabel("Length:"), this._computedSamplesLabel),
+			{ class: "exportPromptContent" },
 			div(
-				{ class: "exportGridRow" },
-				div(
-					{ class: "exportGridCell" },
-					this._enableIntro,
-					div({ class: "exportGridLabel" }, "Intro"),
+				{ class: "exportPromptBody" },
+				label(
+					{ class: "exportField" },
+					div({ class: "exportFieldLabel" }, "File name:"),
+					this._fileName,
+				),
+				label(
+					{ class: "exportField" },
+					div({ class: "exportFieldLabel" }, "Length:"),
+					this._computedSamplesLabel,
 				),
 				div(
-					{ class: "exportGridCell" },
-					div({ class: "exportGridLabel" }, "Loop"),
-					this._loopDropDown,
+					{ class: "exportField" },
+					div({ class: "exportFieldLabel", id: this._playbackLabelId }, "Playback:"),
+					div(
+						{
+							class: "exportPlaybackControls",
+							"aria-labelledby": this._playbackLabelId,
+							role: "group",
+						},
+						label(
+							{ class: "exportCheckControl" },
+							this._enableIntro,
+							div({ class: "exportControlLabel" }, "Intro"),
+						),
+						label(
+							{ class: "exportLoopControl" },
+							div({ class: "exportControlLabel" }, "Loop"),
+							this._loopDropDown,
+						),
+						label(
+							{ class: "exportCheckControl" },
+							this._enableOutro,
+							div({ class: "exportControlLabel" }, "Outro"),
+						),
+					),
 				),
+				label(
+					{ class: "exportField" },
+					div({ class: "exportFieldLabel" }, "Remove Whitespace:"),
+					this._removeWhitespace,
+				),
+				label(
+					{ class: "exportField" },
+					div({ class: "exportFieldLabel" }, "Keep Open:"),
+					this._keepOpen,
+				),
+				label(
+					{ class: "exportField" },
+					div({ class: "exportFieldLabel" }, "Format:"),
+					this._formatSelect,
+				),
+				this._oggWarning,
 				div(
-					{ class: "exportGridCell" },
-					this._enableOutro,
-					div({ class: "exportGridLabel" }, "Outro"),
+					{ class: "exportNote" },
+					"Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient.",
 				),
+				this._outputProgressContainer,
 			),
-			promptRowBetween(promptLabel("Remove Whitespace:"), this._removeWhitespace),
-			promptRowBetween(promptLabel("Keep Open:"), this._keepOpen),
-			this._oggWarning,
-			selectField("Format:", this._formatSelect, { selectWidth: "100%" }),
-			div(
-				{ class: "exportNote" },
-				"Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient.",
-			),
-			this._outputProgressContainer,
+			div({ class: "exportPromptFooter" }, this._getOkayRow(), this._cancelButton),
 		),
-		div({ class: "exportPromptFooter" }, this._getOkayRow(), this._cancelButton),
 	);
 
 	constructor(doc: SongDocument) {
@@ -201,7 +239,7 @@ export class ExportPrompt extends BasePrompt {
 			removeWsRow.style.display = ["json", "json-exp", "json-legacy"].includes(
 				this._formatSelect.value,
 			)
-				? "flex"
+				? "grid"
 				: "none";
 		}
 		const showOgg = this._formatSelect.value === "ogg" || this._formatSelect.value === "opus";
