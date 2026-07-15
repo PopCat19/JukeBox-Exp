@@ -22,19 +22,13 @@ const routeItem = (id: string, title: string): NavigatorCatalogItem => ({
 	kind: "route",
 	route: route(id, title),
 });
-const tabs = (...routes: readonly NavigatorCatalogRoute[]): NavigatorCatalogItem => ({
-	kind: "tabs",
-	routes,
-});
 export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.freeze([
 	{
 		title: "Project Data",
 		items: [
-			tabs(
-				route("import", "Import"),
-				route("export", "Export"),
-				route("songRecovery", "Recover"),
-			),
+			routeItem("import", "Import"),
+			routeItem("export", "Export"),
+			routeItem("songRecovery", "Recover Song"),
 		],
 	},
 	{
@@ -69,16 +63,17 @@ export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.fr
 		items: [
 			routeItem("channelVolumeVisualizer", "Channel Visualizer"),
 			routeItem("layout", "Layout"),
-			tabs(
-				route("theme", "Theme"),
-				route("customTheme", "Custom Theme"),
-				route("customThemeRaw", "Custom Theme Raw"),
-			),
+			routeItem("theme", "Theme"),
+			routeItem("customTheme", "Custom Theme"),
+			routeItem("customThemeRaw", "Custom Theme Raw"),
 		],
 	},
 	{
 		title: "Instrument Data",
-		items: [tabs(route("importInstrument", "Import"), route("exportInstrument", "Export"))],
+		items: [
+			routeItem("importInstrument", "Import Instrument"),
+			routeItem("exportInstrument", "Export Instrument"),
+		],
 	},
 	{
 		title: "Focused Instr. Config",

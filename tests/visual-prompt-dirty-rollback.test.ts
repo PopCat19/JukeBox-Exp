@@ -1,36 +1,17 @@
-// Purpose: Verifies transactional Visual workspace tabs and ownership.
+// visual-prompt-dirty-rollback.test.ts
+//
+// Purpose: Verifies visual prompts deny dirty exits and restore preview state.
 
 import { describe, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
-import { NavigatorShell } from "../editor/navigator/navigator-shell";
-import type { VisualPromptFactory } from "../editor/navigator/visual-workspace";
-import { VisualWorkspace } from "../editor/navigator/visual-workspace";
 import { CustomThemePrompt } from "../editor/prompts/custom-theme-prompt";
 import { PalettePrompt } from "../editor/prompts/palette-prompt";
-import type { Prompt } from "../editor/prompts/prompt";
 import { ThemePrompt } from "../editor/prompts/theme-prompt";
 import type { SongDocument } from "../editor/song-document";
 import { ColorConfig } from "../shared/color-config";
 import { injectGlobalStyles } from "../shared/styles/inject";
 
 if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
-
-function prompt(name: string, allow = true, cleaned?: string[]): Prompt {
-	const container = document.createElement("div");
-	container.className = "prompt";
-	container.append(document.createElement("h2"));
-	return {
-		name, container, closeCallback: null,
-		cleanUp: () => cleaned?.push(name),
-		requestPaneLeave: () => allow,
-		requestPaneClose: () => allow,
-	} as unknown as Prompt;
-}
-
-function fixture(factory: VisualPromptFactory, onRoute?: (route: string) => void) {
-	const shell = new NavigatorShell("Navigator", () => {}, undefined, onRoute);
-	return { shell, workspace: new VisualWorkspace({} as SongDocument, shell, factory) };
-}
 
 function visualDoc(): SongDocument {
 	return {
@@ -40,7 +21,7 @@ function visualDoc(): SongDocument {
 	} as unknown as SongDocument;
 }
 
-describe("visual prompt pane lifecycle", () => {
+describe("visual prompt dirty rollback", () => {
 	test("ThemePrompt denies discard, then restores theme and persisted PMD hue", () => {
 		localStorage.setItem("colorTheme", "forest");
 		ColorConfig.setTheme("forest");
@@ -105,12 +86,7 @@ describe("visual prompt pane lifecycle", () => {
 		const track = document.createElement("div");
 		const editor = document.createElement("div");
 		const doc = visualDoc();
-		const prompt = new CustomThemePrompt(
-			doc,
-			{ _svg: patternSvg } as never,
-			track,
-			editor,
-		);
+		const prompt = new CustomThemePrompt(doc, { _svg: patternSvg } as never, track, editor);
 		const raw = prompt.container.querySelector<HTMLInputElement>("input[type='text']")!;
 		raw.value = "after";
 		raw.dispatchEvent(new Event("change"));
@@ -145,54 +121,9 @@ describe("visual prompt pane lifecycle", () => {
 		const select = prompt.container.querySelector("select") as HTMLSelectElement;
 		select.value = "nebula";
 		select.dispatchEvent(new Event("change"));
-		const cancel = prompt.container.querySelector(".cancelButton") as HTMLButtonElement;
-		cancel.click();
+		(prompt.container.querySelector(".cancelButton") as HTMLButtonElement).click();
 		expect(closes).toBe(1);
 		expect(localStorage.getItem("colorTheme")).toBe("forest");
 		prompt.cleanUp();
-	});
-});
-
-describe("VisualWorkspace", () => {
-	test("mounts requested canonical child and switches tabs", async () => {
-		const created: string[] = [];
-		const f = fixture({ create: (route) => { created.push(route); return prompt(route); } });
-		await f.workspace.open();
-		await f.workspace.open("customThemeRaw");
-		expect(created).toEqual(["theme", "customThemeRaw"]);
-		expect(f.shell.container.querySelectorAll(".navigator-native-pane").length).toBe(1);
-		expect(f.shell.container.querySelector("[data-navigator-scope='customThemeRaw']")).not.toBeNull();
-	});
-
-	test("denied leave keeps selected child without constructing replacement", async () => {
-		const created: string[] = [];
-		const f = fixture({ create: (route) => { created.push(route); return prompt(route, false); } });
-		await f.workspace.open("customTheme");
-		expect(await f.workspace.open("theme")).toBeFalse();
-		expect(created).toEqual(["customTheme"]);
-		expect(f.shell.container.querySelector("[data-visual-route='customTheme']")?.getAttribute("aria-selected")).toBe("true");
-	});
-
-	test("stale callback cannot close reopened workspace", async () => {
-		const prompts: Prompt[] = [];
-		const f = fixture({ create: (route) => { const next = prompt(route); prompts.push(next); return next; } });
-		await f.workspace.open();
-		const stale = prompts[0].closeCallback;
-		await f.workspace.close();
-		await f.workspace.open("customTheme");
-		stale?.(prompts[0]);
-		await Promise.resolve(); await Promise.resolve();
-		expect(f.workspace.isOpen()).toBeTrue();
-	});
-
-	test("aggregate hides detach and keyboard routes without early selection", async () => {
-		const opened: string[] = [];
-		const f = fixture({ create: (route) => prompt(route) }, (route) => opened.push(route));
-		await f.workspace.open();
-		expect(f.shell.container.querySelector<HTMLButtonElement>(".navigator-detach-button")?.hidden).toBeTrue();
-		const tab = f.shell.container.querySelector<HTMLButtonElement>("[data-visual-route='theme']")!;
-		tab.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
-		expect(opened).toEqual(["customTheme"]);
-		expect(tab.getAttribute("aria-selected")).toBe("true");
 	});
 });

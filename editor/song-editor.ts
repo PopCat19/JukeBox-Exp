@@ -96,15 +96,11 @@ import type { Preferences } from "./core/preferences";
 import { type PromptEditorRefs, type PromptHost, PromptManager } from "./core/prompt-manager";
 
 import { MidiInputHandler } from "./io/midi-input";
-import { FileWorkspace } from "./navigator/file-workspace";
-import { InstrumentWorkspace } from "./navigator/instrument-workspace";
 import { NativePaneFactory } from "./navigator/native-panes";
 import { NavigatorDetachedHost } from "./navigator/navigator-detached-host";
-import { NavigatorModeCoordinator } from "./navigator/navigator-mode-coordinator";
 import { LegacyPromptPaneFactory } from "./navigator/navigator-route-host";
 import { NavigatorRuntime } from "./navigator/navigator-runtime";
 import { NavigatorShell } from "./navigator/navigator-shell";
-import { createVisualPromptFactory, VisualWorkspace } from "./navigator/visual-workspace";
 import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
 import type { Prompt } from "./prompts/prompt";
 import {
@@ -2265,34 +2261,10 @@ export class SongEditor
 				? this._nativePanes.create(route)
 				: this._legacyPromptPanes.create(route),
 	);
-	private readonly _fileWorkspace = new FileWorkspace(
-		this.doc,
-		this._navigatorShell,
-		undefined,
-		(scope) => this._applicationRouter.routePrompt(scope),
-	);
-	private readonly _instrumentWorkspace = new InstrumentWorkspace(
-		this.doc,
-		this._navigatorShell,
-		undefined,
-		(scope) => this._applicationRouter.routePrompt(scope),
-	);
-	private readonly _visualWorkspace = new VisualWorkspace(
-		this.doc,
-		this._navigatorShell,
-		createVisualPromptFactory(this),
-		(scope) => this._applicationRouter.routePrompt(scope),
-	);
-	private readonly _navigatorMode = new NavigatorModeCoordinator(
-		this._navigatorRuntime,
-		this._fileWorkspace,
-		this._instrumentWorkspace,
-		this._visualWorkspace,
-	);
 	private readonly _applicationRouter: ApplicationRouter = new ApplicationRouter({
 		openGlobal: () => undefined,
 		navigator: {
-			open: (route) => this._navigatorMode.open(route),
+			open: (route) => this._navigatorRuntime.open(route),
 			focus: () => {
 				this._navigatorShell.focus();
 			},
@@ -3962,7 +3934,7 @@ export class SongEditor
 	}
 
 	private _closeNavigatorMode(): Promise<boolean> {
-		return this._navigatorMode.close();
+		return this._navigatorRuntime.closeNavigator();
 	}
 
 	private _openPrompt(promptName: string): void {
@@ -3986,7 +3958,6 @@ export class SongEditor
 	}
 
 	public popoutCurrentPrompt(): void {
-		if (this._fileWorkspace.isOpen() || this._instrumentWorkspace.isOpen()) return;
 		const host = NavigatorDetachedHost.open(() => {
 			this._promptManager.dockController.undock(this._navigatorShell);
 		});
@@ -4027,20 +3998,6 @@ export class SongEditor
 	// Skips if focus is on an input, textarea, select, button, or contenteditable element.
 	private _handleGlobalKeyDown(event: KeyboardEvent): void {
 		if (event.isComposing) return; // Skip during IME composition
-		if (event.key === "Escape") {
-			if (this._fileWorkspace.isOpen()) {
-				void this._fileWorkspace.forwardKeyboard(event);
-				return;
-			}
-			if (this._instrumentWorkspace.isOpen()) {
-				void this._instrumentWorkspace.forwardKeyboard(event);
-				return;
-			}
-			if (this._visualWorkspace.isOpen()) {
-				void this._visualWorkspace.forwardKeyboard(event);
-				return;
-			}
-		}
 
 		// If mainLayer has focus, its own handler already processes keys.
 		if (this.mainLayer.contains(document.activeElement)) return;
@@ -4652,9 +4609,9 @@ export class SongEditor
 	}
 
 	public async handleImportFile(file: File, rafWin?: Window): Promise<void> {
-		const opened = await this._navigatorMode.open({ paneId: "import" });
-		if (!opened) return;
-		this._fileWorkspace.deliverImportFile(file, rafWin);
+		await this._navigatorRuntime.openThen({ paneId: "import" }, () => {
+			this._legacyPromptPanes.deliverImportFile(file, rafWin);
+		});
 	}
 
 	public get _animate(): () => void {

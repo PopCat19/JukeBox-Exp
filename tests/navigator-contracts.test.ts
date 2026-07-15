@@ -12,7 +12,7 @@ import { PromptPopout } from "../editor/core/prompt-popout";
 import { PromptFocusController } from "../editor/core/prompt-focus-controller";
 import { ColorConfig } from "../shared/color-config";
 import { applyPMDToDOM, pmdGenerateColors } from "../shared/pmd-adapter";
-import type { CloseDecision, CommandReference, HostLease, LeaveDecision, PaneHost, PaneLifecycle, SerializableValue } from "../editor/navigator/contracts";
+import type { CloseDecision, CommandReference, HostLease, LeaveDecision, PaneHost, PaneLifecycle, PaneRoute, SerializableValue } from "../editor/navigator/contracts";
 import { isSerializableValue, validateRetainedState } from "../editor/navigator/contracts";
 import { LegacyPromptPaneFactory } from "../editor/navigator/navigator-route-host";
 import { buildNavigatorPanesCSS } from "../editor/rendering/styles/navigator-panes";
@@ -32,6 +32,7 @@ import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
 import { createPromptPaneOwner } from "../editor/navigator/prompt-pane-owner";
 import { canonicalRouteIdentity, type PaneIdentity } from "../editor/navigator/route-identity";
 import { events } from "../shared/events";
+import * as Navigator from "../editor/navigator";
 
 if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
 
@@ -173,6 +174,15 @@ describe("prompt playback ownership", () => {
 		expect(plays).toBe(0);
 		ownership.close(second, () => plays++);
 		expect({ pauses, plays }).toEqual({ pauses: 1, plays: 1 });
+	});
+});
+
+describe("navigator barrel", () => {
+	test("imports the complete production Navigator module graph", () => {
+		expect(typeof Navigator.NavigatorRuntime).toBe("function");
+		expect(typeof Navigator.NativePaneFactory).toBe("function");
+		expect(typeof Navigator.LegacyPromptPaneFactory).toBe("function");
+		expect(Navigator.navigatorRouteCatalog.length).toBeGreaterThan(0);
 	});
 });
 
@@ -717,6 +727,25 @@ describe("navigator runtime", () => {
 		expect(effects).toEqual(["mount:first", "focus:first"]);
 	});
 
+	test("openThen delivers transient data before a queued route replacement", async () => {
+		resetDocument();
+		const effects: string[] = [];
+		const runtime = new NavigatorRuntime(new NavigatorShell(), (route) => runtimeOwner(route, effects));
+		const importOpen = runtime.openThen({ paneId: "import" }, () => {
+			effects.push("deliver:import");
+		});
+		const exportOpen = runtime.open({ paneId: "export" });
+		expect(await importOpen).toBeTrue();
+		expect(await exportOpen).toBeTrue();
+		expect(effects).toEqual([
+			"mount:import",
+			"deliver:import",
+			"unmount:import",
+			"dispose:import",
+			"mount:export",
+		]);
+	});
+
 	test("denied replacement has zero destination factory side effects", async () => {
 		resetDocument();
 		const effects: string[] = [];
@@ -862,18 +891,9 @@ describe("navigator shell", () => {
 		expect(navigatorRouteCatalog.map((group) => group.title)).toEqual([
 			"Project Data", "File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Instrument Data", "Focused Instr. Config", "Help",
 		]);
-		const projectData = navigatorRouteCatalog[0].items[0];
-		expect(projectData.kind).toBe("tabs");
-		if (projectData.kind !== "tabs") throw new Error("missing Project Data tabs");
-		expect(projectData.routes.map((route) => route.id)).toEqual(["import", "export", "songRecovery"]);
-		const visualThemes = navigatorRouteCatalog[5].items[2];
-		expect(visualThemes.kind).toBe("tabs");
-		if (visualThemes.kind !== "tabs") throw new Error("missing Visual tabs");
-		expect(visualThemes.routes.map((route) => route.id)).toEqual(["theme", "customTheme", "customThemeRaw"]);
-		const instrumentData = navigatorRouteCatalog[6].items[0];
-		expect(instrumentData.kind).toBe("tabs");
-		if (instrumentData.kind !== "tabs") throw new Error("missing Instrument Data tabs");
-		expect(instrumentData.routes.map((route) => route.id)).toEqual(["importInstrument", "exportInstrument"]);
+		expect(navigatorRouteCatalog[0].items.map((item) => item.kind)).toEqual(["route", "route", "route"]);
+		expect(navigatorRouteCatalog[5].items.map((item) => item.kind)).toEqual(["route", "route", "route", "route", "route"]);
+		expect(navigatorRouteCatalog[6].items.map((item) => item.kind)).toEqual(["route", "route"]);
 		expect(navigatorRouteCatalog[8].items[0]).toEqual({
 			kind: "route",
 			route: { id: "tipPromptScope", title: "Help" },
@@ -961,9 +981,10 @@ describe("navigator shell", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		const shell = new NavigatorShell();
 		shell.container.classList.add("shaded");
-		shell.setFileWorkspace(true, "export");
+		const pane = document.createElement("article");
+		pane.dataset.navigatorScope = "export";
+		shell.attach({ element: pane });
 		expect(shell.container.classList.contains("shaded")).toBeFalse();
-		expect(shell.container.querySelector<HTMLElement>(".navigator-project-data")?.hidden).toBeFalse();
 	});
 
 	test("reopening a shaded shell clears stale shade state", () => {
@@ -992,7 +1013,7 @@ describe("navigator shell", () => {
 			"Project Data", "File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Instrument Data", "Focused Instr. Config", "Help", "Other tools",
 		]);
 		const groups = shell.container.querySelectorAll(".navigator-route-group");
-		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual(["Project Data"]);
+		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual(["Import", "Export", "Recover Song"]);
 		expect(Array.from(groups[1].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
 			"Add Samples", "Shortener Config",
 		]);
@@ -1000,7 +1021,7 @@ describe("navigator shell", () => {
 			"Channel Visualizer", "Layout", "Theme", "Custom Theme", "Custom Theme Raw",
 		]);
 		expect(Array.from(groups[6].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
-			"Instrument Data",
+			"Import Instrument", "Export Instrument",
 		]);
 		expect(Array.from(groups[8].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
 			"Help",
@@ -1117,10 +1138,8 @@ describe("navigator shell", () => {
 		const pane = document.createElement("article");
 		pane.dataset.navigatorScope = "addExternal";
 		shell.attach({ element: pane });
-		shell.setFileWorkspace(true, "export");
-		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Project Data");
-		shell.setFileWorkspace(false);
 		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Add Samples");
+		expect(shell.container.querySelectorAll("[role='tablist']").length).toBe(0);
 		expect(shell.container.querySelector("[data-route-id='addExternal']")?.getAttribute("aria-current")).toBe("page");
 	});
 
@@ -1782,5 +1801,88 @@ describe("prompt pane authority", () => {
 		const source = await Bun.file("editor/prompts/add-samples-prompt.ts").text();
 		expect(source.match(/return this\._requestDiscardUnsavedSampleChanges\(\);/g)?.length).toBe(2);
 		expect(source.match(/window\.confirm\("Discard unsaved sample changes\?"\)/g)?.length).toBe(1);
+	});
+});
+
+
+describe("flattened Navigator routes", () => {
+	const routes = [
+		["import", "Import"], ["export", "Export"], ["songRecovery", "Recover Song"],
+		["importInstrument", "Import Instrument"], ["exportInstrument", "Export Instrument"],
+		["theme", "Theme"], ["customTheme", "Custom Theme"], ["customThemeRaw", "Custom Theme Raw"],
+	] as const;
+	const makeOwner = (route: PaneRoute, events: string[], leave: LeaveDecision = "allow"): PaneOwner => {
+		const element = document.createElement("article");
+		element.dataset.navigatorScope = route.paneId;
+		return {
+			identity: canonicalRouteIdentity(route),
+			lifecycle: {
+				root: { element },
+				mount: (host) => { events.push(`mount:${route.paneId}`); host.attach({ element }); },
+				suspend: () => events.push(`suspend:${route.paneId}`),
+				resume: () => events.push(`resume:${route.paneId}`),
+				unmount: () => { element.remove(); },
+				dispose: () => events.push(`dispose:${route.paneId}`),
+				requestLeave: () => leave,
+				requestClose: () => "close",
+				captureRetainedState: () => route.context ?? null,
+			},
+			focus: () => events.push(`focus:${route.paneId}`),
+		};
+	};
+
+	test("one click mounts each explicit route and active repeat only focuses", async () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const events: string[] = [];
+		let runtime: NavigatorRuntime;
+		const shell = new NavigatorShell("Navigator", undefined, undefined, (paneId) => { void runtime.open({ paneId }); });
+		runtime = new NavigatorRuntime(shell, (route) => makeOwner(route, events));
+		for (const [id, label] of routes) expect(shell.container.querySelector(`[data-route-id='${id}']`)?.textContent).toBe(label);
+		shell.container.querySelector<HTMLButtonElement>("[data-route-id='import']")?.click();
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		shell.container.querySelector<HTMLButtonElement>("[data-route-id='import']")?.click();
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(events).toEqual(["mount:import", "focus:import"]);
+		expect(shell.container.querySelectorAll("[role='tablist'], [role='tabpanel']").length).toBe(0);
+	});
+
+	test("dirty denial preserves content and selected canonical route", async () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const shell = new NavigatorShell();
+		const runtime = new NavigatorRuntime(shell, (route) => makeOwner(route, [], "deny"));
+		expect(await runtime.open({ paneId: "customTheme", context: { slot: 1 } })).toBeTrue();
+		expect(await runtime.open({ paneId: "customThemeRaw", context: { slot: 1 } })).toBeFalse();
+		expect(shell.container.querySelector("[data-navigator-scope='customTheme']") !== null).toBeTrue();
+		expect(shell.container.querySelector("[data-route-id='customTheme']")?.getAttribute("aria-current")).toBe("page");
+	});
+
+	test("content directly follows heading without aggregate spacing", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const shell = new NavigatorShell();
+		expect(shell.container.querySelector(".navigator-active-title")?.nextElementSibling?.classList.contains("navigator-pane-host")).toBeTrue();
+		const css = buildNavigatorPanesCSS();
+		expect(css).not.toContain(".navigator-project-data");
+		expect(css).not.toContain(".navigator-file-tabs");
+	});
+
+	test("former aggregate child uses normal detach transfer", async () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const shell = new NavigatorShell("Navigator", () => undefined);
+		const runtime = new NavigatorRuntime(shell, (route) => makeOwner(route, []));
+		await runtime.open({ paneId: "exportInstrument", context: { channel: 2 } });
+		const detached = document.createElement("div");
+		const host: PaneHost = { attach: (root) => { detached.append(root.element); }, detach: (root) => { root.element.remove(); } };
+		expect(
+			await runtime.detach(
+				(owner) => ({
+					identity: owner.identity,
+					focus: () => undefined,
+					close: () => Promise.resolve(true),
+				}),
+				host,
+			),
+		).not.toBeNull();
+		expect(detached.querySelector("[data-navigator-scope='exportInstrument']") !== null).toBeTrue();
+		expect((shell.container.querySelector(".navigator-detach-button") as HTMLButtonElement).disabled).toBeFalse();
 	});
 });

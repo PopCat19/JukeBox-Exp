@@ -131,8 +131,8 @@ describe("application router", () => {
 		const adapter = readFileSync("editor/navigator/navigator-route-host.ts", "utf8");
 		expect(songEditor).toContain("new NavigatorRuntime(");
 		expect(songEditor).toContain("this._promptContainer.append(this._navigatorShell.container);");
-		expect(songEditor).toContain("open: (route) => this._navigatorMode.open(route)");
-		expect(songEditor).toContain('const opened = await this._navigatorMode.open({ paneId: "import" });\n\t\tif (!opened) return;\n\t\tthis._fileWorkspace.deliverImportFile(file, rafWin);');
+		expect(songEditor).toContain("open: (route) => this._navigatorRuntime.open(route)");
+		expect(songEditor).toContain('await this._navigatorRuntime.openThen({ paneId: "import" }, () => {\n\t\t\tthis._legacyPromptPanes.deliverImportFile(file, rafWin);\n\t\t});');
 		expect(songEditor).toContain("await this.handleImportFile(file);");
 		expect(adapter).toContain("interface ImportFileTransientSink");
 		expect(adapter).toContain("this.importPrompt.handleExternalFile(file, rafWin);");
@@ -148,8 +148,8 @@ describe("application router", () => {
 			const { SongEditor } = await import("../editor/song-editor");
 			let deliveries = 0;
 			const host = {
-				_navigatorMode: { open: () => Promise.resolve(false) },
-				_fileWorkspace: { deliverImportFile: () => { deliveries++; } },
+				_navigatorRuntime: { openThen: () => Promise.resolve(false) },
+				_legacyPromptPanes: { deliverImportFile: () => { deliveries++; } },
 			};
 			await SongEditor.prototype.handleImportFile.call(
 				host as never,

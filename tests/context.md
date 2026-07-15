@@ -17,13 +17,11 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `filtering.test.ts`, Unit tests for digital filter coefficient computation and frequency response
 - `input-inventory.test.ts`, Unit tests for input binding inventory and concern modules
 - `navigator-contracts.test.ts`, Behavioral tests for canonical identity, native extraction, attached theme preview/cancellation, detached theme sync, shell layout, cleanup, ownership, and host transfer
-- `file-workspace.test.ts`, File aggregate composition, full-size active host geometry, Import refresh, focus deduplication, detach lockout, and transactional right-tab replacement
-- `instrument-workspace.test.ts`, Instrument Data composition, full-size active host geometry, transactional tabs, denial, serialization, Escape, stale callbacks, and responsive CVV scope
-- `visual-workspace.test.ts`, Visual prompt rollback lifecycles, transactional tabs, denial, serialization, Escape, and stale callbacks
-- `navigator-mode-coordinator.test.ts`, Serialized normal/File/Instrument/Visual transitions, denial, rollback, route races, and queued close/open behavior
+- `import-prompt-external-delivery.test.ts`, ImportPrompt external file validation, transport restoration, completion ordering, and operation-generation races
+- `instrument-import-completion.test.ts`, Instrument import completion through bound Navigator close authority
+- `visual-prompt-dirty-rollback.test.ts`, Visual prompt dirty denial and confirmed preview rollback
 - `navigator-dock.test.ts`, Shared PromptDock edge snap, padding, undock, cleanup, mobile fallback, and prompt regression behavior
 - `stress-pane-lifecycle.test.ts`, Behavioral fake-frame lifecycle coverage for Navigator stress panes and LimiterPrompt cleanup
-- `workspace-runtime.test.ts`, Transactional aggregate pane ownership, preflight, rollback, duplicate, detach, and stale-token tests
 - `notes.test.ts`, Unit tests for note and pattern data structures
 - `pattern-editor-contract.test.ts`, Structural contract tests for pattern-editor.ts rendering invariants (stale canvas path, SVG/canvas y-center alignment)
 - `loop-editor-contract.test.ts`, Structural contract tests for loop-editor.ts UI invariants (CSS class for disabled state, no inline opacity conflict) and song-editor.ts focus-steal listeners (mouseup blur buttons, keydown intercept Space on button/select)

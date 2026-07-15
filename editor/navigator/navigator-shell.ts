@@ -4,7 +4,6 @@ import type { PromptDock } from "../core/prompt-dock";
 import { attachPromptDrag } from "../core/prompt-drag";
 import { buildPromptTitlebar } from "../prompts/base-prompt";
 import { iconButton, inputRow, searchInput, selectableRow, setSelectableRowActive } from "../ui";
-import { tabButton } from "../ui/buttons/tab-button";
 import type { PaneHost, PaneRoot } from "./contracts";
 import { catalogItemRoutes, navigatorOtherRoutes, navigatorRouteCatalog } from "./route-catalog";
 
@@ -30,29 +29,12 @@ export class NavigatorShell implements PaneHost {
 	private readonly activeTitle: HTMLHeadingElement;
 	private readonly workspace: HTMLElement;
 	private readonly detachButton: HTMLButtonElement | null;
-	readonly fileRightHost: PaneHost;
-	readonly instrumentHost: PaneHost;
-	readonly visualHost: PaneHost;
-	private readonly fileWorkspace: HTMLDivElement;
-	private readonly importTab: HTMLButtonElement;
-	private readonly exportTab: HTMLButtonElement;
-	private readonly recoveryTab: HTMLButtonElement;
-	private readonly fileRightPanel: HTMLDivElement;
-	private readonly instrumentWorkspace: HTMLDivElement;
-	private readonly instrumentImportTab: HTMLButtonElement;
-	private readonly instrumentExportTab: HTMLButtonElement;
-	private readonly instrumentPanel: HTMLDivElement;
-	private readonly visualWorkspace: HTMLDivElement;
-	private readonly visualTabs: readonly HTMLButtonElement[];
-	private readonly visualPanel: HTMLDivElement;
 	private readonly routes: readonly NavigatorRoute[];
 	private readonly onRoute: ((id: string) => void) | undefined;
 	private activeRouteId: string | undefined;
-	private normalRouteId: string | undefined;
 	private dragDispose: (() => void) | null = null;
 	private backdropPreference: boolean | null = null;
 	private dock: PromptDock | null = null;
-	private aggregateMode = false;
 	private suppressSnap = false;
 
 	constructor(
@@ -120,145 +102,6 @@ export class NavigatorShell implements PaneHost {
 		this.body = document.createElement("div");
 		this.body.className = "navigator-pane-host";
 		this.workspace.append(this.body);
-		this.fileWorkspace = document.createElement("div");
-		this.fileWorkspace.className = "navigator-project-data compactSearchPrompt";
-		this.fileWorkspace.hidden = true;
-		const tabs = document.createElement("div");
-		tabs.className = "navigator-file-tabs tabBar toggle-group";
-		tabs.setAttribute("role", "tablist");
-		this.importTab = tabButton("Import");
-		this.exportTab = tabButton("Export", true);
-		this.recoveryTab = tabButton("Recover");
-		const tabSpecs = [
-			[this.importTab, "import", "import"],
-			[this.exportTab, "export", "export"],
-			[this.recoveryTab, "songRecovery", "recovery"],
-		] as const;
-		for (const [button, routeId, idSuffix] of tabSpecs) {
-			button.dataset.fileRoute = routeId;
-			button.id = `navigator-file-tab-${idSuffix}`;
-			button.setAttribute("role", "tab");
-			button.setAttribute("aria-controls", "navigator-file-panel");
-		}
-		tabs.append(this.importTab, this.exportTab, this.recoveryTab);
-		this.fileRightPanel = document.createElement("div");
-		this.fileRightPanel.className = "navigator-file-right-host navigator-pane-host";
-		this.fileRightPanel.id = "navigator-file-panel";
-		this.fileRightPanel.setAttribute("role", "tabpanel");
-		this.fileWorkspace.append(tabs, this.fileRightPanel);
-		this.workspace.append(this.fileWorkspace);
-		const host = (element: HTMLElement): PaneHost => ({
-			attach: (root) => {
-				element.append(root.element);
-			},
-			detach: (root) => {
-				if (root.element.parentNode === element) root.element.remove();
-			},
-		});
-		this.fileRightHost = host(this.fileRightPanel);
-		this.instrumentWorkspace = document.createElement("div");
-		this.instrumentWorkspace.className = "navigator-instrument-data compactSearchPrompt";
-		this.instrumentWorkspace.hidden = true;
-		const instrumentTabs = document.createElement("div");
-		instrumentTabs.className =
-			"navigator-instrument-tabs navigator-file-tabs tabBar toggle-group";
-		instrumentTabs.setAttribute("role", "tablist");
-		this.instrumentImportTab = tabButton("Import", true);
-		this.instrumentExportTab = tabButton("Export");
-		for (const [button, routeId, suffix] of [
-			[this.instrumentImportTab, "importInstrument", "import"],
-			[this.instrumentExportTab, "exportInstrument", "export"],
-		] as const) {
-			button.dataset.instrumentRoute = routeId;
-			button.id = `navigator-instrument-tab-${suffix}`;
-			button.setAttribute("role", "tab");
-			button.setAttribute("aria-controls", "navigator-instrument-panel");
-			button.addEventListener("click", () => this.onRoute?.(routeId));
-		}
-		instrumentTabs.append(this.instrumentImportTab, this.instrumentExportTab);
-		this.instrumentPanel = document.createElement("div");
-		this.instrumentPanel.className = "navigator-instrument-host navigator-pane-host";
-		this.instrumentPanel.id = "navigator-instrument-panel";
-		this.instrumentPanel.setAttribute("role", "tabpanel");
-		this.instrumentWorkspace.append(instrumentTabs, this.instrumentPanel);
-		this.workspace.append(this.instrumentWorkspace);
-		this.instrumentHost = host(this.instrumentPanel);
-		this.visualWorkspace = document.createElement("div");
-		this.visualWorkspace.className = "navigator-visual-data compactSearchPrompt";
-		this.visualWorkspace.hidden = true;
-		const visualTabs = document.createElement("div");
-		visualTabs.className = "navigator-visual-tabs navigator-file-tabs tabBar toggle-group";
-		visualTabs.setAttribute("role", "tablist");
-		const visualSpecs = [
-			["Theme", "theme"],
-			["Custom Theme", "customTheme"],
-			["Custom Theme Raw", "customThemeRaw"],
-		] as const;
-		this.visualTabs = visualSpecs.map(([label, routeId], index) => {
-			const tab = tabButton(label, index === 0);
-			tab.dataset.visualRoute = routeId;
-			tab.id = `navigator-visual-tab-${routeId}`;
-			tab.setAttribute("role", "tab");
-			tab.setAttribute("aria-controls", "navigator-visual-panel");
-			tab.addEventListener("click", () => this.onRoute?.(routeId));
-			return tab;
-		});
-		visualTabs.append(...this.visualTabs);
-		this.visualPanel = document.createElement("div");
-		this.visualPanel.className = "navigator-visual-host navigator-pane-host";
-		this.visualPanel.id = "navigator-visual-panel";
-		this.visualPanel.setAttribute("role", "tabpanel");
-		this.visualWorkspace.append(visualTabs, this.visualPanel);
-		this.workspace.append(this.visualWorkspace);
-		this.visualHost = host(this.visualPanel);
-		const onVisualTabKey = (event: KeyboardEvent): void => {
-			const current = this.visualTabs.indexOf(event.currentTarget as HTMLButtonElement);
-			let next = current;
-			if (event.key === "ArrowRight") next = (current + 1) % this.visualTabs.length;
-			else if (event.key === "ArrowLeft")
-				next = (current - 1 + this.visualTabs.length) % this.visualTabs.length;
-			else if (event.key === "Home") next = 0;
-			else if (event.key === "End") next = this.visualTabs.length - 1;
-			else return;
-			event.preventDefault();
-			this.visualTabs[next].focus();
-			this.onRoute?.(this.visualTabs[next].dataset.visualRoute!);
-		};
-		for (const tab of this.visualTabs) tab.addEventListener("keydown", onVisualTabKey);
-		for (const tab of [this.importTab, this.exportTab, this.recoveryTab]) {
-			tab.addEventListener("click", () => this.onRoute?.(tab.dataset.fileRoute!));
-		}
-		const onTabKey = (event: KeyboardEvent): void => {
-			const tabs = [this.importTab, this.exportTab, this.recoveryTab];
-			const current = tabs.indexOf(event.currentTarget as HTMLButtonElement);
-			let next = current;
-			if (event.key === "ArrowRight") next = (current + 1) % tabs.length;
-			else if (event.key === "ArrowLeft") next = (current - 1 + tabs.length) % tabs.length;
-			else if (event.key === "Home") next = 0;
-			else if (event.key === "End") next = tabs.length - 1;
-			else return;
-			event.preventDefault();
-			tabs[next].focus();
-			this.onRoute?.(tabs[next].dataset.fileRoute!);
-		};
-		this.importTab.addEventListener("keydown", onTabKey);
-		this.exportTab.addEventListener("keydown", onTabKey);
-		this.recoveryTab.addEventListener("keydown", onTabKey);
-		const onInstrumentTabKey = (event: KeyboardEvent): void => {
-			const tabs = [this.instrumentImportTab, this.instrumentExportTab];
-			const current = tabs.indexOf(event.currentTarget as HTMLButtonElement);
-			let next = current;
-			if (event.key === "ArrowRight") next = (current + 1) % tabs.length;
-			else if (event.key === "ArrowLeft") next = (current - 1 + tabs.length) % tabs.length;
-			else if (event.key === "Home") next = 0;
-			else if (event.key === "End") next = tabs.length - 1;
-			else return;
-			event.preventDefault();
-			tabs[next].focus();
-			this.onRoute?.(tabs[next].dataset.instrumentRoute!);
-		};
-		this.instrumentImportTab.addEventListener("keydown", onInstrumentTabKey);
-		this.instrumentExportTab.addEventListener("keydown", onInstrumentTabKey);
 		content.append(sidebar, this.workspace);
 		this.container.append(content);
 		this.renderRoutes(routes);
@@ -273,7 +116,7 @@ export class NavigatorShell implements PaneHost {
 
 	private updateDetachAvailability(): void {
 		if (this.detachButton === null) return;
-		const unavailable = this.aggregateMode || this.dock?.isDocked(this) === true;
+		const unavailable = this.dock?.isDocked(this) === true;
 		this.detachButton.disabled = unavailable;
 		this.detachButton.hidden = unavailable;
 	}
@@ -304,14 +147,9 @@ export class NavigatorShell implements PaneHost {
 		this.container.classList.remove("shaded");
 		this.container.hidden = false;
 		this.body.hidden = false;
-		this.fileWorkspace.hidden = true;
-		this.instrumentWorkspace.hidden = true;
-		this.visualWorkspace.hidden = true;
-		this.aggregateMode = false;
 		this.updateDetachAvailability();
 		const routeId = root.element.dataset.navigatorScope;
 		this.activeRouteId = routeId;
-		this.normalRouteId = routeId;
 		const route = this.routes.find((entry) => entry.id === routeId);
 		if (route !== undefined) {
 			this.activeTitle.textContent = route.title;
@@ -334,128 +172,6 @@ export class NavigatorShell implements PaneHost {
 			this.updateVisibility(false);
 		}
 	}
-	setFileWorkspace(active: boolean, rightRoute: "export" | "songRecovery" = "export"): void {
-		if (active) this.container.classList.remove("shaded");
-		this.container.hidden = !active && this.body.childElementCount === 0;
-		this.updateVisibility(active || this.body.childElementCount > 0);
-		this.body.hidden = active;
-		this.activeTitle.hidden = false;
-		this.fileWorkspace.hidden = !active;
-		if (active) {
-			this.instrumentWorkspace.hidden = true;
-			this.visualWorkspace.hidden = true;
-		}
-		this.aggregateMode = active;
-		this.updateDetachAvailability();
-		if (active) {
-			this.setFileActiveRoute(rightRoute);
-		} else if (this.body.childElementCount > 0) {
-			this.restoreNormalRoute();
-		}
-	}
-
-	setInstrumentWorkspace(active: boolean): void {
-		if (active) this.container.classList.remove("shaded");
-		this.container.hidden = !active && this.body.childElementCount === 0;
-		this.updateVisibility(active || this.body.childElementCount > 0);
-		this.body.hidden = active;
-		this.activeTitle.hidden = false;
-		this.instrumentWorkspace.hidden = !active;
-		if (active) {
-			this.fileWorkspace.hidden = true;
-			this.visualWorkspace.hidden = true;
-		}
-		this.aggregateMode = active;
-		this.updateDetachAvailability();
-		if (!active && this.body.childElementCount > 0) this.restoreNormalRoute();
-	}
-
-	setVisualWorkspace(active: boolean): void {
-		if (active) this.container.classList.remove("shaded");
-		this.container.hidden = !active && this.body.childElementCount === 0;
-		this.updateVisibility(active || this.body.childElementCount > 0);
-		this.body.hidden = active;
-		this.activeTitle.hidden = false;
-		this.visualWorkspace.hidden = !active;
-		if (active) {
-			this.fileWorkspace.hidden = true;
-			this.instrumentWorkspace.hidden = true;
-		}
-		this.aggregateMode = active;
-		this.updateDetachAvailability();
-		if (!active && this.body.childElementCount > 0) this.restoreNormalRoute();
-	}
-
-	setVisualActiveRoute(activeRoute: "theme" | "customTheme" | "customThemeRaw"): void {
-		this.activeRouteId = activeRoute;
-		this.activeTitle.textContent = "Visual Themes";
-		const buttons = this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
-		for (let index = 0; index < buttons.length; index++) {
-			const button = buttons[index];
-			const active =
-				["theme", "customTheme", "customThemeRaw"].includes(activeRoute) &&
-				["theme", "customTheme", "customThemeRaw"].includes(button.dataset.routeId ?? "");
-			setSelectableRowActive(button, active);
-			button.setAttribute("aria-current", active ? "page" : "false");
-		}
-		for (const tab of this.visualTabs) {
-			const active = tab.dataset.visualRoute === activeRoute;
-			tab.classList.toggle("active", active);
-			tab.setAttribute("aria-selected", String(active));
-			tab.tabIndex = active ? 0 : -1;
-		}
-		const activeTab = this.visualTabs.find((tab) => tab.dataset.visualRoute === activeRoute)!;
-		this.visualPanel.setAttribute("aria-labelledby", activeTab.id);
-	}
-
-	setInstrumentActiveRoute(activeRoute: "importInstrument" | "exportInstrument"): void {
-		this.activeRouteId = activeRoute;
-		this.activeTitle.textContent = "Instrument Data";
-		const buttons = this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
-		for (let index = 0; index < buttons.length; index++) {
-			const button = buttons[index];
-			const active =
-				button.textContent === "Instrument Data"
-					? ["importInstrument", "exportInstrument"].includes(activeRoute)
-					: button.dataset.routeId === activeRoute;
-			setSelectableRowActive(button, active);
-			button.setAttribute("aria-current", active ? "page" : "false");
-		}
-		const tabs = [this.instrumentImportTab, this.instrumentExportTab];
-		for (const tab of tabs) {
-			const active = tab.dataset.instrumentRoute === activeRoute;
-			tab.classList.toggle("active", active);
-			tab.setAttribute("aria-selected", String(active));
-			tab.tabIndex = active ? 0 : -1;
-		}
-		const activeTab = tabs.find((tab) => tab.dataset.instrumentRoute === activeRoute)!;
-		this.instrumentPanel.setAttribute("aria-labelledby", activeTab.id);
-	}
-
-	setFileActiveRoute(activeRoute: "import" | "export" | "songRecovery"): void {
-		this.activeRouteId = activeRoute;
-		this.activeTitle.textContent = "Project Data";
-		const buttons = this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
-		for (let index = 0; index < buttons.length; index++) {
-			const button = buttons[index];
-			const active =
-				button.textContent === "Project Data"
-					? ["import", "export", "songRecovery"].includes(activeRoute)
-					: button.dataset.routeId === activeRoute;
-			setSelectableRowActive(button, active);
-			button.setAttribute("aria-current", active ? "page" : "false");
-		}
-		const tabs = [this.importTab, this.exportTab, this.recoveryTab];
-		for (const tab of tabs) {
-			const active = tab.dataset.fileRoute === activeRoute;
-			tab.classList.toggle("active", active);
-			tab.setAttribute("aria-selected", String(active));
-			tab.tabIndex = active ? 0 : -1;
-		}
-		const activeTab = tabs.find((tab) => tab.dataset.fileRoute === activeRoute)!;
-		this.fileRightPanel.setAttribute("aria-labelledby", activeTab.id);
-	}
-
 	private updateVisibility(visible: boolean): void {
 		const parent = this.container.parentElement;
 		if (!parent?.classList.contains("promptContainer")) return;
@@ -468,27 +184,8 @@ export class NavigatorShell implements PaneHost {
 		}
 	}
 
-	private restoreNormalRoute(): void {
-		this.activeRouteId = this.normalRouteId;
-		const route = this.routes.find((entry) => entry.id === this.normalRouteId);
-		this.activeTitle.textContent = route?.title ?? "";
-		const buttons = this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
-		for (let index = 0; index < buttons.length; index++) {
-			const button = buttons[index];
-			const active = button.dataset.routeId === this.normalRouteId;
-			setSelectableRowActive(button, active);
-			button.setAttribute("aria-current", active ? "page" : "false");
-		}
-	}
-
 	focus(): void {
-		const pane = !this.fileWorkspace.hidden
-			? this.fileWorkspace.querySelector(".navigator-native-pane")
-			: !this.instrumentWorkspace.hidden
-				? this.instrumentWorkspace.querySelector(".navigator-native-pane")
-				: !this.visualWorkspace.hidden
-					? this.visualWorkspace.querySelector(".navigator-native-pane")
-					: this.body.firstElementChild;
+		const pane = this.body.firstElementChild;
 		if (pane instanceof HTMLElement) {
 			pane.focus({ preventScroll: true });
 		} else {
@@ -540,21 +237,7 @@ export class NavigatorShell implements PaneHost {
 							),
 							...matches.filter((candidate) => !catalogRouteIds.has(candidate.id)),
 						];
-			if (category === "Project Data") {
-				group.append(
-					this.createRouteButton({ id: "export", title: "Project Data", category }),
-				);
-			} else if (category === "Instrument Data") {
-				const target =
-					query !== "" && orderedMatches.length === 1
-						? orderedMatches[0].id
-						: "importInstrument";
-				group.append(
-					this.createRouteButton({ id: target, title: "Instrument Data", category }),
-				);
-			} else {
-				for (const route of orderedMatches) group.append(this.createRouteButton(route));
-			}
+			for (const route of orderedMatches) group.append(this.createRouteButton(route));
 			this.routeList.append(group);
 		}
 	}

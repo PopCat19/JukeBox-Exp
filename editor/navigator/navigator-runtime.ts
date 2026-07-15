@@ -30,52 +30,62 @@ export class NavigatorRuntime {
 	) {}
 
 	open(route: PaneRoute): Promise<boolean> {
+		return this.serialize(() => this.openImpl(route));
+	}
+
+	openThen(route: PaneRoute, afterOpen: () => void): Promise<boolean> {
 		return this.serialize(async () => {
-			const identity = canonicalRouteIdentity(route);
-			const detached = this.detached.get(identity);
-			if (detached) {
-				detached.pane.focus();
-				return true;
-			}
-			if (this.token?.identity === identity) {
-				const owner = this.ownership.currentOwner(this.token);
-				if (owner === null) throw new Error("attached pane lacks owner");
-				this.ownership.open(owner);
-				return true;
-			}
-			if (
-				this.token !== null &&
-				(this.lease === null ||
-					!(await this.ownership.requestReplace(this.token, this.lease, identity)))
-			)
-				return false;
-			const next = this.factory(route);
-			if (next.identity !== identity) throw new Error("pane factory returned wrong identity");
-			if (this.token === null) {
-				this.token = this.ownership.open(next);
-				this.lease = this.ownership.mount(this.token, this.host);
-				if (this.lease === null) {
-					this.ownership.dispose(this.token);
-					this.token = null;
-					throw new Error("pane mount failed");
-				}
-				return true;
-			}
-			if (this.lease === null) throw new Error("attached pane lacks host lease");
-			const replacement = this.ownership.replaceApproved(this.token, this.lease, next);
-			if (replacement === null) {
-				next.lifecycle.dispose();
-				return false;
-			}
-			this.token = replacement;
-			this.lease = this.ownership.mount(replacement, this.host);
+			const opened = await this.openImpl(route);
+			if (opened) afterOpen();
+			return opened;
+		});
+	}
+
+	private async openImpl(route: PaneRoute): Promise<boolean> {
+		const identity = canonicalRouteIdentity(route);
+		const detached = this.detached.get(identity);
+		if (detached) {
+			detached.pane.focus();
+			return true;
+		}
+		if (this.token?.identity === identity) {
+			const owner = this.ownership.currentOwner(this.token);
+			if (owner === null) throw new Error("attached pane lacks owner");
+			this.ownership.open(owner);
+			return true;
+		}
+		if (
+			this.token !== null &&
+			(this.lease === null ||
+				!(await this.ownership.requestReplace(this.token, this.lease, identity)))
+		)
+			return false;
+		const next = this.factory(route);
+		if (next.identity !== identity) throw new Error("pane factory returned wrong identity");
+		if (this.token === null) {
+			this.token = this.ownership.open(next);
+			this.lease = this.ownership.mount(this.token, this.host);
 			if (this.lease === null) {
-				this.ownership.dispose(replacement);
+				this.ownership.dispose(this.token);
 				this.token = null;
-				throw new Error("replacement pane mount failed");
+				throw new Error("pane mount failed");
 			}
 			return true;
-		});
+		}
+		if (this.lease === null) throw new Error("attached pane lacks host lease");
+		const replacement = this.ownership.replaceApproved(this.token, this.lease, next);
+		if (replacement === null) {
+			next.lifecycle.dispose();
+			return false;
+		}
+		this.token = replacement;
+		this.lease = this.ownership.mount(replacement, this.host);
+		if (this.lease === null) {
+			this.ownership.dispose(replacement);
+			this.token = null;
+			throw new Error("replacement pane mount failed");
+		}
+		return true;
 	}
 
 	detach(
