@@ -21,7 +21,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `instrument-workspace.test.ts`, Instrument Data composition, full-size active host geometry, transactional tabs, denial, serialization, Escape, stale callbacks, and responsive CVV scope
 - `navigator-mode-coordinator.test.ts`, Serialized normal/File/Instrument transitions, denial, route races, and queued close/open behavior
 - `navigator-dock.test.ts`, Shared PromptDock edge snap, padding, undock, cleanup, mobile fallback, and prompt regression behavior
-- `stress-pane-lifecycle.test.ts`, Behavioral fake-frame lifecycle coverage for Navigator stress panes from issue #44
+- `stress-pane-lifecycle.test.ts`, Behavioral fake-frame lifecycle coverage for Navigator stress panes and LimiterPrompt cleanup
 - `workspace-runtime.test.ts`, Transactional aggregate pane ownership, preflight, rollback, duplicate, detach, and stale-token tests
 - `notes.test.ts`, Unit tests for note and pattern data structures
 - `pattern-editor-contract.test.ts`, Structural contract tests for pattern-editor.ts rendering invariants (stale canvas path, SVG/canvas y-center alignment)

@@ -10,6 +10,7 @@ import type { PromptEditorRefs } from "../editor/core/prompt-manager";
 import { AddSamplesPrompt } from "../editor/prompts/add-samples-prompt";
 import { ChannelVolumeVisualizerPrompt } from "../editor/prompts/channel-volume-visualizer-prompt";
 import { InstrumentBrowserPrompt } from "../editor/prompts/instrument-browser-prompt";
+import { LimiterPrompt } from "../editor/prompts/limiter-prompt";
 import { SongDocument } from "../editor/song-document";
 
 let registeredHappyDom = false;
@@ -165,6 +166,63 @@ function transfer(element: HTMLElement, destination: globalThis.Window): void {
 }
 
 describe("Navigator stress pane lifecycle", () => {
+	test("repeated Limiter cleanup owns one frame and rejects stale callbacks", () => {
+		const owner = document.defaultView as unknown as globalThis.Window;
+		const docs = [new SongDocument(), new SongDocument(), new SongDocument()];
+		const frames = installFrames(owner);
+		const timers = installTimers();
+		let prompt: LimiterPrompt | null = null;
+		let finalFrames = -1;
+		let finalTimers = -1;
+		try {
+			for (let iteration = 0; iteration < docs.length; iteration++) {
+				const doc = docs[iteration];
+				if (doc === undefined) throw new Error("Limiter document missing");
+				prompt = new LimiterPrompt(doc, editorRefs());
+				expect(frames.pending.size).toBe(1);
+				expect(timers.pending.size).toBe(1);
+				timers.flush();
+				expect(timers.pending.size).toBe(0);
+				expect(frames.pending.size).toBe(1);
+				document.body.append(prompt.container);
+				expect(frames.pending.size).toBe(1);
+
+				if (iteration === 0) {
+					const live = frames.take();
+					const liveId = Array.from(frames.pending.keys())[0];
+					if (liveId === undefined) throw new Error("live frame id missing");
+					frames.pending.delete(liveId);
+					doc.song.inVolumeCap = 0.5;
+					live(0);
+					expect(frames.pending.size).toBe(1);
+					const inputBar = prompt.container.querySelector<SVGRectElement>("rect[y='105%'][fill^='url']");
+					expect(inputBar?.getAttribute("width")).toBe("50");
+				}
+
+				const stale = frames.take();
+				prompt.cleanUp();
+				expect(frames.pending.size).toBe(0);
+				stale(0);
+				expect(frames.pending.size).toBe(0);
+				expect(timers.pending.size).toBe(0);
+				prompt.container.remove();
+				prompt = null;
+			}
+		} finally {
+			try {
+				prompt?.cleanUp();
+				prompt?.container.remove();
+			} finally {
+				finalFrames = frames.pending.size;
+				finalTimers = timers.pending.size;
+				timers.restore();
+				frames.restore();
+			}
+		}
+		expect(finalFrames).toBe(0);
+		expect(finalTimers).toBe(0);
+	});
+
 	test("Add Samples transfers one owned scroll frame between windows", () => {
 		const source = document.defaultView as unknown as globalThis.Window;
 		const destination = new Window() as unknown as globalThis.Window;

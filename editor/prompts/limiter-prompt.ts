@@ -471,6 +471,8 @@ export class LimiterPrompt extends BasePrompt {
 	private inVolumeHistoricCap: number = 0.0;
 	private outVolumeHistoricTimer: number = 0.0;
 	private outVolumeHistoricCap: number = 0.0;
+	private _volumeFrame: number | null = null;
+	private _volumeUpdatesActive: boolean = true;
 
 	private readonly _resetButton: HTMLButtonElement = button({ style: "width:45%;" }, "Reset");
 
@@ -593,7 +595,7 @@ export class LimiterPrompt extends BasePrompt {
 
 		this._playButton.addEventListener("click", this._togglePlay);
 
-		window.requestAnimationFrame(this._volumeUpdate);
+		this._requestVolumeUpdate();
 
 		updatePlayButton(this._playButton, this._doc.synth.playing);
 
@@ -604,7 +606,15 @@ export class LimiterPrompt extends BasePrompt {
 		this.limiterCanvas.render();
 	}
 
+	private _requestVolumeUpdate(): void {
+		if (!this._volumeUpdatesActive || this._volumeFrame !== null) return;
+		this._volumeFrame = window.requestAnimationFrame(this._volumeUpdate);
+	}
+
 	private _volumeUpdate = (): void => {
+		this._volumeFrame = null;
+		if (!this._volumeUpdatesActive) return;
+
 		this.inVolumeHistoricTimer--;
 		if (this.inVolumeHistoricTimer <= 0) {
 			this.inVolumeHistoricCap -= 0.03;
@@ -629,7 +639,7 @@ export class LimiterPrompt extends BasePrompt {
 			this._doc.song.outVolumeCap,
 			this.outVolumeHistoricCap,
 		);
-		window.requestAnimationFrame(this._volumeUpdate);
+		this._requestVolumeUpdate();
 	};
 
 	private _togglePlay = (): void => {
@@ -688,6 +698,11 @@ export class LimiterPrompt extends BasePrompt {
 	};
 
 	public override cleanUp(): void {
+		this._volumeUpdatesActive = false;
+		if (this._volumeFrame !== null) {
+			window.cancelAnimationFrame(this._volumeFrame);
+			this._volumeFrame = null;
+		}
 		this._restoreOpeningState();
 		super.cleanUp();
 		this._resetButton.removeEventListener("click", this._resetDefaults);
