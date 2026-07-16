@@ -4158,17 +4158,17 @@ export function fromBase64StringImpl(
 								let newNote: boolean = false;
 								let shapeIndex: number = 0;
 								if (useOldShape) {
-									shapeIndex = bits.readLongTail(0, 0);
+									const recentShapeCount: number = recentShapes.count();
+									if (recentShapeCount === 0) {
+										malformed("Pattern shape references unavailable data.");
+									}
+									shapeIndex = clamp(
+										0,
+										recentShapeCount,
+										bits.readLongTail(0, 0),
+									);
 								} else {
 									newNote = bits.read(1) === 1;
-								}
-
-								if (useOldShape) {
-									requireAvailableIndex(
-										shapeIndex,
-										recentShapes.count(),
-										"Pattern shape",
-									);
 								}
 
 								if (!useOldShape && !newNote) {

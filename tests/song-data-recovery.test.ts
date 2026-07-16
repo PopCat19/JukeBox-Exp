@@ -34,6 +34,8 @@ const BASE64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_
 const PRODUCTION_MODULE_HASH = new Song().toBase64String();
 const GOLDBOX_LOOP_CONTROL_SAMPLE_HASH = "g4T0y0";
 const GOLDBOX_SUPERSAW_SAMPLE_HASH = "g4T0xo";
+const REPORTED_SHAPE_CACHE_HASH =
+	"J4N0hUntitled-20260716K8n211s0k08l00e07t2wa7g07j0vr1O_c000U00000000i10000o32T1v0pu022Bf012me00q00C010j5000O07d4a0A4F0BaQ4a44Pf5a0R0000Z00001YeyJpZCI6ImNvcmUuZm0iLCJ2ZXJzaW9uIjoxLCJwYXJhbXMiOnsiYWxnb3JpdGhtIjo0LCJmZWVkYmFja1R5cGUiOjAsImZlZWRiYWNrQW1wbGl0dWRlIjoxMH19E4cb70H0a6170t0a62800z0a750t0aTbv0pu0V1jf0000q0040O0d040A1F0qRRRRR5RqB4Q444h4pPf68636R000000Z000024eyJpZCI6ImNvcmUuZm02IiwidmVyc2lvbiI6MSwicGFyYW1zIjp7ImFsZ29yaXRobTZPcCI6MSwiZmVlZGJhY2tUeXBlNk9wIjowLCJmZWVkYmFja0FtcGxpdHVkZSI6NH19E9c6090q0a6190z0j6290M1d6390u1k6490T0j6420F0K0036591_0j6220o1812a6320A1k12aT2v0pu0305f180q0040O0d030w0h0Z00001ceyJpZCI6ImNvcmUubm9pc2UiLCJ2ZXJzaW9uIjoxLCJwYXJhbXMiOnsiY2hpcE5vaXNlIjowfX0=E0cTav0pu0907f0000q0050O0ad030Z00000UeyJpZCI6ImNvcmUubW9kIiwidmVyc2lvbiI6MSwicGFyYW1zIjp7fX0=E0cb12000000100000001000000010000000p1JDvFD7V1cX_c0U-t_xhyMUY000000000000000f_M00000";
 
 function modulePayload(hash: string, tag: string): { start: number; length: number } {
 	let tagIndex = hash.indexOf(tag);
@@ -226,6 +228,14 @@ describe("bounded song data repairs", () => {
 			bits[1] = 1;
 		});
 		expect(() => new Song(corrupted)).toThrow(SongDataError);
+	});
+
+	test("production decoder clamps reported shape cache index 175", () => {
+		const decoded = new Song(REPORTED_SHAPE_CACHE_HASH);
+		const firstNote = decoded.channels[0].patterns[0].notes[0];
+		expect(firstNote.pitches).toEqual([35]);
+		expect([firstNote.start, firstNote.end]).toEqual([120, 192]);
+		expect(decoded.channels[0].patterns.flatMap((pattern) => pattern.notes)).toHaveLength(7);
 	});
 
 	test("production decoder clamps historical pitch cache indexes", () => {
