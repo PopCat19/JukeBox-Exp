@@ -4294,12 +4294,10 @@ export function fromBase64StringImpl(
 												intervalIter++;
 											}
 										} else {
-											const pitchIndex: number =
-												bits.read(recentPitchBitLength);
-											requireAvailableIndex(
-												pitchIndex,
+											const pitchIndex: number = clamp(
+												0,
 												recentPitches.length,
-												"Pattern pitch",
+												bits.read(recentPitchBitLength),
 											);
 											pitch = recentPitches[pitchIndex];
 											recentPitches.splice(pitchIndex, 1);

@@ -209,22 +209,34 @@ describe("bounded song data repairs", () => {
 		expect(decodedInstrument.modulators[0]).toBe(Config.modulators.dictionary.none.index);
 	});
 
-	test("production decoder rejects stale shape index", () => {
-		// Build a song with one note on channel 0. The first note's shape
-		// marker is bits.write(2, 1) = [0,1] (new shape). Flip bit[1] from
-		// 0 to 1 so the decoder reads useOldShape=true, then reads a
-		// shapeIndex from an empty recentShapes, triggering SongDataError.
-		const noteSong = new Song();
-		noteSong.patternsPerChannel = 1;
-		for (let ci = 0; ci < noteSong.channels.length; ci++) {
-			noteSong.channels[ci].patterns.length = 1;
-			noteSong.channels[ci].patterns[0].notes = [];
+	function createSingleNoteSong(): Song {
+		const song = new Song();
+		song.patternsPerChannel = 1;
+		for (let ci = 0; ci < song.channels.length; ci++) {
+			song.channels[ci].patterns.length = 1;
+			song.channels[ci].patterns[0].notes = [];
 		}
-		noteSong.channels[0].patterns[0].notes = [createTestNote(60, 0, 4, 8)];
+		song.channels[0].patterns[0].notes = [createTestNote(60, 0, 4, 8)];
+		return song;
+	}
 
-		const noteHash = noteSong.toBase64String();
-		const corrupted = mutatePayloadBits(noteHash, (b) => { b[1] = 1; });
+	test("production decoder rejects stale shape index", () => {
+		const noteHash = createSingleNoteSong().toBase64String();
+		const corrupted = mutatePayloadBits(noteHash, (bits) => {
+			bits[1] = 1;
+		});
 		expect(() => new Song(corrupted)).toThrow(SongDataError);
+	});
+
+	test("production decoder clamps historical pitch cache indexes", () => {
+		const noteHash = createSingleNoteSong().toBase64String();
+		const historical = mutatePayloadBits(noteHash, (bits) => {
+			bits[13] = 1;
+			bits.fill(1, 14, 18);
+		});
+
+		const decoded = new Song(historical);
+		expect(decoded.channels[0].patterns[0].notes[0].pitches).toEqual([24]);
 	});
 
 	test("rejects a malformed socket blob emitted by the production serializer", () => {
