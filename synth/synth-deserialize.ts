@@ -95,6 +95,13 @@ function decodeJsonBlob(
 	charIndex: number,
 	label: string,
 ): { value: Record<string, unknown>; nextIndex: number } {
+	if (charIndex + 6 > compressed.length) malformed(`Invalid ${label} length.`);
+	for (let i: number = 0; i < 6; i++) {
+		const digit: number = base64CharCodeToInt[compressed.charCodeAt(charIndex + i)];
+		if (!Number.isInteger(digit) || digit < 0 || digit > 63 || (i === 0 && digit > 3)) {
+			malformed(`Invalid ${label} length.`);
+		}
+	}
 	const [blobLength, blobIndex] = decode32BitNumber(compressed, charIndex);
 	const nextIndex: number = blobIndex + blobLength;
 	if (!Number.isSafeInteger(blobLength) || blobLength < 0 || nextIndex > compressed.length) {
@@ -147,12 +154,6 @@ function validateSongJsonShape(value: unknown, jsonFormat: string): asserts valu
 
 export function repairModulatorIndex(index: number): number {
 	return Config.modulators[index] == null ? Config.modulators.dictionary.none.index : index;
-}
-
-export function requireAvailableIndex(index: number, count: number, label: string): void {
-	if (!Number.isInteger(index) || index < 0 || index >= count) {
-		malformed(`${label} references unavailable data.`);
-	}
 }
 
 export function repairModTarget(
@@ -4534,14 +4535,19 @@ export function fromBase64StringImpl(
 							instrumentIndexIterator
 						];
 					const plugin = instrument == null ? undefined : getPlugin(instrument.type);
-					if (instrument == null || plugin?.deserialize == null) {
-						malformed("Plugin payload has no matching instrument decoder.");
+					if (instrument == null) {
+						malformed("Plugin payload has no matching instrument.");
 					}
+					const pluginInstrument = instrument as Instrument & {
+						_opaquePluginPayload?: Record<string, unknown>;
+						_opaquePluginDecodeFailed?: boolean;
+					};
+					pluginInstrument._opaquePluginPayload = decoded.value;
+					if (plugin?.deserialize == null) break;
 					try {
 						plugin.deserialize(instrument, decoded.value);
-					} catch (error) {
-						if (error instanceof SongDataError) throw error;
-						throw new SongDataError("Invalid plugin payload structure.");
+					} catch {
+						pluginInstrument._opaquePluginDecodeFailed = true;
 					}
 				}
 				break;
@@ -4571,6 +4577,8 @@ export function fromBase64StringImpl(
 					const socketInstrument = instrument as Instrument & {
 						_socketModuleId?: string;
 						_opaqueSocketPayload?: Record<string, unknown>;
+						_opaqueSocketHydrated?: boolean;
+						_opaqueSocketHydrationFailed?: boolean;
 					};
 					socketInstrument._socketModuleId = payload.id;
 					const mod = getInstrument(payload.id);
@@ -4594,9 +4602,12 @@ export function fromBase64StringImpl(
 							for (const [key, value] of Object.entries(deserialized)) {
 								instrumentFields[key] = value;
 							}
-						} catch (error) {
-							if (error instanceof SongDataError) throw error;
-							throw new SongDataError("Invalid socket payload parameters.");
+							socketInstrument._opaqueSocketPayload = payload;
+							socketInstrument._opaqueSocketHydrated = true;
+						} catch {
+							socketInstrument._opaqueSocketPayload = payload;
+							socketInstrument._opaqueSocketHydrated = true;
+							socketInstrument._opaqueSocketHydrationFailed = true;
 						}
 					}
 				}

@@ -866,10 +866,22 @@ export function toBase64StringImpl(song: SongLike): string {
 			}
 
 			const plugin = getPlugin(instrument.type);
-			if (plugin?.serialize) {
+			const pluginInstrument = instrument as Instrument & {
+				_opaquePluginPayload?: Record<string, unknown>;
+				_opaquePluginDecodeFailed?: boolean;
+			};
+			const opaquePluginPayload = pluginInstrument._opaquePluginPayload;
+			if (plugin?.serialize || opaquePluginPayload !== undefined) {
 				// biome-ignore lint/suspicious/noExplicitAny: arbitrary JSON fields
-				const pluginJson: Record<string, any> = {};
-				plugin.serialize(instrument, pluginJson);
+				let pluginJson: Record<string, any> = { ...opaquePluginPayload };
+				if (!pluginInstrument._opaquePluginDecodeFailed) {
+					try {
+						plugin?.serialize?.(instrument, pluginJson);
+					} catch (error) {
+						if (opaquePluginPayload === undefined) throw error;
+						pluginJson = { ...opaquePluginPayload };
+					}
+				}
 				if (Object.keys(pluginJson).length > 0) {
 					buffer.push(SongTagCode.pluginData);
 					const blob = btoa(JSON.stringify(pluginJson));
@@ -891,22 +903,26 @@ export function toBase64StringImpl(song: SongLike): string {
 					id: socketModuleId,
 					version: 1,
 				};
-				if (mod) {
-					const w = new JsonFieldWriter();
-					mod.serialize(instrument as unknown as Record<string, unknown>, w);
-					payload = {
-						...payload,
-						id: payload.id ?? socketModuleId,
-						version: payload.version ?? 1,
-						params: {
-							...(typeof payload.params === "object" &&
-							payload.params !== null &&
-							!Array.isArray(payload.params)
-								? payload.params
-								: {}),
-							...w.toJSON(),
-						},
-					};
+				if (mod && !socketInstrument._opaqueSocketHydrationFailed) {
+					try {
+						const w = new JsonFieldWriter();
+						mod.serialize(instrument as unknown as Record<string, unknown>, w);
+						payload = {
+							...payload,
+							id: payload.id ?? socketModuleId,
+							version: payload.version ?? 1,
+							params: {
+								...(typeof payload.params === "object" &&
+								payload.params !== null &&
+								!Array.isArray(payload.params)
+									? payload.params
+									: {}),
+								...w.toJSON(),
+							},
+						};
+					} catch (error) {
+						if (opaquePayload === undefined) throw error;
+					}
 				}
 				const blob = btoa(JSON.stringify(payload));
 				encode32BitNumber(buffer, blob.length);

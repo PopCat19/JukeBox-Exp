@@ -11,6 +11,7 @@ export type OpaqueSocketInstrument = Instrument & {
 	_socketModuleId?: string;
 	_opaqueSocketPayload?: Record<string, unknown>;
 	_opaqueSocketHydrated?: boolean;
+	_opaqueSocketHydrationFailed?: boolean;
 };
 
 export function hydrateOpaqueSocketInstrument(
@@ -26,14 +27,20 @@ export function hydrateOpaqueSocketInstrument(
 
 	const params = payload.params;
 	if (typeof params === "object" && params !== null && !Array.isArray(params)) {
-		const version = typeof payload.version === "number" ? payload.version : 1;
-		const deserialized = module.deserialize(
-			new JsonFieldReader(params as Record<string, unknown>),
-			version,
-		);
-		const instrumentFields = instrument as unknown as Record<string, unknown>;
-		for (const [key, value] of Object.entries(deserialized)) {
-			if (instrumentFields[key] === undefined) instrumentFields[key] = value;
+		try {
+			const version = typeof payload.version === "number" ? payload.version : 1;
+			const deserialized = module.deserialize(
+				new JsonFieldReader(params as Record<string, unknown>),
+				version,
+			);
+			const instrumentFields = instrument as unknown as Record<string, unknown>;
+			for (const [key, value] of Object.entries(deserialized)) {
+				if (instrumentFields[key] === undefined) instrumentFields[key] = value;
+			}
+		} catch {
+			instrument._opaqueSocketHydrated = true;
+			instrument._opaqueSocketHydrationFailed = true;
+			return module;
 		}
 	}
 	instrument._opaqueSocketHydrated = true;

@@ -18,6 +18,8 @@ import {
 	createCustomSampleTransaction,
 	decodeEditorSong,
 } from "../editor/song-custom-samples";
+import { toJukeboxExpV2Json } from "../synth/formats/jukebox-exp-v2";
+import type { Instrument } from "../synth/instruments";
 import "../synth/plugins";
 import { encode32BitNumber } from "../synth/serialization";
 import { Song } from "../synth/song";
@@ -230,8 +232,11 @@ describe("bounded song data repairs", () => {
 		expect(() => new Song(corrupted)).toThrow(SongDataError);
 	});
 
-	test("production decoder clamps reported shape cache index 175", () => {
-		const decoded = new Song(REPORTED_SHAPE_CACHE_HASH);
+	test("editor decoder accepts reported shape cache index 175", () => {
+		const decoded = decodeEditorSong(
+			REPORTED_SHAPE_CACHE_HASH,
+			createCustomSampleHandler(),
+		);
 		const firstNote = decoded.channels[0].patterns[0].notes[0];
 		expect(firstNote.pitches).toEqual([35]);
 		expect([firstNote.start, firstNote.end]).toEqual([120, 192]);
@@ -312,17 +317,107 @@ describe("bounded song data repairs", () => {
 			},
 		});
 		expect(redecodedInstrument.gain).toBe(19);
-		expect(redecodedInstrument._opaqueSocketPayload).toBeUndefined();
+		expect(redecodedInstrument._opaqueSocketPayload).toEqual(hydratedPayload);
+	});
+
+	test("preserves framed plugin payload without a current decoder", () => {
+		const tagIndex = PRODUCTION_MODULE_HASH.indexOf("Z");
+		const payload = { legacyDepth: 7, nested: { mode: "kept" } };
+		const blob = btoa(JSON.stringify(payload));
+		const encoded: number[] = ["Y".charCodeAt(0)];
+		encode32BitNumber(encoded, blob.length);
+		for (let i = 0; i < blob.length; i++) encoded.push(blob.charCodeAt(i));
+		const framed = `${PRODUCTION_MODULE_HASH.slice(0, tagIndex)}${String.fromCharCode(...encoded)}${PRODUCTION_MODULE_HASH.slice(tagIndex)}`;
+
+		const decoded = new Song(framed);
+		expect(readModulePayload(decoded.toBase64String(), "Y")).toEqual(payload);
+	});
+
+	test("preserves unknown socket params after successful schema decode", () => {
+		const moduleId = "community.recovery-permissive-schema";
+		const payload = {
+			id: moduleId,
+			version: 42,
+			params: { gain: 7, removedField: { nested: "kept" } },
+		};
+		registerInstrument({
+			id: moduleId,
+			socketVersion: SOCKET_VERSION,
+			displayName: "Permissive schema test",
+			capabilities: {},
+			schema: { params: [] },
+			buildSynthSource: () => "return function(){}",
+			serialize: (params, writer) => {
+				writer.writeInt("gain", params.gain as number);
+			},
+			deserialize: (reader) => ({ gain: reader.readInt("gain") }),
+		});
+		const historical = replaceModulePayload(PRODUCTION_MODULE_HASH, "Z", payload);
+
+		const decoded = new Song(historical);
+		const instrument = decoded.channels[0].instruments[0] as Instrument & { gain: number };
+		instrument.gain = 9;
+		expect(readModulePayload(decoded.toBase64String(), "Z")).toEqual({
+			...payload,
+			params: { gain: 9, removedField: { nested: "kept" } },
+		});
+	});
+
+	test("preserves socket payload when current serializer rejects historical state", () => {
+		const moduleId = "community.recovery-serialize-drift";
+		const payload = { id: moduleId, version: 8, params: { gain: 11, removedField: 27 } };
+		registerInstrument({
+			id: moduleId,
+			socketVersion: SOCKET_VERSION,
+			displayName: "Serialize drift test",
+			capabilities: {},
+			schema: { params: [] },
+			buildSynthSource: () => "return function(){}",
+			serialize: () => {
+				throw new Error("Historical state cannot serialize.");
+			},
+			deserialize: (reader) => ({ gain: reader.readInt("gain") }),
+		});
+		const historical = replaceModulePayload(PRODUCTION_MODULE_HASH, "Z", payload);
+
+		const decoded = new Song(historical);
+		expect(readModulePayload(decoded.toBase64String(), "Z")).toEqual(payload);
+		expect(toJukeboxExpV2Json(decoded as never).modulePayloads?.["0:0"]).toEqual(payload);
+	});
+
+	test("preserves socket payload when current schema rejects historical params", () => {
+		const moduleId = "community.recovery-schema-drift";
+		const payload = { id: moduleId, version: 1, params: { removedField: 27 } };
+		registerInstrument({
+			id: moduleId,
+			socketVersion: SOCKET_VERSION,
+			displayName: "Schema drift test",
+			capabilities: {},
+			schema: { params: [] },
+			buildSynthSource: () => "return function(){}",
+			serialize: () => {
+				throw new Error("Historical params cannot serialize.");
+			},
+			deserialize: () => {
+				throw new Error("Historical params cannot deserialize.");
+			},
+		});
+		const historical = replaceModulePayload(PRODUCTION_MODULE_HASH, "Z", payload);
+
+		const decoded = new Song(historical);
+		expect(readModulePayload(decoded.toBase64String(), "Z")).toEqual(payload);
 	});
 
 	test("rejects malformed plugin framing before canonicalization", () => {
 		const tagIndex = PRODUCTION_MODULE_HASH.indexOf("Z");
+		const malformedHeader = `${PRODUCTION_MODULE_HASH.slice(0, tagIndex)}Y!0000a${PRODUCTION_MODULE_HASH.slice(tagIndex)}`;
 		const malformedPlugin: number[] = ["Y".charCodeAt(0)];
 		encode32BitNumber(malformedPlugin, 1);
 		malformedPlugin.push("!".charCodeAt(0));
-		const malformed = `${PRODUCTION_MODULE_HASH.slice(0, tagIndex)}${String.fromCharCode(...malformedPlugin)}${PRODUCTION_MODULE_HASH.slice(tagIndex)}`;
+		const malformedBlob = `${PRODUCTION_MODULE_HASH.slice(0, tagIndex)}${String.fromCharCode(...malformedPlugin)}${PRODUCTION_MODULE_HASH.slice(tagIndex)}`;
 
-		expect(() => new Song(malformed)).toThrow(SongDataError);
+		expect(() => new Song(malformedHeader)).toThrow(SongDataError);
+		expect(() => new Song(malformedBlob)).toThrow(SongDataError);
 	});
 
 	test("non-string custom samples reject before live sample mutation", () => {

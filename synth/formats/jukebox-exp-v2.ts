@@ -63,10 +63,14 @@ export function toJukeboxExpV2Json(
 			if (saved && typeof saved.params === "object" && saved.params !== null) {
 				Object.assign(params, saved.params);
 			}
-			if (module) {
-				const writer = new JsonFieldWriter();
-				module.serialize(instrument as unknown as Record<string, unknown>, writer);
-				Object.assign(params, writer.toJSON());
+			if (module && !opaque._opaqueSocketHydrationFailed) {
+				try {
+					const writer = new JsonFieldWriter();
+					module.serialize(instrument as unknown as Record<string, unknown>, writer);
+					Object.assign(params, writer.toJSON());
+				} catch (error) {
+					if (saved === undefined) throw error;
+				}
 			}
 			modulePayloads[instIndex] = {
 				id: moduleId,
