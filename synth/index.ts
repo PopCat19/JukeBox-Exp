@@ -71,6 +71,7 @@ export { Synth } from "./synth";
 export type { Chord, Dictionary, DictionaryArray, Envelope, Transition } from "./synth-config";
 // Re-export types from SynthConfig that consumers expect from synth module
 export { Config, EnvelopeType, FilterType, InstrumentType } from "./synth-config";
+export { SongDataError } from "./synth-deserialize";
 // Layer 7e: Synth math utilities
 export {
 	adjacentNotesHaveMatchingPitches,

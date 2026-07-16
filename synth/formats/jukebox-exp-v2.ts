@@ -8,9 +8,12 @@
 // - Unknown module payloads preserved opaquely for round-trip
 // - decode-variant one-way importer calls module.migrate() for legacy formats
 
-import { JsonFieldReader } from "../socket/json-serde-adapter";
+import { JsonFieldReader, JsonFieldWriter } from "../socket/json-serde-adapter";
+import {
+	hydrateOpaqueSocketInstrument,
+	type OpaqueSocketInstrument,
+} from "../socket/opaque-instrument";
 import { getInstrument } from "../socket/registry";
-import { resolveOrPlaceholder } from "../socket/resolve-or-placeholder";
 import type { SongLike } from "../song-serialization";
 import { fromJsonObjectImpl } from "./json-serialization";
 import { isJukeboxExpObject, toJukeboxExpJson } from "./jukebox-exp";
@@ -50,33 +53,33 @@ export function toJukeboxExpV2Json(
 	for (let ci = 0; ci < song.getChannelCount(); ci++) {
 		const channel = song.channels[ci];
 		for (const instrument of channel.instruments) {
-			const moduleId = (instrument as any)._socketModuleId as string | undefined;
+			const opaque = instrument as OpaqueSocketInstrument;
+			const moduleId = opaque._socketModuleId;
 			if (!moduleId) continue;
 			const instIndex = `${ci}:${channel.instruments.indexOf(instrument)}`;
 			const params: Record<string, unknown> = {};
-			// Collect module-relevant params from instrument for round-trip
-			for (const key of Object.keys(instrument as unknown as Record<string, unknown>)) {
-				const val = (instrument as any)[key];
-				if (
-					typeof val === "number" ||
-					typeof val === "boolean" ||
-					typeof val === "string"
-				) {
-					params[key] = val;
-				}
+			const module = hydrateOpaqueSocketInstrument(opaque) ?? getInstrument(moduleId);
+			const saved = opaque._opaqueSocketPayload;
+			if (saved && typeof saved.params === "object" && saved.params !== null) {
+				Object.assign(params, saved.params);
+			}
+			if (module) {
+				const writer = new JsonFieldWriter();
+				module.serialize(instrument as unknown as Record<string, unknown>, writer);
+				Object.assign(params, writer.toJSON());
 			}
 			modulePayloads[instIndex] = {
 				id: moduleId,
-				version: 1,
+				version: typeof saved?.version === "number" ? saved.version : 1,
 				params,
 			};
 		}
 	}
 
-	const v2Fields: JukeboxExpV2Fields = {
-		_expVersion: 2,
-		modulePayloads: Object.keys(modulePayloads).length > 0 ? modulePayloads : undefined,
-	};
+	const v2Fields: JukeboxExpV2Fields =
+		Object.keys(modulePayloads).length > 0
+			? { _expVersion: 2, modulePayloads }
+			: { _expVersion: 2 };
 
 	return {
 		...base,
@@ -105,13 +108,22 @@ export function fromJukeboxExpV2Json(song: SongLike, obj: JukeboxExpV2Object): v
 				const key = `${ci}:${ii}`;
 				const payload = savedPayloads[key];
 				if (!payload) continue;
-				(channel.instruments[ii] as any)._socketModuleId = payload.id;
-				const mod = getInstrument(payload.id) ?? resolveOrPlaceholder(payload.id);
-				if (mod && payload.params && typeof payload.params === "object") {
+				const instrument = channel.instruments[ii] as OpaqueSocketInstrument;
+				instrument._socketModuleId = payload.id;
+				const mod = getInstrument(payload.id);
+				if (!mod) {
+					instrument._opaqueSocketPayload = {
+						id: payload.id,
+						version: payload.version,
+						params: structuredClone(payload.params),
+					};
+					continue;
+				}
+				if (payload.params && typeof payload.params === "object") {
 					const r = new JsonFieldReader(payload.params);
 					const deserialized = mod.deserialize(r, payload.version ?? 1);
 					for (const [key, value] of Object.entries(deserialized)) {
-						(channel.instruments[ii] as any)[key] = value;
+						(instrument as unknown as Record<string, unknown>)[key] = value;
 					}
 				}
 			}

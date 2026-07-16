@@ -7,7 +7,11 @@
 // the round-trip invariant fails here.
 
 import { describe, test, expect } from "bun:test";
-import { Config } from "../synth/synth-config";
+import { fromJukeboxExpV2Json, toJukeboxExpV2Json } from "../synth/formats/jukebox-exp-v2";
+import { Song } from "../synth/song";
+import { tagInstrumentWithModule } from "../synth/socket/instrument-tagging";
+import { getInstrumentCount } from "../synth/socket/registry";
+import { Config, InstrumentType } from "../synth/synth-config";
 import { createTestSong } from "./test-helpers";
 
 describe("round-trip encode/decode", () => {
@@ -173,6 +177,46 @@ describe("effects and envelope round-trip", () => {
 });
 
 describe("JukeboxExp JSON round-trip", () => {
+	test("v2 preserves supersaw dynamism and opaque module payloads", () => {
+		const song = createTestSong();
+		const instrument = song.channels[0].instruments[0];
+		instrument.type = InstrumentType.supersaw;
+		instrument.supersawDynamism = 17;
+		instrument.supersawSpread = 23;
+		instrument.supersawShape = 9;
+		tagInstrumentWithModule(instrument);
+		const json = toJukeboxExpV2Json(song as any);
+		const decoded = createTestSong();
+		fromJukeboxExpV2Json(decoded as any, json);
+		const restored = decoded.channels[0].instruments[0];
+		expect(restored.supersawDynamism).toBe(17);
+		expect(restored.supersawSpread).toBe(23);
+		expect(restored.supersawShape).toBe(9);
+
+		const productionDecoded = new Song(JSON.stringify(json));
+		const productionRestored = productionDecoded.channels[0].instruments[0];
+		expect(productionRestored.supersawDynamism).toBe(17);
+		expect(productionRestored.supersawSpread).toBe(23);
+		expect(productionRestored.supersawShape).toBe(9);
+
+		const unknown = {
+			...json,
+			modulePayloads: {
+				"0:0": {
+					id: "community.round-trip-unknown",
+					version: 44,
+					params: { nested: { values: [1, true, null, "kept"] } },
+				},
+			},
+		};
+		const before = getInstrumentCount();
+		const opaque = createTestSong();
+		fromJukeboxExpV2Json(opaque as any, unknown as any);
+		expect(getInstrumentCount()).toBe(before);
+		const reencoded = toJukeboxExpV2Json(opaque as any);
+		expect(reencoded.modulePayloads?.["0:0"]).toEqual(unknown.modulePayloads["0:0"]);
+	});
+
 	test("round-trip through JukeboxExp JSON preserves properties", () => {
 		const { toJukeboxExpJson, fromJukeboxExpJson } = require("../synth/formats/jukebox-exp");
 		const song = createTestSong();

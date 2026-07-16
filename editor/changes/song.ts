@@ -10,7 +10,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { ColorConfig } from "../../shared/color-config";
-import { Channel, Instrument, type Note, type NotePin, Pattern, type Song } from "../../synth";
+import { Channel, Instrument, type Note, type NotePin, Pattern, Song } from "../../synth";
 import {
 	preserveOrTagInstrumentWithModule,
 	tagInstrumentWithModule,
@@ -23,6 +23,7 @@ import {
 	type PresetCategory,
 } from "../config/editor-config";
 import { Change, ChangeGroup, ChangeSequence } from "../core/change";
+import { createCustomSampleHandler, decodeEditorSong } from "../song-custom-samples";
 import type { SongDocument } from "../song-document";
 import { ChangeFieldValue } from "./field-value";
 import { ChangeToggleEffects } from "./instruments";
@@ -1359,39 +1360,81 @@ export function setDefaultInstruments(song: Song): void {
 export class ChangeSong extends ChangeGroup {
 	constructor(doc: SongDocument, newHash: string, jsonFormat: string = "auto") {
 		super();
-		const pitchChannelCount = doc.song.pitchChannelCount;
-		const noiseChannelCount = doc.song.noiseChannelCount;
-		const modChannelCount = doc.song.modChannelCount;
-		doc.song.fromBase64String(newHash, jsonFormat);
-		if (
-			pitchChannelCount !== doc.song.pitchChannelCount ||
-			noiseChannelCount !== doc.song.noiseChannelCount ||
-			modChannelCount !== doc.song.modChannelCount
-		) {
-			ColorConfig.resetColors();
-		}
-		if (newHash === "") {
-			this.append(new ChangePatternSelection(doc, 0, 0));
-			doc.selection.resetBoxSelection();
-			setDefaultInstruments(doc.song);
-			doc.song.scale = doc.prefs.defaultScale;
-
-			for (let i: number = 0; i <= doc.song.channels.length; i++) {
-				doc.viewedInstrument[i] = 0;
-				doc.recentPatternInstruments[i] = [0];
+		const oldSong: Song = doc.song;
+		const pitchChannelCount = oldSong.pitchChannelCount;
+		const noiseChannelCount = oldSong.noiseChannelCount;
+		const modChannelCount = oldSong.modChannelCount;
+		const oldBar: number = doc.bar;
+		const oldChannel: number = doc.channel;
+		const oldViewedInstrument: number[] = doc.viewedInstrument?.slice() ?? [];
+		const oldRecentPatternInstruments: number[][] =
+			doc.recentPatternInstruments?.map((instruments) => instruments.slice()) ?? [];
+		const oldSelection = doc.selection?.toJSON?.();
+		let swapped: boolean = false;
+		try {
+			const decodedSong = decodeEditorSong(
+				newHash,
+				oldSong.customSampleHandler ?? createCustomSampleHandler(),
+				jsonFormat,
+			);
+			doc.song = decodedSong;
+			swapped = true;
+			doc.synth.setSong(decodedSong);
+			if (
+				pitchChannelCount !== doc.song.pitchChannelCount ||
+				noiseChannelCount !== doc.song.noiseChannelCount ||
+				modChannelCount !== doc.song.modChannelCount
+			) {
+				ColorConfig.resetColors();
 			}
-			doc.viewedInstrument.length = doc.song.channels.length;
-		} else {
-			this.append(new ChangeValidateTrackSelection(doc));
+			if (newHash === "") {
+				this.append(new ChangePatternSelection(doc, 0, 0));
+				doc.selection.resetBoxSelection();
+				setDefaultInstruments(doc.song);
+				doc.song.scale = doc.prefs.defaultScale;
+
+				for (let i: number = 0; i <= doc.song.channels.length; i++) {
+					doc.viewedInstrument[i] = 0;
+					doc.recentPatternInstruments[i] = [0];
+				}
+				doc.viewedInstrument.length = doc.song.channels.length;
+			} else {
+				this.append(new ChangeValidateTrackSelection(doc));
+			}
+			doc.synth.computeLatestModValues();
+			doc.notifier.changed();
+			this._didSomething();
+		} catch (error) {
+			if (swapped) {
+				doc.song = oldSong;
+				doc.synth.setSong(oldSong);
+				doc.bar = oldBar;
+				doc.channel = oldChannel;
+				if (doc.viewedInstrument != null) {
+					doc.viewedInstrument.splice(
+						0,
+						doc.viewedInstrument.length,
+						...oldViewedInstrument,
+					);
+				}
+				if (doc.recentPatternInstruments != null) {
+					doc.recentPatternInstruments.splice(
+						0,
+						doc.recentPatternInstruments.length,
+						...oldRecentPatternInstruments,
+					);
+				}
+				if (oldSelection != null) doc.selection.fromJSON(oldSelection);
+				doc.synth.computeLatestModValues();
+			}
+			throw error;
 		}
-		doc.synth.computeLatestModValues();
-		// Pause the synth and jump to bar 0 so the elapsed counter
-		// starts from the beginning of the new song. goToBar seeds
-		// totalSamplesRendered to the correct offset for bar 0.
+
+		// Commit point: decoding, validation, synth sync, and notification all
+		// succeeded. Transport mutation destructively releases live audio state
+		// and must never be followed by scalar rollback.
 		doc.synth.pause();
 		doc.synth.goToBar(0);
-		doc.notifier.changed();
-		this._didSomething();
 	}
 }
 

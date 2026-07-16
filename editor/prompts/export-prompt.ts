@@ -10,7 +10,7 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { Synth } from "../../synth";
-import { toJukeboxExpJson, toLegacyCompatJson } from "../../synth/formats";
+import { toJukeboxExpJson, toJukeboxExpV2Json, toLegacyCompatJson } from "../../synth/formats";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
 import { setDisabled } from "../ui";
@@ -637,7 +637,7 @@ export class ExportPrompt extends BasePrompt {
 
 	private _exportToJsonExp(): void {
 		const json = JSON.stringify(
-			toJukeboxExpJson(this._doc.song),
+			toJukeboxExpV2Json(this._doc.song),
 			null,
 			this._removeWhitespace.checked ? undefined : "\t",
 		);

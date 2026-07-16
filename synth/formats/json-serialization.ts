@@ -24,6 +24,7 @@ import {
 	sampleLoadingState,
 	toNameMap,
 } from "../synth-config";
+import { SongDataError } from "../synth-deserialize";
 import { clamp } from "../util";
 
 const FORMAT: string = Config.jsonFormat;
@@ -452,67 +453,79 @@ export function fromJsonObjectImpl(
 		song.customSampleHandler?.setDocumentTitle(song.title);
 	}
 
+	if (
+		jsonObject.customSamples !== undefined &&
+		(!Array.isArray(jsonObject.customSamples) ||
+			jsonObject.customSamples.some((sample: unknown) => typeof sample !== "string"))
+	) {
+		throw new SongDataError("Song JSON custom samples must be an array of strings.");
+	}
 	if (jsonObject.customSamples !== undefined) {
 		const customSamples: string[] = jsonObject.customSamples;
 		const currentSamples = song.customSampleHandler?.getCustomSamples();
 		if (currentSamples == null || currentSamples.join(", ") !== customSamples.join(", ")) {
-			// Have to duplicate the work done in Song.fromBase64String
-			// early here, because Instrument.fromJsonObject depends on the
-			// chip wave list having the correct items already in memory.
+			if (song.customSampleHandler?.deferSampleLoading) {
+				song.customSampleHandler.setCustomSamples(customSamples);
+			} else {
+				// Have to duplicate the work done in Song.fromBase64String
+				// early here, because Instrument.fromJsonObject depends on the
+				// chip wave list having the correct items already in memory.
 
-			Config.willReloadForCustomSamples = true;
+				Config.willReloadForCustomSamples = true;
 
-			restoreChipWaveListToDefault();
+				restoreChipWaveListToDefault();
 
-			let willLoadLegacySamples: boolean = false;
-			let willLoadNintariboxSamples: boolean = false;
-			let willLoadMarioPaintboxSamples: boolean = false;
-			const customSampleUrls: string[] = [];
-			const customSamplePresets: any[] = [];
-			for (const url of customSamples) {
-				if (url.toLowerCase() === "legacysamples") {
-					if (!willLoadLegacySamples) {
-						willLoadLegacySamples = true;
-						customSampleUrls.push(url);
-						loadBuiltInSamples(0);
+				let willLoadLegacySamples: boolean = false;
+				let willLoadNintariboxSamples: boolean = false;
+				let willLoadMarioPaintboxSamples: boolean = false;
+				const customSampleUrls: string[] = [];
+				const customSamplePresets: any[] = [];
+				for (const url of customSamples) {
+					if (url.toLowerCase() === "legacysamples") {
+						if (!willLoadLegacySamples) {
+							willLoadLegacySamples = true;
+							customSampleUrls.push(url);
+							loadBuiltInSamples(0);
+						}
+					} else if (url.toLowerCase() === "nintariboxsamples") {
+						if (!willLoadNintariboxSamples) {
+							willLoadNintariboxSamples = true;
+							customSampleUrls.push(url);
+							loadBuiltInSamples(1);
+						}
+					} else if (url.toLowerCase() === "mariopaintboxsamples") {
+						if (!willLoadMarioPaintboxSamples) {
+							willLoadMarioPaintboxSamples = true;
+							customSampleUrls.push(url);
+							loadBuiltInSamples(2);
+						}
+					} else {
+						// EditorConfig.customSamples in JSON export uses new syntax.
+						// Old syntax only appears if the URL was manually modified, skip it.
+						const parseOldSyntax: boolean = false;
+						parseAndConfigureCustomSample(
+							url,
+							customSampleUrls,
+							customSamplePresets,
+							sampleLoadingState,
+							parseOldSyntax,
+						);
 					}
-				} else if (url.toLowerCase() === "nintariboxsamples") {
-					if (!willLoadNintariboxSamples) {
-						willLoadNintariboxSamples = true;
-						customSampleUrls.push(url);
-						loadBuiltInSamples(1);
-					}
-				} else if (url.toLowerCase() === "mariopaintboxsamples") {
-					if (!willLoadMarioPaintboxSamples) {
-						willLoadMarioPaintboxSamples = true;
-						customSampleUrls.push(url);
-						loadBuiltInSamples(2);
-					}
-				} else {
-					// EditorConfig.customSamples in JSON export uses new syntax.
-					// Old syntax only appears if the URL was manually modified, skip it.
-					const parseOldSyntax: boolean = false;
-					parseAndConfigureCustomSample(
-						url,
-						customSampleUrls,
-						customSamplePresets,
-						sampleLoadingState,
-						parseOldSyntax,
-					);
+				}
+				if (customSampleUrls.length > 0) {
+					song.customSampleHandler?.setCustomSamples(customSampleUrls);
+				}
+				if (customSamplePresets.length > 0) {
+					const customSamplePresetsMap: DictionaryArray<any> =
+						toNameMap(customSamplePresets);
+					song.customSampleHandler?.addPresetCategory({
+						name: "Custom Sample Presets",
+						presets: customSamplePresetsMap,
+					});
 				}
 			}
-			if (customSampleUrls.length > 0) {
-				song.customSampleHandler?.setCustomSamples(customSampleUrls);
-			}
-			if (customSamplePresets.length > 0) {
-				const customSamplePresetsMap: DictionaryArray<any> = toNameMap(customSamplePresets);
-				song.customSampleHandler?.addPresetCategory({
-					name: "Custom Sample Presets",
-					presets: customSamplePresetsMap,
-				});
-			}
 		}
-	} else {
+	} else if (!song.customSampleHandler?.deferSampleLoading) {
 		// No custom samples; check if legacy samples need loading.
 		let shouldLoadLegacySamples: boolean = false;
 		if (jsonObject.channels !== undefined) {
@@ -885,7 +898,7 @@ export function fromJsonObjectImpl(
 	Array.prototype.push.apply(song.channels, newNoiseChannels);
 	Array.prototype.push.apply(song.channels, newModChannels);
 
-	if (Config.willReloadForCustomSamples) {
+	if (!song.customSampleHandler?.deferSampleLoading && Config.willReloadForCustomSamples) {
 		window.sessionStorage.setItem("resetBarOnLoad", "1");
 		window.location.hash = song.toBase64String();
 		// The prompt seems to get stuck if reloading is done too quickly.

@@ -24,6 +24,7 @@ import { clamp, parseFloatWithDefault, parseIntWithDefault } from "./util";
 // Editor creates handlers and passes them to Song; Song calls them instead of
 // directly importing/mutating EditorConfig.
 export interface CustomSampleHandler {
+	readonly deferSampleLoading?: boolean;
 	getCustomSamples(): string[] | null;
 	setCustomSamples(urls: string[]): void;
 	getPresetCategories(): any[];

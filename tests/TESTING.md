@@ -24,6 +24,7 @@ an uncovered module.
 | `synth/filtering.ts` | `tests/filtering.test.ts` | FilterCoefficients, FrequencyResponse, DynamicBiquadFilter, warp functions |
 | `synth/notes.ts` | `tests/notes.test.ts` | Note, Pattern, makeNotePin |
 | `synth/song.ts` | `tests/song-serialization.test.ts` | toBase64String, fromBase64String, failure resilience |
+| `synth/synth-deserialize.ts` | `tests/song-data-recovery.test.ts` | typed corruption failures, bounded modulator and target repairs, stale index rejection |
 | `synth/song.ts` | `tests/song-round-trip.test.ts` | round-trip encode/decode, modified song, toJsonObject/fromJsonObject |
 | `synth/song.ts` | `tests/song-document-integration.test.ts` | hasEffect, effects bitmask round-trip |
 | `synth/song.ts` | `tests/plugin-round-trip.test.ts` | per-type instrument encode→decode |
@@ -112,6 +113,7 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/prompts/add-samples-prompt.ts`, `editor/prompts/instrument-browser-prompt.ts`, `editor/prompts/channel-volume-visualizer-prompt.ts`, `editor/prompts/limiter-prompt.ts` | `tests/stress-pane-lifecycle.test.ts` | Deferred-work ownership, cleanup cancellation, stale callback guards, live Limiter rendering, and repeated lifecycle ledgers |
 | `editor/song-editor.ts` | `tests/loop-editor-contract.test.ts` | Focus-steal listeners for buttons/selects |
 | `editor/song-document.ts`, `editor/core/selection.ts`, `editor/song-editor.ts` | `tests/song-document-contract.test.ts` | Issue #21 position persistence ordering, redo-preserving navigation, history-state application, and playback channel controls refresh; retained while issue #44 lifecycle coverage changes |
+| `editor/changes/song.ts`, `editor/core/history-manager.ts`, `editor/io/song-recovery.ts` | `tests/song-data-recovery.test.ts` | atomic song replacement, history event coalescing, defensive recovery and quarantine records |
 | `editor/song-editor.ts` | `tests/dom-hooks.test.ts` | Source literal `"beepboxEditor"` and `"promptContainer"` class declarations |
 | `editor/main.ts` | `tests/dom-hooks.test.ts` | Source literal `"beepboxEditorContainer"` getElementById mount point |
 | `editor/ui/style.ts` | `tests/dom-hooks.test.ts` | Source literal `"prompt noSelection"` promptFrame class |

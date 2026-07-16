@@ -34,6 +34,55 @@ export interface HistoryManager {
 
 const MAX_UNDO: number = 300;
 
+function isSafeIndex(value: unknown): value is number {
+	return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+}
+
+function isHistoryState(value: unknown): value is HistoryState {
+	if (typeof value !== "object" || value == null) return false;
+	const state = value as Partial<HistoryState>;
+	const selection = state.selection as Partial<HistoryState["selection"]> | undefined;
+	return (
+		typeof state.canUndo === "boolean" &&
+		isSafeIndex(state.sequenceNumber) &&
+		isSafeIndex(state.bar) &&
+		isSafeIndex(state.channel) &&
+		isSafeIndex(state.instrument) &&
+		typeof state.recoveryUid === "string" &&
+		isSafeIndex(selection?.x0) &&
+		isSafeIndex(selection.x1) &&
+		isSafeIndex(selection.y0) &&
+		isSafeIndex(selection.y1) &&
+		isSafeIndex(selection.start) &&
+		isSafeIndex(selection.end)
+	);
+}
+
+function parseStoredEntry(raw: string | null): { state: HistoryState; hash: string } | null {
+	if (raw == null) return null;
+	try {
+		const value: unknown = JSON.parse(raw);
+		if (typeof value !== "object" || value == null) return null;
+		const entry = value as { state?: unknown; hash?: unknown };
+		if (!isHistoryState(entry.state) || typeof entry.hash !== "string") return null;
+		return { state: entry.state, hash: entry.hash };
+	} catch {
+		return null;
+	}
+}
+
+function parseStoredHash(raw: string | null): string {
+	if (raw == null) return "";
+	try {
+		const value: unknown = JSON.parse(raw);
+		if (typeof value !== "object" || value == null) return "";
+		const hash: unknown = (value as { hash?: unknown }).hash;
+		return typeof hash === "string" ? hash : "";
+	} catch {
+		return "";
+	}
+}
+
 export class BrowserHistoryManager implements HistoryManager {
 	private _recovery: SongRecovery = new SongRecovery();
 	private _lastSequenceNumber: number = 0;
@@ -41,6 +90,7 @@ export class BrowserHistoryManager implements HistoryManager {
 	private _displayBrowserUrl: () => boolean;
 	private _onChange: (() => void) | null = null;
 	private _boundPopState: (() => void) | null = null;
+	private _lastEventFingerprint: string | null = null;
 
 	constructor(displayBrowserUrl: () => boolean) {
 		this._displayBrowserUrl = displayBrowserUrl;
@@ -61,22 +111,20 @@ export class BrowserHistoryManager implements HistoryManager {
 
 	public getState(): HistoryState | null {
 		if (this._displayBrowserUrl()) {
-			return window.history.state;
+			return isHistoryState(window.history.state) ? window.history.state : null;
 		}
-		const json: any = JSON.parse(
-			window.sessionStorage.getItem(window.sessionStorage.getItem("currentUndoIndex")!)!,
-		);
-		return json == null ? null : json.state;
+		const index: string | null = window.sessionStorage.getItem("currentUndoIndex");
+		if (index == null) return null;
+		return parseStoredEntry(window.sessionStorage.getItem(index))?.state ?? null;
 	}
 
 	public getHash(): string {
 		if (this._displayBrowserUrl()) {
 			return window.location.hash;
 		}
-		const json: any = JSON.parse(
-			window.sessionStorage.getItem(window.sessionStorage.getItem("currentUndoIndex")!)!,
-		);
-		return json == null ? "" : json.hash;
+		const index: string | null = window.sessionStorage.getItem("currentUndoIndex");
+		if (index == null) return "";
+		return parseStoredHash(window.sessionStorage.getItem(index));
 	}
 
 	public replaceState(state: HistoryState, hash: string): void {
@@ -119,7 +167,7 @@ export class BrowserHistoryManager implements HistoryManager {
 			if (currentIndex !== oldestIndex) {
 				currentIndex = (currentIndex + MAX_UNDO - 1) % MAX_UNDO;
 				window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
-				if (this._onChange) setTimeout(this._onChange);
+				setTimeout(() => this._onChange?.());
 			}
 		}
 	}
@@ -133,15 +181,22 @@ export class BrowserHistoryManager implements HistoryManager {
 			if (currentIndex !== newestIndex) {
 				currentIndex = (currentIndex + 1) % MAX_UNDO;
 				window.sessionStorage.setItem("currentUndoIndex", String(currentIndex));
-				if (this._onChange) setTimeout(this._onChange);
+				setTimeout(() => this._onChange?.());
 			}
 		}
 	}
 
 	public onChange(handler: () => void): void {
-		this._boundPopState = handler;
-		window.addEventListener("hashchange", handler);
-		window.addEventListener("popstate", handler);
+		this.resetOnChange();
+		this._onChange = handler;
+		this._boundPopState = (): void => {
+			const fingerprint: string = `${this.getHash()}\n${JSON.stringify(this.getState())}`;
+			if (fingerprint === this._lastEventFingerprint) return;
+			this._lastEventFingerprint = fingerprint;
+			handler();
+		};
+		window.addEventListener("hashchange", this._boundPopState);
+		window.addEventListener("popstate", this._boundPopState);
 	}
 
 	public resetOnChange(): void {
@@ -150,5 +205,7 @@ export class BrowserHistoryManager implements HistoryManager {
 			window.removeEventListener("popstate", this._boundPopState);
 			this._boundPopState = null;
 		}
+		this._lastEventFingerprint = null;
+		this._onChange = null;
 	}
 }

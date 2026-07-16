@@ -9,6 +9,7 @@
 
 import { describe, test, expect } from "bun:test";
 import { Song } from "../synth/song";
+import { SongDataError } from "../synth/synth-deserialize";
 import { createTestSong } from "./test-helpers";
 
 describe("toBase64String", () => {
@@ -56,14 +57,12 @@ describe("fromBase64String edge cases", () => {
 
 describe("failure injection", () => {
 	describe("truncated data", () => {
-		test("truncated base64 string does not crash (valid header, cut at half)", () => {
+		test("truncated module payload throws typed corruption error", () => {
 			const song = createTestSong();
 			const encoded = song.toBase64String();
 			const truncated = encoded.substring(0, Math.floor(encoded.length / 2));
 			const decoded = createTestSong();
-			// Should not throw — parser reads past end and gets NaN/undefined which maps to 0
-			expect(() => decoded.fromBase64String(truncated)).not.toThrow();
-			expect(decoded.getChannelCount()).toBeGreaterThanOrEqual(0);
+			expect(() => { decoded.fromBase64String(truncated); }).toThrow(SongDataError);
 		});
 
 		test("truncated base64 string to just variant+version does not crash", () => {
@@ -72,23 +71,22 @@ describe("failure injection", () => {
 			// Only keep variant byte ("J") + version byte
 			const truncated = encoded.substring(0, 2);
 			const decoded = createTestSong();
-			expect(() => decoded.fromBase64String(truncated)).not.toThrow();
+			expect(() => { decoded.fromBase64String(truncated); }).not.toThrow();
 			// Should leave song in a default-ish state since no data tags were parsed
 			expect(decoded.getChannelCount()).toBeGreaterThan(0);
 		});
 
-		test("truncated to only variant byte does not crash", () => {
+		test("truncated to only variant byte throws typed corruption", () => {
 			const song = createTestSong();
 			const encoded = song.toBase64String();
 			const truncated = encoded.substring(0, 1);
 			const decoded = createTestSong();
-			expect(() => decoded.fromBase64String(truncated)).not.toThrow();
-			expect(decoded.getChannelCount()).toBeGreaterThanOrEqual(0);
+			expect(() => { decoded.fromBase64String(truncated); }).toThrow(SongDataError);
 		});
 	});
 
 	describe("corrupted data", () => {
-		test("flipping bits in the middle of encoded string does not crash", () => {
+		test("corrupted module payload throws typed corruption error", () => {
 			const song = createTestSong();
 			song.tempo = 200;
 			song.title = "Corruption Test";
@@ -101,8 +99,9 @@ describe("failure injection", () => {
 			}
 			const corrupted = chars.join("");
 			const decoded = createTestSong();
-			expect(() => decoded.fromBase64String(corrupted)).not.toThrow();
-			expect(decoded.getChannelCount()).toBeGreaterThanOrEqual(0);
+			expect(() => {
+				decoded.fromBase64String(corrupted);
+			}).toThrow(SongDataError);
 		});
 
 		test("replacing middle section with high-value base64 chars — KNOWN CRASH", () => {
@@ -116,10 +115,10 @@ describe("failure injection", () => {
 			}
 			const corrupted = chars.join("");
 			const decoded = createTestSong();
-			expect(() => decoded.fromBase64String(corrupted)).toThrow();
+			expect(() => { decoded.fromBase64String(corrupted); }).toThrow();
 		});
 
-		test("corrupted with all zeros in middle does not crash", () => {
+		test("corrupted with all zeros throws typed corruption", () => {
 			const song = createTestSong();
 			const encoded = song.toBase64String();
 			const chars = encoded.split("");
@@ -128,49 +127,42 @@ describe("failure injection", () => {
 			}
 			const corrupted = chars.join("");
 			const decoded = createTestSong();
-			expect(() => decoded.fromBase64String(corrupted)).not.toThrow();
-			expect(decoded.getChannelCount()).toBeGreaterThanOrEqual(0);
+			expect(() => { decoded.fromBase64String(corrupted); }).toThrow(SongDataError);
 		});
 	});
 
 	describe("invalid base64", () => {
-		test("invalid base64 characters do not crash", () => {
+		test("invalid base64 characters throw typed corruption", () => {
 			const song = createTestSong();
-			expect(() => song.fromBase64String("J4!@#$%^&*()[]{}|\\;:'\",.<>?/~`\x01\x02\x03")).not.toThrow();
-			expect(song.getChannelCount()).toBeGreaterThanOrEqual(0);
+			expect(() =>
+				{ song.fromBase64String("J4!@#$%^&*()[]{}|\\;:'\",.<>?/~`\x01\x02\x03"); },
+			).toThrow(SongDataError);
 		});
 
-		test("whitespace-only string does not crash", () => {
+		test("whitespace-only string throws typed corruption", () => {
 			const song = createTestSong();
-			song.tempo = 300;
-			expect(() => song.fromBase64String("   \t\n  ")).not.toThrow();
-			expect(song.tempo).toBe(160);
+			expect(() => { song.fromBase64String("   \t\n  "); }).toThrow(SongDataError);
 		});
 
-		test("very long garbage string does not crash", () => {
+		test("very long garbage string throws typed corruption", () => {
 			const song = createTestSong();
 			const garbage = "X".repeat(10000);
-			expect(() => song.fromBase64String(garbage)).not.toThrow();
-			expect(song.getChannelCount()).toBeGreaterThanOrEqual(0);
+			expect(() => { song.fromBase64String(garbage); }).toThrow(SongDataError);
 		});
 
-		test("padding-only string does not crash", () => {
+		test("padding-only string throws typed corruption", () => {
 			const song = createTestSong();
-			expect(() => song.fromBase64String("====")).not.toThrow();
-			expect(song.getChannelCount()).toBeGreaterThanOrEqual(0);
+			expect(() => { song.fromBase64String("===="); }).toThrow(SongDataError);
 		});
 
-		test("hash prefix with garbage does not crash", () => {
+		test("hash prefix with garbage throws typed corruption", () => {
 			const song = createTestSong();
-			expect(() => song.fromBase64String("#!@#$%")).not.toThrow();
-			expect(song.getChannelCount()).toBeGreaterThanOrEqual(0);
+			expect(() => { song.fromBase64String("#!@#$%"); }).toThrow(SongDataError);
 		});
 
-		test("valid variant marker followed by invalid version resets to default", () => {
+		test("valid variant marker with unsupported version throws typed corruption", () => {
 			const song = createTestSong();
-			song.tempo = 300;
-			song.fromBase64String("J~");
-			expect(song.tempo).toBe(300);
+			expect(() => { song.fromBase64String("J~"); }).toThrow(SongDataError);
 		});
 	});
 
@@ -180,7 +172,7 @@ describe("failure injection", () => {
 			song.title = "A".repeat(10000);
 			const encoded = song.toBase64String();
 			const decoded = createTestSong();
-			expect(() => decoded.fromBase64String(encoded)).toThrow();
+			expect(() => { decoded.fromBase64String(encoded); }).toThrow();
 		});
 
 		test("unicode-heavy song title — KNOWN CRASH", () => {
@@ -188,20 +180,17 @@ describe("failure injection", () => {
 			song.title = "🎉🎵🎶🎸🥁🎹🎻🎼 ".repeat(100);
 			const encoded = song.toBase64String();
 			const decoded = createTestSong();
-			expect(() => decoded.fromBase64String(encoded)).toThrow();
+			expect(() => { decoded.fromBase64String(encoded); }).toThrow();
 		});
 
-		test("overflow tempo and bar count clamp to valid range", () => {
+		test("overflow tempo and bar count throw typed corruption", () => {
 			const song = createTestSong();
 			song.tempo = 999999;
 			song.barCount = 9999;
 			song.loopLength = 9999;
 			const encoded = song.toBase64String();
 			const decoded = createTestSong();
-			decoded.fromBase64String(encoded);
-			expect(decoded.tempo).toBeLessThanOrEqual(999);
-			expect(decoded.tempo).toBeGreaterThanOrEqual(30);
-			expect(decoded.barCount).toBeLessThanOrEqual(256);
+			expect(() => { decoded.fromBase64String(encoded); }).toThrow(SongDataError);
 		});
 	});
 
@@ -211,7 +200,7 @@ describe("failure injection", () => {
 			song.patternsPerChannel = 1;
 			const encoded = song.toBase64String();
 			const decoded = createTestSong();
-			expect(() => decoded.fromBase64String(encoded)).toThrow();
+			expect(() => { decoded.fromBase64String(encoded); }).toThrow();
 		});
 
 		test("boundary bar counts round-trip correctly", () => {
@@ -265,22 +254,22 @@ describe("failure injection", () => {
 		test("fromJsonObject with null/undefined does not crash", () => {
 			const song = createTestSong();
 			song.tempo = 300;
-			expect(() => song.fromJsonObject(null)).not.toThrow();
+			expect(() => { song.fromJsonObject(null); }).not.toThrow();
 			// null/undefined cause a reset to defaults
 			expect(song.tempo).toBe(160);
-			expect(() => song.fromJsonObject(undefined)).not.toThrow();
+			expect(() => { song.fromJsonObject(undefined); }).not.toThrow();
 			expect(song.tempo).toBe(160);
 		});
 
 		test("fromJsonObject with empty object — KNOWN CRASH", () => {
 			const song = createTestSong();
-			expect(() => song.fromJsonObject({})).toThrow();
+			expect(() => { song.fromJsonObject({}); }).toThrow();
 		});
 
 		test("fromJsonObject with primitive types throws", () => {
 			const song = createTestSong();
-			expect(() => song.fromJsonObject(42 as any)).toThrow();
-			expect(() => song.fromJsonObject("garbage" as any)).toThrow();
+			expect(() => { song.fromJsonObject(42 as any); }).toThrow();
+			expect(() => { song.fromJsonObject("garbage" as any); }).toThrow();
 		});
 	});
 
@@ -298,7 +287,7 @@ describe("failure injection", () => {
 			song.rhythm = 4;
 			const encoded = song.toBase64String();
 			const decoded = createTestSong();
-			expect(() => decoded.fromBase64String(encoded)).not.toThrow();
+			expect(() => { decoded.fromBase64String(encoded); }).not.toThrow();
 			expect(decoded.tempo).toBe(900);
 			expect(decoded.barCount).toBe(128);
 		});
@@ -319,7 +308,7 @@ describe("failure injection", () => {
 			decoded.fromBase64String(corrupted);
 			const encoded2 = decoded.toBase64String();
 			const decoded2 = createTestSong();
-			expect(() => decoded2.fromBase64String(encoded2)).not.toThrow();
+			expect(() => { decoded2.fromBase64String(encoded2); }).not.toThrow();
 			const encoded3 = decoded2.toBase64String();
 			expect(encoded3).toBe(encoded2);
 		});

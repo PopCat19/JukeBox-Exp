@@ -1,4 +1,3 @@
-/* biome-ignore-all lint/correctness/noSwitchDeclarations: legacy URL tag decoder keeps one switch branch per tag. */
 // synth-deserialize.ts
 //
 // Purpose: URL hash decoding for songs (fromBase64StringImpl)
@@ -24,7 +23,6 @@ import {
 } from "./serialization";
 import { JsonFieldReader } from "./socket/json-serde-adapter";
 import { getInstrument } from "./socket/registry";
-import { resolveOrPlaceholder } from "./socket/resolve-or-placeholder";
 import { getNeededBits, type SongLike } from "./song-serialization";
 import {
 	ENV_LFO,
@@ -72,13 +70,119 @@ import {
 	validateRange,
 } from "./util";
 
+export class SongDataError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = "SongDataError";
+	}
+}
+
+function malformed(message: string): never {
+	throw new SongDataError(message);
+}
+
+function decodeSongText(value: string, label: string): string {
+	try {
+		return decodeURIComponent(value);
+	} catch (error) {
+		if (error instanceof URIError) throw new SongDataError(`Invalid ${label} encoding.`);
+		throw error;
+	}
+}
+
+function decodeJsonBlob(
+	compressed: string,
+	charIndex: number,
+	label: string,
+): { value: Record<string, unknown>; nextIndex: number } {
+	const [blobLength, blobIndex] = decode32BitNumber(compressed, charIndex);
+	const nextIndex: number = blobIndex + blobLength;
+	if (!Number.isSafeInteger(blobLength) || blobLength < 0 || nextIndex > compressed.length) {
+		malformed(`Invalid ${label} length.`);
+	}
+	try {
+		const decoded: unknown = JSON.parse(atob(compressed.substring(blobIndex, nextIndex)));
+		if (typeof decoded !== "object" || decoded == null || Array.isArray(decoded)) {
+			malformed(`Invalid ${label} structure.`);
+		}
+		return { value: decoded as Record<string, unknown>, nextIndex };
+	} catch (error) {
+		if (error instanceof SongDataError) throw error;
+		if (
+			error instanceof SyntaxError ||
+			error instanceof DOMException ||
+			(typeof error === "object" &&
+				error != null &&
+				"name" in error &&
+				error.name === "InvalidCharacterError")
+		) {
+			throw new SongDataError(`Invalid ${label}.`);
+		}
+		throw error;
+	}
+}
+
+function validateSongJsonShape(value: unknown, jsonFormat: string): asserts value is object {
+	if (typeof value !== "object" || value == null || Array.isArray(value)) {
+		malformed("Song JSON must be an object.");
+	}
+	const record = value as Record<string, unknown>;
+	if (jsonFormat === "auto" && typeof record.format !== "string") {
+		malformed("Song JSON format must be a string.");
+	}
+	if (record.channels !== undefined && !Array.isArray(record.channels)) {
+		malformed("Song JSON channels must be an array.");
+	}
+	if (
+		record.customSamples !== undefined &&
+		(!Array.isArray(record.customSamples) ||
+			record.customSamples.some((sample) => typeof sample !== "string"))
+	) {
+		malformed("Song JSON custom samples must be an array of strings.");
+	}
+	if (record.format === "JukeboxExp" && record.version !== 1 && record.version !== 2) {
+		malformed("Unsupported JukeboxExp JSON version.");
+	}
+}
+
+export function repairModulatorIndex(index: number): number {
+	return Config.modulators[index] == null ? Config.modulators.dictionary.none.index : index;
+}
+
+export function requireAvailableIndex(index: number, count: number, label: string): void {
+	if (!Number.isInteger(index) || index < 0 || index >= count) {
+		malformed(`${label} references unavailable data.`);
+	}
+}
+
+export function repairModTarget(
+	channelIndex: number,
+	instrumentIndex: number,
+	song: SongLike,
+): { channelIndex: number; instrumentIndex: number } {
+	const channel = song.channels[channelIndex];
+	if (
+		channelIndex >= song.pitchChannelCount + song.noiseChannelCount ||
+		channel == null ||
+		instrumentIndex < 0 ||
+		instrumentIndex >= channel.instruments.length + 2
+	) {
+		return { channelIndex: -2, instrumentIndex: 0 };
+	}
+	return { channelIndex, instrumentIndex };
+}
+
 export function fromBase64StringImpl(
 	song: SongLike,
 	compressed: string,
 	jsonFormat: string = "auto",
 ): void {
 	if (compressed == null || compressed === "") {
-		clearSamples(song.customSampleHandler);
+		if (song.customSampleHandler?.deferSampleLoading) {
+			song.customSampleHandler.clearSamples();
+		} else {
+			clearSamples(song.customSampleHandler);
+		}
 
 		song.initToDefault(true);
 		return;
@@ -91,16 +195,33 @@ export function fromBase64StringImpl(
 	if (compressed.charCodeAt(charIndex) === CharCode.HASH) charIndex++;
 	// if it starts with curly brace, treat it as JSON.
 	if (compressed.charCodeAt(charIndex) === CharCode.LEFT_CURLY_BRACE) {
-		song.fromJsonObject(
-			JSON.parse(charIndex === 0 ? compressed : compressed.substring(charIndex)),
-			jsonFormat,
-		);
+		let parsed: unknown;
+		try {
+			parsed = JSON.parse(charIndex === 0 ? compressed : compressed.substring(charIndex));
+		} catch (error) {
+			if (error instanceof SyntaxError) throw new SongDataError("Invalid song JSON.");
+			throw error;
+		}
+		validateSongJsonShape(parsed, jsonFormat);
+		try {
+			song.fromJsonObject(parsed, jsonFormat);
+		} catch (error) {
+			if (error instanceof SongDataError) throw error;
+			if (
+				error instanceof TypeError ||
+				error instanceof RangeError ||
+				error instanceof URIError
+			) {
+				throw new SongDataError("Invalid song JSON structure.");
+			}
+			throw error;
+		}
 		return;
 	}
 
 	const result = decodeVariant(compressed, charIndex);
 	if (result === null) {
-		return;
+		throw new SongDataError("Unsupported or invalid song version.");
 	}
 	charIndex = result.charIndex;
 	const {
@@ -162,8 +283,9 @@ export function fromBase64StringImpl(
 					const songNameLength =
 						(base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) +
 						base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
-					song.title = decodeURIComponent(
+					song.title = decodeSongText(
 						compressed.substring(charIndex, charIndex + songNameLength),
+						"song title",
 					);
 					song.customSampleHandler?.setDocumentTitle(song.title);
 
@@ -1206,9 +1328,15 @@ export function fromBase64StringImpl(
 								instrument: number;
 								info: SampleLoopInfo;
 							}
-							const sampleLoopInfo: SampleLoopInfoEntry[] = JSON.parse(
-								atob(sampleLoopInfoEncoded),
-							);
+							let sampleLoopInfo: SampleLoopInfoEntry[];
+							try {
+								sampleLoopInfo = JSON.parse(atob(sampleLoopInfoEncoded));
+							} catch (error) {
+								if (error instanceof SyntaxError || error instanceof DOMException) {
+									throw new SongDataError("Invalid sample loop metadata.");
+								}
+								throw error;
+							}
 							for (const entry of sampleLoopInfo) {
 								const channelIndex: number = entry.channel;
 								const instrumentIndex: number = entry.instrument;
@@ -1268,9 +1396,11 @@ export function fromBase64StringImpl(
 						) {
 							if (!willLoadLegacySamplesForOldSongs) {
 								willLoadLegacySamplesForOldSongs = true;
-								Config.willReloadForCustomSamples = true;
 								song.customSampleHandler?.setCustomSamples(["legacySamples"]);
-								loadBuiltInSamples(0);
+								if (!song.customSampleHandler?.deferSampleLoading) {
+									Config.willReloadForCustomSamples = true;
+									loadBuiltInSamples(0);
+								}
 							}
 						}
 						song.channels[instrumentChannelIterator].instruments[
@@ -2845,8 +2975,9 @@ export function fromBase64StringImpl(
 								(base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) +
 								base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
 						}
-						song.channels[channel].name = decodeURIComponent(
+						song.channels[channel].name = decodeSongText(
 							compressed.substring(charIndex, charIndex + channelNameLength),
+							"channel name",
 						);
 
 						charIndex += channelNameLength;
@@ -2940,9 +3071,11 @@ export function fromBase64StringImpl(
 							) {
 								if (!willLoadLegacySamplesForOldSongs) {
 									willLoadLegacySamplesForOldSongs = true;
-									Config.willReloadForCustomSamples = true;
 									song.customSampleHandler?.setCustomSamples(["legacySamples"]);
-									loadBuiltInSamples(0);
+									if (!song.customSampleHandler?.deferSampleLoading) {
+										Config.willReloadForCustomSamples = true;
+										loadBuiltInSamples(0);
+									}
 								}
 							}
 						}
@@ -3805,42 +3938,45 @@ export function fromBase64StringImpl(
 									const status: number = bits.read(2);
 
 									switch (status) {
-										case 0: // Pitch
-											instrument.modChannels[mod] = clamp(
-												0,
-												song.pitchChannelCount + song.noiseChannelCount + 1,
+										case 0: {
+											const target = repairModTarget(
 												bits.read(8),
-											);
-											instrument.modInstruments[mod] = clamp(
-												0,
-												song.channels[instrument.modChannels[mod]]
-													.instruments.length + 2,
 												bits.read(neededModInstrumentIndexBits),
+												song,
 											);
+											instrument.modChannels[mod] = target.channelIndex;
+											instrument.modInstruments[mod] = target.instrumentIndex;
 											break;
-										case 1: // Noise
-											// Getting a status of 1 means this is legacy mod info. Need to add pitch channel count, as it used to just store noise channel index and not overall channel index
-											instrument.modChannels[mod] =
-												song.pitchChannelCount +
-												clamp(0, song.noiseChannelCount + 1, bits.read(8));
-											instrument.modInstruments[mod] = clamp(
-												0,
-												song.channels[instrument.modChannels[mod]]
-													.instruments.length + 2,
+										}
+										case 1: {
+											const target = repairModTarget(
+												song.pitchChannelCount + bits.read(8),
 												bits.read(neededInstrumentIndexBits),
+												song,
 											);
+											instrument.modChannels[mod] = target.channelIndex;
+											instrument.modInstruments[mod] = target.instrumentIndex;
 											break;
-										case 2: // For song
+										}
+										case 2: {
+											// For song
 											instrument.modChannels[mod] = -1;
 											break;
-										case 3: // None
+										}
+										case 3: {
+											// None
 											instrument.modChannels[mod] = -2;
 											break;
+										}
 									}
 
 									// Mod setting is only used if the status isn't "none".
 									if (status !== 3) {
-										instrument.modulators[mod] = bits.read(6);
+										const modulator: number = bits.read(6);
+										instrument.modulators[mod] =
+											instrument.modChannels[mod] === -2
+												? Config.modulators.dictionary.none.index
+												: repairModulatorIndex(modulator);
 									}
 
 									if (
@@ -4022,13 +4158,17 @@ export function fromBase64StringImpl(
 								let newNote: boolean = false;
 								let shapeIndex: number = 0;
 								if (useOldShape) {
-									shapeIndex = clamp(
-										0,
-										recentShapes.count(),
-										bits.readLongTail(0, 0),
-									);
+									shapeIndex = bits.readLongTail(0, 0);
 								} else {
 									newNote = bits.read(1) === 1;
+								}
+
+								if (useOldShape) {
+									requireAvailableIndex(
+										shapeIndex,
+										recentShapes.count(),
+										"Pattern shape",
+									);
 								}
 
 								if (!useOldShape && !newNote) {
@@ -4154,10 +4294,12 @@ export function fromBase64StringImpl(
 												intervalIter++;
 											}
 										} else {
-											const pitchIndex: number = clamp(
-												0,
+											const pitchIndex: number =
+												bits.read(recentPitchBitLength);
+											requireAvailableIndex(
+												pitchIndex,
 												recentPitches.length,
-												bits.read(recentPitchBitLength),
+												"Pattern pitch",
 											);
 											pitch = recentPitches[pitchIndex];
 											recentPitches.splice(pitchIndex, 1);
@@ -4387,69 +4529,86 @@ export function fromBase64StringImpl(
 				break;
 			case SongTagCode.pluginData:
 				{
-					const [blobLength, afterBlobIndex] = decode32BitNumber(compressed, charIndex);
-					charIndex = afterBlobIndex;
-					const blob: string = compressed.substring(charIndex, charIndex + blobLength);
-					charIndex += blobLength;
+					const decoded = decodeJsonBlob(compressed, charIndex, "plugin payload");
+					charIndex = decoded.nextIndex;
+					const instrument: Instrument =
+						song.channels[instrumentChannelIterator]?.instruments[
+							instrumentIndexIterator
+						];
+					const plugin = instrument == null ? undefined : getPlugin(instrument.type);
+					if (instrument == null || plugin?.deserialize == null) {
+						malformed("Plugin payload has no matching instrument decoder.");
+					}
 					try {
-						const pluginJson: any = JSON.parse(atob(blob));
-						const instrument: Instrument =
-							song.channels[instrumentChannelIterator].instruments[
-								instrumentIndexIterator
-							];
-						const plugin = getPlugin(instrument.type);
-						if (plugin?.deserialize) {
-							plugin.deserialize(instrument, pluginJson);
-						}
-					} catch (_e) {
-						// Invalid plugin data — skip gracefully
+						plugin.deserialize(instrument, decoded.value);
+					} catch (error) {
+						if (error instanceof SongDataError) throw error;
+						throw new SongDataError("Invalid plugin payload structure.");
 					}
 				}
 				break;
 			case SongTagCode.socketPayload:
 				{
-					const [blobLength, afterBlobIndex] = decode32BitNumber(compressed, charIndex);
-					charIndex = afterBlobIndex;
-					const blob: string = compressed.substring(charIndex, charIndex + blobLength);
-					charIndex += blobLength;
-					try {
-						const payload: {
-							id: string;
-							version?: number;
-							params?: Record<string, unknown>;
-						} = JSON.parse(atob(blob));
-						const instrument: Instrument =
-							song.channels[instrumentChannelIterator].instruments[
-								instrumentIndexIterator
-							];
-						(instrument as any)._socketModuleId = payload.id;
-						// Deserialize module params if registered and payload has params
-						if (payload.params) {
-							const mod =
-								getInstrument(payload.id) ?? resolveOrPlaceholder(payload.id);
-							if (mod) {
-								const r = new JsonFieldReader(payload.params);
-								const deserialized = mod.deserialize(r, payload.version ?? 1);
-								for (const [key, value] of Object.entries(deserialized)) {
-									(instrument as any)[key] = value;
-								}
+					const decoded = decodeJsonBlob(compressed, charIndex, "socket payload");
+					charIndex = decoded.nextIndex;
+					const payload = decoded.value;
+					if (
+						typeof payload.id !== "string" ||
+						payload.id.length === 0 ||
+						(payload.version !== undefined &&
+							(!Number.isSafeInteger(payload.version) ||
+								(payload.version as number) < 0)) ||
+						(payload.params !== undefined &&
+							(typeof payload.params !== "object" ||
+								payload.params == null ||
+								Array.isArray(payload.params)))
+					) {
+						malformed("Invalid socket payload structure.");
+					}
+					const instrument: Instrument =
+						song.channels[instrumentChannelIterator]?.instruments[
+							instrumentIndexIterator
+						];
+					if (instrument == null) malformed("Socket payload has no matching instrument.");
+					const socketInstrument = instrument as Instrument & {
+						_socketModuleId?: string;
+						_opaqueSocketPayload?: Record<string, unknown>;
+					};
+					socketInstrument._socketModuleId = payload.id;
+					const mod = getInstrument(payload.id);
+					if (mod === undefined) {
+						socketInstrument._opaqueSocketPayload = payload;
+						break;
+					}
+					if (payload.params !== undefined) {
+						try {
+							const r = new JsonFieldReader(
+								payload.params as Record<string, unknown>,
+							);
+							const deserialized = mod.deserialize(
+								r,
+								typeof payload.version === "number" ? payload.version : 1,
+							);
+							const instrumentFields = instrument as unknown as Record<
+								string,
+								unknown
+							>;
+							for (const [key, value] of Object.entries(deserialized)) {
+								instrumentFields[key] = value;
 							}
+						} catch (error) {
+							if (error instanceof SongDataError) throw error;
+							throw new SongDataError("Invalid socket payload parameters.");
 						}
-					} catch (_e) {
-						// Invalid socket payload — skip gracefully
 					}
 				}
 				break;
 			default:
-				{
-					// Unknown tag code (command=<CharCode>) — skip, could be plugin data or future extension
-					charIndex++;
-				}
-				break;
+				throw new SongDataError("Unknown song data tag.");
 		}
 	}
 
-	if (Config.willReloadForCustomSamples) {
+	if (!song.customSampleHandler?.deferSampleLoading && Config.willReloadForCustomSamples) {
 		window.sessionStorage.setItem("resetBarOnLoad", "1");
 		window.location.hash = song.toBase64String();
 		setTimeout(() => {

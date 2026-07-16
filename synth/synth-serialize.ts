@@ -20,7 +20,10 @@ import {
 	SongTagCode,
 } from "./serialization";
 import { JsonFieldWriter } from "./socket/json-serde-adapter";
-import { getInstrument } from "./socket/registry";
+import {
+	hydrateOpaqueSocketInstrument,
+	type OpaqueSocketInstrument,
+} from "./socket/opaque-instrument";
 import type { SongLike } from "./song-serialization";
 import { getNeededBits, LATEST_JUKEBOX_VERSION } from "./song-serialization";
 import {
@@ -878,15 +881,32 @@ export function toBase64StringImpl(song: SongLike): string {
 			}
 
 			// Socket module payload — use module.serialize() for real param round-trip
-			const _socketModuleId = (instrument as any)._socketModuleId as string | undefined;
-			if (_socketModuleId) {
+			const socketInstrument = instrument as OpaqueSocketInstrument;
+			const socketModuleId = socketInstrument._socketModuleId;
+			if (socketModuleId) {
 				buffer.push(SongTagCode.socketPayload);
-				const mod = getInstrument(_socketModuleId);
-				let payload: Record<string, unknown> = { id: _socketModuleId, version: 1 };
+				const mod = hydrateOpaqueSocketInstrument(socketInstrument);
+				const opaquePayload = socketInstrument._opaqueSocketPayload;
+				let payload: Record<string, unknown> = opaquePayload ?? {
+					id: socketModuleId,
+					version: 1,
+				};
 				if (mod) {
 					const w = new JsonFieldWriter();
 					mod.serialize(instrument as unknown as Record<string, unknown>, w);
-					payload = { id: _socketModuleId, version: 1, params: w.toJSON() };
+					payload = {
+						...payload,
+						id: payload.id ?? socketModuleId,
+						version: payload.version ?? 1,
+						params: {
+							...(typeof payload.params === "object" &&
+							payload.params !== null &&
+							!Array.isArray(payload.params)
+								? payload.params
+								: {}),
+							...w.toJSON(),
+						},
+					};
 				}
 				const blob = btoa(JSON.stringify(payload));
 				encode32BitNumber(buffer, blob.length);

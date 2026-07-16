@@ -9,7 +9,11 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { SongDataError } from "../../synth";
+import { ChangeSong } from "../changes";
 import {
+	errorAlert,
+	type QuarantinedSong,
 	type RecoveredSong,
 	type RecoveredVersion,
 	SongRecovery,
@@ -17,8 +21,9 @@ import {
 } from "../io/song-recovery";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
+import { save } from "./save";
 
-const { div, h2, p, select, option, iframe } = HTML;
+const { button, div, h2, p, select, option, iframe } = HTML;
 
 declare const OFFLINE: boolean;
 
@@ -45,8 +50,9 @@ export class SongRecoveryPrompt extends BasePrompt {
 		super(doc);
 		this.buildTitlebar();
 		const songs: RecoveredSong[] = SongRecovery.getAllRecoveredSongs();
+		const quarantinedSongs: QuarantinedSong[] = SongRecovery.getQuarantinedSongs();
 
-		if (songs.length === 0) {
+		if (songs.length === 0 && quarantinedSongs.length === 0) {
 			this._songContainer.appendChild(
 				p("There are no recovered songs available yet. Try making a song!"),
 			);
@@ -66,12 +72,28 @@ export class SongRecoveryPrompt extends BasePrompt {
 
 			const player: HTMLIFrameElement = iframe({ class: "recoveryPlayer" });
 			player.src = `player/${OFFLINE ? "index.html" : ""}#song=${window.localStorage.getItem(versionToKey(song.versions[0]))}`;
+			const restoreButton: HTMLButtonElement = button({ type: "button" }, "Restore");
 			const container: HTMLDivElement = div(
 				{ class: "recoveryRow" },
 				div({ class: "selectContainer recoverySelectRow" }, versionMenu),
 				player,
+				restoreButton,
 			);
 			this._songContainer.appendChild(container);
+
+			restoreButton.addEventListener("click", () => {
+				const version: RecoveredVersion = song.versions[versionMenu.selectedIndex];
+				const raw: string | null = window.localStorage.getItem(versionToKey(version));
+				if (raw == null) return;
+				try {
+					doc.record(new ChangeSong(doc, raw), false, true);
+					this._close();
+				} catch (error) {
+					if (!(error instanceof SongDataError)) throw error;
+					SongRecovery.quarantine("recovery", raw, version, error);
+					errorAlert(error);
+				}
+			});
 
 			versionMenu.addEventListener("change", () => {
 				const version: RecoveredVersion = song.versions[versionMenu.selectedIndex];
@@ -79,6 +101,40 @@ export class SongRecoveryPrompt extends BasePrompt {
 					`player/${OFFLINE ? "index.html" : ""}#song=${window.localStorage.getItem(versionToKey(version))}`,
 				);
 				player.contentWindow!.dispatchEvent(new Event("hashchange"));
+			});
+		}
+
+		for (const record of quarantinedSongs) {
+			const retryButton: HTMLButtonElement = button({ type: "button" }, "Retry");
+			const exportButton: HTMLButtonElement = button({ type: "button" }, "Export Raw");
+			const deleteButton: HTMLButtonElement = button({ type: "button" }, "Delete");
+			const row: HTMLDivElement = div(
+				{ class: "recoveryRow" },
+				p(`Quarantined ${new Date(record.time).toLocaleString()}: ${record.error}`),
+				retryButton,
+				exportButton,
+				deleteButton,
+			);
+			this._songContainer.appendChild(row);
+			retryButton.addEventListener("click", () => {
+				try {
+					doc.record(new ChangeSong(doc, record.hash), false, true);
+					SongRecovery.deleteQuarantinedSong(record.id);
+					this._close();
+				} catch (error) {
+					if (!(error instanceof SongDataError)) throw error;
+					errorAlert(error);
+				}
+			});
+			exportButton.addEventListener("click", () => {
+				save(
+					new Blob([record.hash], { type: "text/plain" }),
+					`quarantined-song-${record.id}.txt`,
+				);
+			});
+			deleteButton.addEventListener("click", () => {
+				SongRecovery.deleteQuarantinedSong(record.id);
+				row.remove();
 			});
 		}
 	}

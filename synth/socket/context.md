@@ -14,6 +14,7 @@ Purpose: Formal socket interfaces — stable, versioned extension contracts for 
 - `bridge.ts`, Bridging InstrumentModule to existing SynthPlugin dispatch for migration
   - Also exports `INSTRUMENT_TYPE_TO_MODULE_ID` populated at boot
 - `instrument-tagging.ts`, Tag freshly created/edited instruments with their `_socketModuleId`
+- `opaque-instrument.ts`, One-shot hydration boundary for payloads preserved before module registration
 - `id-table.ts`, Per-song ModuleIdTable for compact URL storage of namespaced module IDs
 - `legacy-importer.ts`, Legacy format importer — reads legacy instrument data, calls module.migrate()
 - `url-varint.ts`, Varint encoding helpers for compact module ID + payload in song URL bitstream

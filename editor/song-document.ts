@@ -11,7 +11,7 @@
 
 import { ColorConfig } from "../shared/color-config";
 import { events } from "../shared/events";
-import { type Channel, type Instrument, type Pattern, Song, Synth } from "../synth";
+import { type Channel, type Instrument, type Pattern, Song, SongDataError, Synth } from "../synth";
 import { Config } from "../synth/synth-config";
 import {
 	type ChangeHoldingModRecording,
@@ -30,9 +30,9 @@ import {
 import { Preferences } from "./core/preferences";
 import { Selection } from "./core/selection";
 import { SongPerformance } from "./core/song-performance";
-import { errorAlert, generateUid } from "./io/song-recovery";
+import { errorAlert, generateUid, SongRecovery } from "./io/song-recovery";
 
-import { createCustomSampleHandler } from "./song-custom-samples";
+import { createCustomSampleHandler, decodeEditorSong } from "./song-custom-samples";
 import { Layout } from "./ui";
 
 export class SongDocument {
@@ -92,18 +92,24 @@ export class SongDocument {
 		if (songString === "") {
 			songString = this._history.getHash();
 		}
+		let retainRawHistoryEntry: boolean = false;
 		try {
-			this.song = new Song(songString, createCustomSampleHandler());
+			this.song = decodeEditorSong(songString, createCustomSampleHandler());
 			if (songString === "" || songString === undefined) {
 				setDefaultInstruments(this.song);
 				this.song.scale = this.prefs.defaultScale;
 			}
 		} catch (error) {
+			if (!(error instanceof SongDataError)) throw error;
+			retainRawHistoryEntry =
+				SongRecovery.quarantine("hash", songString, this._history.getState(), error) ==
+				null;
 			errorAlert(error);
-			this.song = new Song("", createCustomSampleHandler());
+			this.song = new Song();
+			this.song.customSampleHandler = createCustomSampleHandler();
 			setDefaultInstruments(this.song);
 		}
-		songString = this.song.toBase64String();
+		const loadedSongString: string = this.song.toBase64String();
 		this.synth = new Synth(this.song);
 		this.synth.onSpectrumUpdate = (l, r) => {
 			events.raise("spectrumUpdate", l, r);
@@ -129,7 +135,7 @@ export class SongDocument {
 			};
 		}
 		if (state.recoveryUid === undefined) state.recoveryUid = generateUid();
-		this._history.replaceState(state, songString);
+		if (!retainRawHistoryEntry) this._history.replaceState(state, loadedSongString);
 		this._history.onChange(this._whenHistoryStateChanged);
 		this.bar = state.bar | 0;
 		if (window.sessionStorage.getItem("resetBarOnLoad") === "1") {
@@ -230,22 +236,32 @@ export class SongDocument {
 
 		if (window.history.state == null && window.location.hash !== "") {
 			// The user changed the hash directly.
-			this._sequenceNumber++;
-			this._resetSongRecoveryUid();
-			const state: HistoryState = {
+			const rawHash: string = this._history.getHash();
+			const retainedState: HistoryState = {
 				canUndo: true,
 				sequenceNumber: this._sequenceNumber,
-				bar: 0,
+				bar: this.bar,
 				channel: this.channel,
 				instrument: this.viewedInstrument[this.channel],
 				recoveryUid: this._recoveryUid,
 				selection: this.selection.toJSON(),
 			};
 			try {
-				new ChangeSong(this, this._history.getHash());
+				new ChangeSong(this, rawHash);
 			} catch (error) {
+				if (!(error instanceof SongDataError)) throw error;
+				SongRecovery.quarantine("hash", rawHash, retainedState, error);
 				errorAlert(error);
+				return;
 			}
+			this._sequenceNumber++;
+			this._resetSongRecoveryUid();
+			const state: HistoryState = {
+				...retainedState,
+				sequenceNumber: this._sequenceNumber,
+				bar: 0,
+				recoveryUid: this._recoveryUid,
+			};
 			this.synth.incrementEditSequence();
 			this._history.replaceState(state, this.song.toBase64String());
 			this.forgetLastChange();
@@ -259,22 +275,25 @@ export class SongDocument {
 		}
 
 		const state: HistoryState | null = this._history.getState();
-		if (state == null) throw new Error("History state is null.");
+		if (state == null) return;
 
 		// Abort if we've already handled the current state.
 		if (state.sequenceNumber === this._sequenceNumber) return;
 
+		const rawHash: string = this._history.getHash();
+		try {
+			new ChangeSong(this, rawHash);
+		} catch (error) {
+			if (!(error instanceof SongDataError)) throw error;
+			SongRecovery.quarantine("history", rawHash, state, error);
+			errorAlert(error);
+			return;
+		}
+		this.synth.incrementEditSequence();
 		this.bar = state.bar;
 		this.channel = state.channel;
 		this.viewedInstrument[this.channel] = state.instrument;
 		this._sequenceNumber = state.sequenceNumber;
-		try {
-			new ChangeSong(this, this._history.getHash());
-		} catch (error) {
-			errorAlert(error);
-		}
-		this.synth.incrementEditSequence();
-
 		this._recoveryUid = state.recoveryUid;
 		this.selection.fromJSON(state.selection);
 		this._validateDocState();

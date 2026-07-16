@@ -33,6 +33,10 @@ export function loadCustomSamples(
 	compressed = compressed_array.shift()!;
 	const currentSamples = song.customSampleHandler?.getCustomSamples();
 	if (currentSamples == null || currentSamples.join(", ") !== compressed_array.join(", ")) {
+		if (song.customSampleHandler?.deferSampleLoading) {
+			song.customSampleHandler.setCustomSamples(compressed_array);
+			return compressed;
+		}
 		restoreChipWaveListToDefault();
 
 		let willLoadLegacySamples = false;

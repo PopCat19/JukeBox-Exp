@@ -13,6 +13,11 @@ export {
 	toJukeboxExpJson,
 } from "./jukebox-exp";
 export {
+	fromJukeboxExpV2Json,
+	isJukeboxExpV2Object,
+	toJukeboxExpV2Json,
+} from "./jukebox-exp-v2";
+export {
 	fromLegacyCompatJson,
 	toLegacyCompatJson,
 } from "./legacy-compat";

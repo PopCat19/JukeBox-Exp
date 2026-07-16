@@ -9,6 +9,7 @@
 
 import { Channel } from "./channels";
 import { fromJsonObjectImpl, toJsonObjectImpl } from "./formats/json-serialization";
+import { fromJukeboxExpV2Json, isJukeboxExpV2Object } from "./formats/jukebox-exp-v2";
 import { FilterSettings, Instrument } from "./instruments";
 import { Pattern } from "./notes";
 import { tagInstrumentWithModule } from "./socket/instrument-tagging";
@@ -31,6 +32,13 @@ export class Song {
 		enableOutro?: boolean,
 	): object => toJsonObjectImpl(this as any, enableIntro, loopCount, enableOutro);
 	public fromJsonObject = (jsonObject: any, jsonFormat?: string): void => {
+		if (
+			(jsonFormat === undefined || jsonFormat === "auto") &&
+			isJukeboxExpV2Object(jsonObject)
+		) {
+			fromJukeboxExpV2Json(this as any, jsonObject);
+			return;
+		}
 		fromJsonObjectImpl(this as any, jsonObject, jsonFormat);
 	};
 

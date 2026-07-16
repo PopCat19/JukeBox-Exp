@@ -103,12 +103,15 @@ describe("SongDocument position persistence", () => {
 			"private _cleanDocument",
 		);
 		const directHashStart = body.indexOf("if (window.history.state == null");
-		const directHashEnd = body.indexOf("\n\t\t}", directHashStart);
+		const directHashEnd = body.indexOf(
+			"\n\t\tconst state: HistoryState | null",
+			directHashStart,
+		);
 		const directHashBody = body.slice(directHashStart, directHashEnd);
 		const directHashTransition = directHashBody.indexOf("this.synth.goToBar(0)");
 		const directHashValidate = directHashBody.indexOf("this._validateDocState()");
 		const directHashPersist = directHashBody.indexOf("this.persistCurrentPosition()");
-		const directHashReturn = directHashBody.indexOf("return;");
+		const directHashReturn = directHashBody.lastIndexOf("return;");
 		const normalHistoryBody = body.slice(directHashEnd);
 		const barAssignment = normalHistoryBody.indexOf("this.bar = state.bar");
 		const channelAssignment = normalHistoryBody.indexOf("this.channel = state.channel");

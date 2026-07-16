@@ -22,7 +22,17 @@ export interface RecoveredSong {
 	versions: RecoveredVersion[];
 }
 
+export interface QuarantinedSong {
+	id: string;
+	time: number;
+	source: "hash" | "history" | "recovery";
+	hash: string;
+	state: unknown;
+	error: string;
+}
+
 const versionPrefix = "songVersion: ";
+const quarantinePrefix = "songQuarantine:";
 const maximumSongCount = 8;
 const maximumWorkPerVersion = 3 * 60 * 1000; // 3 minutes
 const minimumWorkPerSpan = 1 * 60 * 1000; // 1 minute
@@ -31,8 +41,25 @@ function keyIsVersion(key: string): boolean {
 	return key.indexOf(versionPrefix) === 0;
 }
 
-function keyToVersion(key: string): RecoveredVersion {
-	return JSON.parse(key.substring(versionPrefix.length));
+function keyToVersion(key: string): RecoveredVersion | null {
+	try {
+		const value: unknown = JSON.parse(key.substring(versionPrefix.length));
+		if (typeof value !== "object" || value == null) return null;
+		const version = value as Partial<RecoveredVersion>;
+		if (
+			typeof version.uid !== "string" ||
+			typeof version.time !== "number" ||
+			typeof version.name !== "string" ||
+			typeof version.work !== "number" ||
+			!Number.isFinite(version.time) ||
+			!Number.isFinite(version.work)
+		) {
+			return null;
+		}
+		return version as RecoveredVersion;
+	} catch {
+		return null;
+	}
 }
 
 export function versionToKey(version: RecoveredVersion): string {
@@ -62,13 +89,69 @@ function compareVersions(a: RecoveredVersion, b: RecoveredVersion): number {
 export class SongRecovery {
 	private _saveVersionTimeoutHandle: ReturnType<typeof setTimeout>;
 
+	public static quarantine(
+		source: QuarantinedSong["source"],
+		hash: string,
+		state: unknown,
+		error: Error,
+	): QuarantinedSong | null {
+		const id: string = generateUid();
+		const record: QuarantinedSong = {
+			id,
+			time: Date.now(),
+			source,
+			hash,
+			state,
+			error: error.message,
+		};
+		try {
+			localStorage.setItem(quarantinePrefix + id, JSON.stringify(record));
+			return record;
+		} catch {
+			console.warn("Unable to persist quarantined song data.");
+			return null;
+		}
+	}
+
+	public static getQuarantinedSongs(): QuarantinedSong[] {
+		const records: QuarantinedSong[] = [];
+		for (let i: number = 0; i < localStorage.length; i++) {
+			const key: string | null = localStorage.key(i);
+			if (key == null || !key.startsWith(quarantinePrefix)) continue;
+			try {
+				const value: unknown = JSON.parse(localStorage.getItem(key) ?? "");
+				if (typeof value !== "object" || value == null) continue;
+				const record = value as Partial<QuarantinedSong>;
+				if (
+					typeof record.id === "string" &&
+					typeof record.time === "number" &&
+					typeof record.hash === "string" &&
+					typeof record.error === "string" &&
+					(record.source === "hash" ||
+						record.source === "history" ||
+						record.source === "recovery")
+				) {
+					records.push(record as QuarantinedSong);
+				}
+			} catch {
+				// A malformed quarantine record is isolated from valid records.
+			}
+		}
+		return records.sort((a, b) => b.time - a.time);
+	}
+
+	public static deleteQuarantinedSong(id: string): void {
+		localStorage.removeItem(quarantinePrefix + id);
+	}
+
 	public static getAllRecoveredSongs(): RecoveredSong[] {
 		const songs: RecoveredSong[] = [];
 		const songsByUid: Dictionary<RecoveredSong> = {};
 		for (let i = 0; i < localStorage.length; i++) {
 			const itemKey: string = localStorage.key(i)!;
 			if (keyIsVersion(itemKey)) {
-				const version: RecoveredVersion = keyToVersion(itemKey);
+				const version: RecoveredVersion | null = keyToVersion(itemKey);
+				if (version == null || localStorage.getItem(itemKey) == null) continue;
 				let song: RecoveredSong | undefined = songsByUid[version.uid];
 				if (song === undefined) {
 					song = { versions: [] };

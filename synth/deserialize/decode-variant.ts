@@ -89,6 +89,7 @@ export function decodeVariant(compressed: string, startIndex: number): DecodeVar
 	}
 
 	const version: number = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+	if (!Number.isInteger(version)) return null;
 
 	// Validate version against variant range
 	if (
