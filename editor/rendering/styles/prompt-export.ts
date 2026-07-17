@@ -85,22 +85,27 @@ export function buildPromptExportCSS(): string {
 	text-align: left;
 }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .exportPromptContent {
+	align-self: center;
 	flex: 1 1 auto;
-	width: 100%;
-	max-width: none;
+	width: min(100%, 520px);
+	max-width: 520px;
 }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .exportPromptFooter { margin-top: auto; }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .prompt-button-row { outline: none; }
-.beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt button:focus-visible,
-.beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt input:focus-visible,
-.beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt select:focus-visible { outline: 2px solid var(--hout, var(--primary-text)); outline-offset: 1px; }
+.beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt button:focus-visible {
+	outline: 2px solid var(--hout, var(--primary-text));
+	outline-offset: 1px;
+}
 .beepboxEditor .navigator-detached-content > .navigator-native-pane.exportPrompt .exportPromptContent {
 	width: min(520px, 100%);
 	max-width: 520px;
 }
 @media (max-width: 639px) {
 	.beepboxEditor .prompt.exportPrompt { width: min(340px, calc(100vw - 16px)); max-width: 340px; }
-	.beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .exportPromptContent { width: 100%; }
+	.beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .exportPromptContent {
+		width: 100%;
+		max-width: none;
+	}
 	.beepboxEditor .prompt.exportPrompt .exportField { grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr); gap: 8px; }
 }
 `;

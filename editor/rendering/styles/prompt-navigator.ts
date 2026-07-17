@@ -3,6 +3,14 @@
 export function buildNavigatorCSS(): string {
 	return `
 .beepboxEditor .navigator-shell[hidden] { display: none; }
+.beepboxEditor .navigator-shell.navigator-backdrop-disabled {
+	background: var(--editor-background);
+}
+.beepboxEditor .navigator-shell.navigator-backdrop-disabled .navigator-content,
+.beepboxEditor .navigator-shell.navigator-backdrop-disabled .navigator-sidebar,
+.beepboxEditor .navigator-shell.navigator-backdrop-disabled .navigator-workspace {
+	background: var(--editor-background);
+}
 .beepboxEditor .navigator-prompt-variant {
 	display: flex;
 	box-sizing: border-box;

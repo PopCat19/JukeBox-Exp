@@ -7,7 +7,9 @@ export function buildPromptMiscCSS(): string {
 	return `\
 /* ── Song Recovery Prompt ── */
 .beepboxEditor .prompt.songRecoveryPrompt {
-	width: 300px;
+	box-sizing: border-box;
+	width: 620px;
+	max-width: calc(100vw - 24px);
 }
 
 .beepboxEditor .prompt.songRecoveryPrompt .recoveryScroll {
@@ -22,18 +24,54 @@ export function buildPromptMiscCSS(): string {
 
 .beepboxEditor .prompt.songRecoveryPrompt .recoveryPlayer {
 	width: 100%;
-	height: 60px;
+	height: 120px;
 	border: none;
 	display: block;
+	background: var(--editor-background);
 }
 
 .beepboxEditor .prompt.songRecoveryPrompt .recoveryRow {
-	margin: 4px 0;
+	box-sizing: border-box;
+	margin: 8px 0;
+	padding: 8px;
+	border: 1px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	background: color-mix(in srgb, var(--ui-widget-background), transparent 55%);
 }
+
+.beepboxEditor .prompt.songRecoveryPrompt .recoveryPreviewRow {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	grid-template-areas:
+		"select restore"
+		"player player";
+	gap: 8px;
+}
+
+.beepboxEditor .prompt.songRecoveryPrompt .recoveryPreviewRow .recoverySelectRow { grid-area: select; }
+.beepboxEditor .prompt.songRecoveryPrompt .recoveryPreviewRow .recoveryPlayer { grid-area: player; }
+.beepboxEditor .prompt.songRecoveryPrompt .recoveryPreviewRow > button { grid-area: restore; }
 
 .beepboxEditor .prompt.songRecoveryPrompt .recoverySelectRow {
 	width: 100%;
-	margin: 2px 0;
+	min-width: 0;
+	margin: 0;
+}
+
+.beepboxEditor .prompt.songRecoveryPrompt .recoveryQuarantineRow {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.beepboxEditor .prompt.songRecoveryPrompt .recoveryQuarantineRow > p {
+	flex: 1 1 100%;
+	margin: 0;
+}
+
+.beepboxEditor .prompt.songRecoveryPrompt .recoveryQuarantineRow > button {
+	flex: 0 0 auto;
 }
 
 /* ── Import Prompt ── */
@@ -246,6 +284,17 @@ export function buildPromptMiscCSS(): string {
 	grid-template-columns: repeat(6, 1fr);
 	gap: 8px;
 	align-content: start;
+}
+@media (max-width: 639px) {
+	.beepboxEditor .prompt.songRecoveryPrompt .recoveryPlayer { height: 90px; }
+	.beepboxEditor .prompt.songRecoveryPrompt .recoveryPreviewRow {
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			"select"
+			"restore"
+			"player";
+	}
+	.beepboxEditor .prompt.songRecoveryPrompt .recoveryPreviewRow > button { justify-self: end; }
 }
 `;
 }

@@ -83,7 +83,8 @@ export function buildNavigatorPanesCSS(): string {
 }
 .beepboxEditor .navigator-native-pane > .prompt-titlebar,
 .beepboxEditor .navigator-native-pane > .cancelButton,
-.beepboxEditor .navigator-native-pane > .prompt-button-row > .cancelButton {
+.beepboxEditor .navigator-native-pane > .prompt-button-row > .cancelButton,
+.beepboxEditor .navigator-native-pane > .exportPromptContent > .exportPromptFooter > .cancelButton {
 	display: none !important;
 }
 `;

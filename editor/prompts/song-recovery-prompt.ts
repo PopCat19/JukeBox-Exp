@@ -25,8 +25,6 @@ import { save } from "./save";
 
 const { button, div, h2, p, select, option, iframe } = HTML;
 
-declare const OFFLINE: boolean;
-
 export class SongRecoveryPrompt extends BasePrompt {
 	private readonly _songContainer: HTMLDivElement = div();
 
@@ -71,10 +69,10 @@ export class SongRecoveryPrompt extends BasePrompt {
 			}
 
 			const player: HTMLIFrameElement = iframe({ class: "recoveryPlayer" });
-			player.src = `player/${OFFLINE ? "index.html" : ""}#song=${window.localStorage.getItem(versionToKey(song.versions[0]))}`;
+			player.src = `player/index.html#song=${window.localStorage.getItem(versionToKey(song.versions[0]))}`;
 			const restoreButton: HTMLButtonElement = button({ type: "button" }, "Restore");
 			const container: HTMLDivElement = div(
-				{ class: "recoveryRow" },
+				{ class: "recoveryRow recoveryPreviewRow" },
 				div({ class: "selectContainer recoverySelectRow" }, versionMenu),
 				player,
 				restoreButton,
@@ -98,7 +96,7 @@ export class SongRecoveryPrompt extends BasePrompt {
 			versionMenu.addEventListener("change", () => {
 				const version: RecoveredVersion = song.versions[versionMenu.selectedIndex];
 				player.contentWindow!.location.replace(
-					`player/${OFFLINE ? "index.html" : ""}#song=${window.localStorage.getItem(versionToKey(version))}`,
+					`player/index.html#song=${window.localStorage.getItem(versionToKey(version))}`,
 				);
 				player.contentWindow!.dispatchEvent(new Event("hashchange"));
 			});
@@ -109,7 +107,7 @@ export class SongRecoveryPrompt extends BasePrompt {
 			const exportButton: HTMLButtonElement = button({ type: "button" }, "Export Raw");
 			const deleteButton: HTMLButtonElement = button({ type: "button" }, "Delete");
 			const row: HTMLDivElement = div(
-				{ class: "recoveryRow" },
+				{ class: "recoveryRow recoveryQuarantineRow" },
 				p(`Quarantined ${new Date(record.time).toLocaleString()}: ${record.error}`),
 				retryButton,
 				exportButton,

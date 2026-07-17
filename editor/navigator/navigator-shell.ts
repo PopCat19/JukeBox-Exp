@@ -141,6 +141,7 @@ export class NavigatorShell implements PaneHost {
 			"--prompt-bg-color",
 			enabled ? "var(--prompt-backdrop-color)" : "transparent",
 		);
+		this.container.classList.toggle("navigator-backdrop-disabled", !enabled);
 	}
 
 	attach(root: PaneRoot): void {
