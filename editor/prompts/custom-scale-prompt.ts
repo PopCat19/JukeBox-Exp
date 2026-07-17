@@ -27,15 +27,18 @@ export class CustomScalePrompt extends BasePrompt {
 	constructor(doc: SongDocument) {
 		super(doc);
 		this._flags = doc.song.scaleCustom.slice();
-		const scaleHolder: HTMLDivElement = div({});
-		for (let i = Config.pitchesPerOctave - 1; i > 0; i--) {
+		const scaleHolder: HTMLDivElement = div({ class: "scaleFlagsGrid" });
+		for (let i = 0; i < Config.pitchesPerOctave; i++) {
+			const pitchName: string =
+				Config.keys[(doc.song.key + i) % Config.pitchesPerOctave].name;
 			this._scaleFlags[i] = input({
 				type: "checkbox",
-				//
-				checked: this._flags[i],
+				checked: i === 0 || this._flags[i],
+				disabled: i === 0,
 				value: i,
 			});
-			this._scaleRows[i] = labelRow(`Note ${i}:`, this._scaleFlags[i]);
+			this._scaleRows[i] = labelRow(`${pitchName} · ${i + 1}`, this._scaleFlags[i]);
+			this._scaleRows[i].classList.add("scaleFlag");
 			scaleHolder.appendChild(this._scaleRows[i]);
 		}
 
@@ -53,10 +56,11 @@ export class CustomScalePrompt extends BasePrompt {
 	}
 
 	protected override _saveChanges(): void {
+		this._flags[0] = true;
 		for (let i = 1; i < this._scaleFlags.length; i++) {
 			this._flags[i] = this._scaleFlags[i].checked;
 		}
-		this._doc.prompt = null;
 		this._doc.record(new ChangeCustomScale(this._doc, this._flags));
+		this._close();
 	}
 }

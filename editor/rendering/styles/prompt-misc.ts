@@ -210,14 +210,29 @@ export function buildPromptMiscCSS(): string {
 
 /* ── Custom Scale Prompt ── */
 .beepboxEditor .prompt.customScalePrompt {
-	width: 250px;
+	box-sizing: border-box;
+	width: 420px;
+	max-width: calc(100vw - 24px);
 }
 
 .beepboxEditor .prompt.customScalePrompt .scaleFlagsRow {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: flex-end;
+	width: 100%;
+}
+
+.beepboxEditor .prompt.customScalePrompt .scaleFlagsGrid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.beepboxEditor .prompt.customScalePrompt .scaleFlag {
+	box-sizing: border-box;
+	justify-content: space-between;
+	min-width: 0;
+	padding: 6px 8px;
+	border-radius: var(--border-radius-medium);
+	background: var(--ui-widget-background);
+	text-align: left;
 }
 
 .beepboxEditor .prompt.cvvPrompt {

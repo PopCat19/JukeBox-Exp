@@ -46,6 +46,14 @@ export function buildNavigatorPanesCSS(): string {
 	box-shadow: none !important;
 	outline: none !important;
 }
+.beepboxEditor :is(.navigator-pane-host, .navigator-detached-content) > .navigator-native-pane > .prompt-button-row {
+	flex: 0 0 auto;
+	margin-top: auto;
+}
+.beepboxEditor .navigator-pane-host > .customFilterPrompt > .filterViewport {
+	flex: 0 0 auto;
+	aspect-ratio: 1200 / 290;
+}
 .beepboxEditor .navigator-detached-content > .navigator-native-pane {
 	position: static !important;
 	inset: auto !important;

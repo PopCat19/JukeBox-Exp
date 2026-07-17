@@ -78,16 +78,18 @@ export function buildPromptExportCSS(): string {
 	min-width: 0;
 }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt {
-	align-items: flex-start;
+	align-items: stretch;
 	border: 0;
 	outline: none;
 	box-shadow: none;
 	text-align: left;
 }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .exportPromptContent {
-	width: min(440px, 100%);
-	max-width: 440px;
+	flex: 1 1 auto;
+	width: 100%;
+	max-width: none;
 }
+.beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .exportPromptFooter { margin-top: auto; }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .prompt-button-row { outline: none; }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt button:focus-visible,
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt input:focus-visible,

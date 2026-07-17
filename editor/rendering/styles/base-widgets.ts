@@ -395,9 +395,10 @@ export function buildBaseWidgetsCSS(): string {
 	mask-position: center;
 }
 
-.beepboxEditor button.playButton, .beepboxEditor button.pauseButton, .beepboxEditor button.recordButton, .beepboxEditor button.stopButton, .beepboxEditor button.okayButton, .beepboxEditor button.exportButton {
+.beepboxEditor button.playButton, .beepboxEditor button.pauseButton, .beepboxEditor button.recordButton, .beepboxEditor button.stopButton {
 	padding-left: var(--button-size);
 }
+.beepboxEditor button.okayButton, .beepboxEditor button.exportButton,
 .beepboxEditor button.copyButton, .beepboxEditor button.pasteButton, .beepboxEditor button.exportInstrumentButton, .beepboxEditor button.importInstrumentButton {
 	display: flex;
 	flex-direction: row;
@@ -501,6 +502,13 @@ export function buildBaseWidgetsCSS(): string {
 	-webkit-mask-size: 16px;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
+}
+.beepboxEditor button.okayButton::before,
+.beepboxEditor button.exportButton::before {
+	position: static;
+	flex: 0 0 16px;
+	width: 16px;
+	height: 16px;
 }
 
 /* Tabler dropdown button — circle with chevron */
