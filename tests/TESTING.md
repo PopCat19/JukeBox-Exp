@@ -11,6 +11,12 @@ Use the cross-reference table below. If no test file is listed, the
 module has no dedicated test coverage. Add a test file when modifying
 an uncovered module.
 
+### tooling/
+
+| Source | Test file | Scope |
+|--------|-----------|-------|
+| `scripts/check-lint-baseline.mjs` | `tests/lint-baseline.test.ts` | unchanged, added, moved, removed, and malformed warning baselines |
+
 ### synth/
 
 | Source | Test file | Scope |

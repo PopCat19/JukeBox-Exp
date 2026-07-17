@@ -5,13 +5,13 @@
 // This module:
 // - Exports preset categories: Other Community Novelty, Community Drums
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const mixedCommunityCategories: InputPresetCategory[] = [
 	{
 		name: "Other Community Novelty Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "hardware kick - Mathieu",
 				generalMidi: false,
@@ -5662,7 +5662,7 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Ashiiware's Drum Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Granudrums",
 				generalMidi: false,
@@ -6388,7 +6388,7 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Other Community Drum Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "something wicked - Cira",
 				generalMidi: false,
@@ -8109,7 +8109,7 @@ export const mixedCommunityCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Community Novelty Drum Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.0 presets--------------
 			{
 				name: "distorted chip drums - snowirei",

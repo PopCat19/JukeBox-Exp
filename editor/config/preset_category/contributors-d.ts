@@ -5,13 +5,13 @@
 // This module:
 // - Exports preset categories: Formskooooo through DX7FM Novelty
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const contributorCategoriesD: InputPresetCategory[] = [
 	{
 		name: "Formskooooo's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.3 presets--------------
 			{
 				name: "Bass Clarinet",
@@ -511,7 +511,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 	},
 	{
 		name: "dragoncoder047's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.3.0 presets--------------
 			{
 				name: "distorted saw 3",
@@ -1659,7 +1659,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 	},
 	{
 		name: "Other Community Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.0.0 newcomers--------------
 			{
 				name: "enhanced supersaw - Perriot",
@@ -14785,7 +14785,7 @@ export const contributorCategoriesD: InputPresetCategory[] = [
 	},
 	{
 		name: "DX7FM's Novelty Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Sinehell",
 				generalMidi: false,

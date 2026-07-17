@@ -27,6 +27,7 @@
 		"dev:static": "bash ./scripts/live-editor-static.sh",
 		"dev:legacy": "bash ./scripts/live-editor-legacy.sh",
 		"lint": "bash ./scripts/lint.sh",
+		"lint:baseline": "UPDATE_LINT_BASELINE=1 bash ./scripts/lint.sh",
 		"lint:fix": "bash ./scripts/lint-fix.sh",
 		"test": "bun test",
 		"deploy": "bash ./scripts/deploy.sh",

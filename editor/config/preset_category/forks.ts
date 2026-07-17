@@ -5,13 +5,13 @@
 // This module:
 // - Exports preset categories: UltraBox through Dogebox2
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const forkCategories: InputPresetCategory[] = [
 	{
 		name: "UltraBox Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			//
 			{
 				name: "distorted pulse vocal",
@@ -736,7 +736,7 @@ export const forkCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Slarmoo's Box Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// custom presets from this mod
 			// all created by Slarmoo
 			{
@@ -2464,7 +2464,7 @@ export const forkCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Slarmoo's Box Chip Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// Made by Slarmoo
 			{
 				name: "Slarmoo's Pulse",
@@ -2807,7 +2807,7 @@ export const forkCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Slarmoo's Box Instrumental Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// Made by Slarmoo
 			{
 				name: "rusty flute",
@@ -3859,7 +3859,7 @@ export const forkCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Midbox Misc Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// { name: "Name", generalMidi: false, tags:["", "midbox"], settings: {} },
 			{
 				name: "Broken Music Box",
@@ -5995,7 +5995,7 @@ export const forkCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Midbox Dubstep Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// { name: "Name", generalMidi: false, tags:["", "midbox"], settings: {} },
 			{
 				name: "Dubstep Bwayyyy",
@@ -6480,7 +6480,7 @@ export const forkCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "AbyssBox Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Demonic Bell",
 				generalMidi: false,
@@ -7644,7 +7644,7 @@ export const forkCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "LemmBox Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// custom presets from this mod
 			{
 				name: "HD triangle wave",
@@ -8360,7 +8360,7 @@ export const forkCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "AwesomeBox Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "1/4 pulse lead",
 				midiProgram: 80,
@@ -9304,7 +9304,7 @@ export const forkCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "(compatible) Studio Box Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Bluh",
 				generalMidi: false,
@@ -9976,7 +9976,7 @@ export const forkCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Dogebox2 Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "wibble bass",
 				midiProgram: 36,

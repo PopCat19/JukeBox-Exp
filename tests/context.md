@@ -25,6 +25,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `notes.test.ts`, Unit tests for note and pattern data structures
 - `pattern-editor-contract.test.ts`, Structural contract tests for pattern-editor.ts rendering invariants (stale canvas path, SVG/canvas y-center alignment)
 - `loop-editor-contract.test.ts`, Structural contract tests for loop-editor.ts UI invariants (CSS class for disabled state, no inline opacity conflict) and song-editor.ts focus-steal listeners (mouseup blur buttons, keydown intercept Space on button/select)
+- `lint-baseline.test.ts`, Contract tests for exact lint warning fingerprint drift detection
 - `song-document-contract.test.ts`, Structural contracts for position persistence during record, redo-preserving navigation, and history-state application
 - `song-data-recovery.test.ts`, Corruption repair, atomic replacement, defensive recovery parsing, and duplicate history event coverage
 - `song-document-integration.test.ts`, Integration tests for Sprint 1 refactorings and song serialization

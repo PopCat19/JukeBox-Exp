@@ -2,7 +2,8 @@
 
 - `run.sh`, Detect available JS runtime, set runner variables, and resolve tool binaries
 - `build.ts`, Builds all bundles with esbuild via JS API in parallel
-- `lint.sh`, Runs biome, TypeScript type-checking, and eslint
+- `lint.sh`, Runs typechecks and rejects Biome or ESLint diagnostic drift
+- `check-lint-baseline.mjs`, Compares exact per-file lint fingerprints against reviewed debt
 - `lint-fix.sh`, Runs biome check --write for formatting and safe lint fixes
 - `deploy.sh`, Builds and deploys the website to GitHub Pages
 - `deploy_files.sh`, Assembles deployment directory with compiled assets and static files

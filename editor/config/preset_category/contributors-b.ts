@@ -5,13 +5,13 @@
 // This module:
 // - Exports preset categories: Treethletress through Jayden256
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const contributorCategoriesB: InputPresetCategory[] = [
 	{
 		name: "Treethletress's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.3 presets--------------
 			{
 				name: "Shrill Arcade Saw",
@@ -1123,7 +1123,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 	},
 	{
 		name: "Synthetic's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.1.6--------------
 			{
 				name: "Mr. S FNF waveform",
@@ -1720,7 +1720,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 	},
 	{
 		name: "literally_luigi_irl's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.0--------------
 			{
 				name: "Expresso Bass",
@@ -2150,7 +2150,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 	},
 	{
 		name: "SuP3r's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.3--------------
 			{
 				name: "The DGWF",
@@ -3619,7 +3619,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 	},
 	{
 		name: "RBLX_INST's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.3--------------
 			{
 				name: "Standard Kick",
@@ -4766,7 +4766,7 @@ export const contributorCategoriesB: InputPresetCategory[] = [
 	},
 	{
 		name: "Jayden256's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.3--------------
 			{
 				name: "N163 FM Bass",

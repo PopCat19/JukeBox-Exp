@@ -5,13 +5,13 @@
 // This module:
 // - Exports preset categories: UnBox Synth Pads through Novelty
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const unboxCategories: InputPresetCategory[] = [
 	{
 		name: "UnBox Synth Pads",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Filtered Pad",
 				midiProgram: 89,
@@ -644,7 +644,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Synth-Bass",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Bass Tone",
 				midiProgram: 35,
@@ -1946,7 +1946,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Synth-Brass",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Synth Brass 1",
 				midiProgram: 63,
@@ -2456,7 +2456,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Synth-Keys",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Triangle Keys",
 				generalMidi: false,
@@ -3236,7 +3236,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Mix-Synth",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// May be moved to more sutable locations.
 			{
 				name: "Far Echo Pad",
@@ -3907,7 +3907,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Synth-Atmos",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Tape Crackle",
 				midiProgram: 83,
@@ -4999,7 +4999,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Synth-Pluck",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Bright Pluck",
 				generalMidi: false,
@@ -5783,7 +5783,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Distortion",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Signal Interference",
 				generalMidi: false,
@@ -6209,7 +6209,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Guitar",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Electric Guitar",
 				generalMidi: false,
@@ -7041,7 +7041,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Picked String",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// Picked String instruments.
 			{
 				name: "Mandolin Body",
@@ -7490,7 +7490,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Bellows",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Dirty Organ 1",
 				generalMidi: false,
@@ -7629,7 +7629,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Idiophone",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Soft Chime",
 				generalMidi: false,
@@ -8226,7 +8226,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Noise",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Metallic Hiss",
 				generalMidi: false,
@@ -8519,7 +8519,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Nightmareophone",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Damaged Calliope",
 				generalMidi: false,
@@ -9630,7 +9630,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Misc",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Synth Calliope",
 				midiProgram: 76,
@@ -9991,7 +9991,7 @@ export const unboxCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Novelty",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// UnBox Noise
 			{
 				name: "Distant Woosh",

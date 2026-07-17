@@ -1,0 +1,1579 @@
+{
+	"version": 1,
+	"counts": {
+		"eslint": 4899,
+		"biome": 299
+	},
+	"groups": [
+		{
+			"key": "biome:editor/changes/instruments/presets.ts",
+			"count": 3,
+			"hash": "45f169c2476cbf37ca8152838870681c6d4e9b917d7bc641e949f89f19f79d77"
+		},
+		{
+			"key": "biome:editor/components/effects-panel.ts",
+			"count": 1,
+			"hash": "446a86fd505ad75f05f41cda12436d928cd1f44920f8f39b2358e48e62a59aa0"
+		},
+		{
+			"key": "biome:editor/components/playback-controls.ts",
+			"count": 1,
+			"hash": "03a407d0dc8d976678639c09e2f2862fec3256de103d4543dbf90fcdd6748e28"
+		},
+		{
+			"key": "biome:editor/core/debug-tools.ts",
+			"count": 5,
+			"hash": "dfa0bbf5d4b5185906e7c38c07365b946a2d2b50f0ed3f430392ec6c59d5daf9"
+		},
+		{
+			"key": "biome:editor/core/dev-inspector.ts",
+			"count": 2,
+			"hash": "1b11ede1ce1c91e3d4a2a58ba371af97c8c8aff9fe91bbff62fee1f79ad190e1"
+		},
+		{
+			"key": "biome:editor/core/event-listener-setup.ts",
+			"count": 1,
+			"hash": "1a9567f9f9cbada9be9371e6c014d7bf983aab2e12584a459baa0faed11f88e1"
+		},
+		{
+			"key": "biome:editor/core/keyboard-handler.ts",
+			"count": 4,
+			"hash": "0408406a5d4fab9da73dcfa2af0e30831ab656cb7e9a897570faf53486bcc16b"
+		},
+		{
+			"key": "biome:editor/core/menu-handler.ts",
+			"count": 3,
+			"hash": "1f5b57a31a8a9455d37cc6e01c551e938c4f08e3eeaa800746797c2900eef3b1"
+		},
+		{
+			"key": "biome:editor/core/preferences.ts",
+			"count": 5,
+			"hash": "67a723345e3214ad34c2b136b18e3c2ebdfc4c188203b9e7c9d620443a12d828"
+		},
+		{
+			"key": "biome:editor/core/prompt-manager.ts",
+			"count": 1,
+			"hash": "01b0a831035a351c9c703bb9c8d3a64f4d2b8d1410f5bd49513604a56060a5fd"
+		},
+		{
+			"key": "biome:editor/core/selection.ts",
+			"count": 3,
+			"hash": "2227e899a77e6b91b4fef72cebe44a39356941367adbc1bbc42e54f910868f67"
+		},
+		{
+			"key": "biome:editor/io/midi-input.ts",
+			"count": 3,
+			"hash": "c5c7389fe15e2bcb2afb65cf0f527d2157a4514ee91e10b45e978301ec997b89"
+		},
+		{
+			"key": "biome:editor/io/midi-parser.ts",
+			"count": 1,
+			"hash": "ab3c5977bb47e3920b77724220931c82b7afc49c83a8445d1471e999b39b7aa6"
+		},
+		{
+			"key": "biome:editor/io/song-recovery.ts",
+			"count": 1,
+			"hash": "18e6bc7789b5277e35e21783bdfc1faf78c0346ad7a3882d4d1af9a414dfb6a8"
+		},
+		{
+			"key": "biome:editor/prompts/add-samples-prompt.ts",
+			"count": 1,
+			"hash": "61f1482549ecf8e3b9b56612d9fc671c3fc660bbe9080cd9cdcb0fbf20d1d90f"
+		},
+		{
+			"key": "biome:editor/prompts/base-prompt.ts",
+			"count": 1,
+			"hash": "8839528083a76885c5d49e67ebed1097dbc2511cc3513e95c94e86113ce1079f"
+		},
+		{
+			"key": "biome:editor/prompts/channel-volume-visualizer-prompt.ts",
+			"count": 4,
+			"hash": "47f2ec69dcf36deaad6c4c5d28119972984739de5923b63c1c4f604c3208827e"
+		},
+		{
+			"key": "biome:editor/prompts/custom-filter-prompt.ts",
+			"count": 1,
+			"hash": "72bcea09d2c73a72c232b0f30fd505615bcaab6168c2390ad1b4f270eef3dd3c"
+		},
+		{
+			"key": "biome:editor/prompts/euclidgen-rhythm-prompt.ts",
+			"count": 3,
+			"hash": "7ab1c47f9fb52c4cf147846566c628fe2f4602ae505dc21a33db44031165bbcc"
+		},
+		{
+			"key": "biome:editor/prompts/export-prompt.ts",
+			"count": 20,
+			"hash": "35856c36b88c075f391e8c4f18119200167fb904ac438c5d28c75e2dc790fda5"
+		},
+		{
+			"key": "biome:editor/prompts/instrument-browser-prompt.ts",
+			"count": 1,
+			"hash": "10d75e1e23b908231b738867535673c874b2549f86c7a77ff9abe0feb5c517db"
+		},
+		{
+			"key": "biome:editor/prompts/instrument-export-prompt.ts",
+			"count": 3,
+			"hash": "c27bc30d82160d4f7f980c093d43197b66519ad922f1dfc69be8dbd0b8e0dc28"
+		},
+		{
+			"key": "biome:editor/prompts/instrument-import-prompt.ts",
+			"count": 3,
+			"hash": "c0e3e688beab0bff4b270c0b72430d6343482f383109fad9e592425afa770f01"
+		},
+		{
+			"key": "biome:editor/prompts/layout-prompt.ts",
+			"count": 2,
+			"hash": "55e8fad6da6f6b8259c6fc7dba7341d792d0bda775a10891dfb8680e8a7e4d8a"
+		},
+		{
+			"key": "biome:editor/prompts/save.ts",
+			"count": 2,
+			"hash": "13362a853fbe32468e85176bfd284fb2548191f34f0ad5bd11cd04aea3295e52"
+		},
+		{
+			"key": "biome:editor/prompts/sustain-prompt.ts",
+			"count": 1,
+			"hash": "069055ddbc3c01415626217db79acada72ef1c245c93e5b2b6f21d0abcec2c11"
+		},
+		{
+			"key": "biome:editor/renderers/render-layout.ts",
+			"count": 1,
+			"hash": "33ebc45ab9834d66e8fe55259026166161fd22a64d4e96c1e0568f1318694051"
+		},
+		{
+			"key": "biome:editor/renderers/render-post-sync.ts",
+			"count": 1,
+			"hash": "dca893db49dcc02ce09a0ecd3f87ac3c84e3ad5c061cb0039d7da6095fac3e0a"
+		},
+		{
+			"key": "biome:editor/rendering/custom-algorithm-canvas.ts",
+			"count": 2,
+			"hash": "b97785902667bf109ae5c2dcd0555ed656a02ccb697194601db5844ad9904cb1"
+		},
+		{
+			"key": "biome:editor/rendering/style.ts",
+			"count": 1,
+			"hash": "cbfc7528a63eb1031e529cd942d9758dfae65de81cc72599eca654d8a21e24bc"
+		},
+		{
+			"key": "biome:editor/song-custom-samples.ts",
+			"count": 5,
+			"hash": "21abf79c00838d99ac3761edd931b1362229b6b1d74296cc6429abbea5c4a1fb"
+		},
+		{
+			"key": "biome:editor/song-editor.ts",
+			"count": 1,
+			"hash": "c61cb4449116e8d7bcf2930278330265ed050ddf27cee679b02b3f41250509c9"
+		},
+		{
+			"key": "biome:editor/ui/array-buffer-writer.ts",
+			"count": 1,
+			"hash": "dbf833c24b1ef2cb93a8c79419e15a02c792a18eb24b5b54c7a23e771993befd"
+		},
+		{
+			"key": "biome:editor/ui/build-helpers.ts",
+			"count": 1,
+			"hash": "51706baf7e41de17a888a2a57cc06c81f56f85ae90dd9352172a660a60e04b67"
+		},
+		{
+			"key": "biome:editor/ui/layout/layout.ts",
+			"count": 1,
+			"hash": "da9ad20c1a338fe29c68cc8a816571ee8f297a9854273474425f66c07e184e82"
+		},
+		{
+			"key": "biome:editor/ui/select-helpers.ts",
+			"count": 1,
+			"hash": "afaccdb805e22b6bd03da21dbf679d17e49a726587d77596cd8c00f34b3869f2"
+		},
+		{
+			"key": "biome:editor/ui/sliders/slider-num-widget.ts",
+			"count": 1,
+			"hash": "a4af667154049309080d2ab80f48727de51985370e129d8d29cf69a9a049885d"
+		},
+		{
+			"key": "biome:editor/ui/tip-span.ts",
+			"count": 1,
+			"hash": "058c0432c9b9e35eb7f0baadf7465bf0335e5b19606250687166429cbbcf57e6"
+		},
+		{
+			"key": "biome:player/player-controls.ts",
+			"count": 2,
+			"hash": "e907fa3ce24ec67b661f335893f4ef3bacb3f794a9c6160638cb60819b0c29d8"
+		},
+		{
+			"key": "biome:shared/color-config.ts",
+			"count": 2,
+			"hash": "eca28b6ca37d0cbae63f0de3f2a5dc0cf64fc97e82a227fe473185ac85ab7dc9"
+		},
+		{
+			"key": "biome:shared/events.ts",
+			"count": 1,
+			"hash": "7d21a95fc444cb93284e63db0c47977581647d387177589c6665a159ce4a1b5d"
+		},
+		{
+			"key": "biome:synth/audio-backend.ts",
+			"count": 3,
+			"hash": "7700190d58fe83b47d30d7a5f138f4b6dab98985ef68d5d6e797df9b01decbbc"
+		},
+		{
+			"key": "biome:synth/config/config-class.ts",
+			"count": 1,
+			"hash": "5ad2b97fee32bbc8a24b5af8f7a0f96bc9e442aef1056affe95cb40d32e7c110"
+		},
+		{
+			"key": "biome:synth/config/sample-loader.ts",
+			"count": 2,
+			"hash": "76b4cf86777e9dc77dee783426840b545e3390bc7b4a4f1daba397b38268b611"
+		},
+		{
+			"key": "biome:synth/config/synth-math-utils.ts",
+			"count": 4,
+			"hash": "67d1cb22f6d4c1d9772d3e7498b8b1d7a3ce2f0180ef243db1a8e4050b2a59f1"
+		},
+		{
+			"key": "biome:synth/config/utils.ts",
+			"count": 4,
+			"hash": "fec39529151b2b3ab83a028c67c2163a1e1a88f89f64969dc385f12aa5d7dd36"
+		},
+		{
+			"key": "biome:synth/deserialize/load-custom-samples.ts",
+			"count": 2,
+			"hash": "0a4a8091817e47a82b5b41a2824dbf920168fe395de9909217a7728121545feb"
+		},
+		{
+			"key": "biome:synth/formats/json-serialization.ts",
+			"count": 14,
+			"hash": "2faf4544399380ddbddd7e3854f7dacf2b44bd8d692724d29f5ecf98f7780d0a"
+		},
+		{
+			"key": "biome:synth/instrument-state.ts",
+			"count": 2,
+			"hash": "c5c1112c97371a808a08ac5dc99c4fb5933ff161a493d6c19410db596075f541"
+		},
+		{
+			"key": "biome:synth/instruments/envelope-settings.ts",
+			"count": 2,
+			"hash": "92dc1933fe4b36627bc6c9bfcb5eeb975beed69810fc29183dc0a4299fdd2526"
+		},
+		{
+			"key": "biome:synth/instruments/filter-settings.ts",
+			"count": 5,
+			"hash": "97b6ba79a7e52cb530041fa1a68325e6d05d4d92336dbd7051540f99e7328425"
+		},
+		{
+			"key": "biome:synth/instruments/instrument.ts",
+			"count": 17,
+			"hash": "962454e4f6007f294a435c3b6c3f8ff500cb5eff7a8cdef801691005dfcc0f5e"
+		},
+		{
+			"key": "biome:synth/mod-state.ts",
+			"count": 9,
+			"hash": "85b9cd9849ffc98af96f936a0b2356ba54cb77ca12eb027878ecda8217749bd2"
+		},
+		{
+			"key": "biome:synth/modules/drumset/module.ts",
+			"count": 1,
+			"hash": "2a936b1260d704efc4bf3cad69ff5c2161a83f1c8f041aac42b8608a203e463f"
+		},
+		{
+			"key": "biome:synth/modules/drumset/serde.ts",
+			"count": 1,
+			"hash": "a1c4677f1691cb111e82b757ebb705d824cf19ce3a10978d5c175ca09d14b961"
+		},
+		{
+			"key": "biome:synth/modules/fm/module.ts",
+			"count": 1,
+			"hash": "efd5f897b1b40e470b67aa7432f27b73be4a6fc46e528f1f34a51291eba9bc52"
+		},
+		{
+			"key": "biome:synth/modules/fm6/module.ts",
+			"count": 3,
+			"hash": "5808aa5342d2dd5c88ebe97184c944e923173cb3c685ec5d9575c00e6ec08f22"
+		},
+		{
+			"key": "biome:synth/modules/mod/module.ts",
+			"count": 1,
+			"hash": "00af941de57c496c02ffa23455e93ec113b6b9e4d29e42f83ad6face2fc84163"
+		},
+		{
+			"key": "biome:synth/modules/mod/serde.ts",
+			"count": 1,
+			"hash": "9185ff53842b43105738416d600ea6f01a2cbfb4f5086224045dcc3c23a6b0b5"
+		},
+		{
+			"key": "biome:synth/modules/opl3/module.ts",
+			"count": 1,
+			"hash": "a046f3f4497d8f3b58062c9eed0a7e2843bd8406af9b93af1c489d7fae0ab82e"
+		},
+		{
+			"key": "biome:synth/modules/picked-string/serde.ts",
+			"count": 1,
+			"hash": "e8b0ac5f9ca999a47e265ded0b58b0252087c254934913ff6ec159b02d129a5c"
+		},
+		{
+			"key": "biome:synth/modules/spectrum/serde.ts",
+			"count": 1,
+			"hash": "34fd9e153e13c260e8fe6679671e39682eb86aa81ff757914346e5ed4dc1d6b4"
+		},
+		{
+			"key": "biome:synth/notes.ts",
+			"count": 6,
+			"hash": "8e468ee05a3f96441aa6d061edb2d4d310c3b9648450ad2b4fb80924cd1db051"
+		},
+		{
+			"key": "biome:synth/picked-string.ts",
+			"count": 1,
+			"hash": "b68eaee2101368fcd2b181c553d3d42889ea2fe7fa3945b7b8ad2d517c3ef3fe"
+		},
+		{
+			"key": "biome:synth/plugins/chip.ts",
+			"count": 5,
+			"hash": "a6f750298bc3cb25de67039b6b63ea2df410fd8cf24c71eec36f91dd9e8e1f13"
+		},
+		{
+			"key": "biome:synth/plugins/drumset.ts",
+			"count": 2,
+			"hash": "63ebb896da81a624eaacd9169277f7b8aeecbc07d30dade74fc6aa481ca1b78c"
+		},
+		{
+			"key": "biome:synth/plugins/effects.ts",
+			"count": 3,
+			"hash": "f46bdf3921dcb941d7db6775a15ed497a9c60f64189625b7cf54e3fa22280516"
+		},
+		{
+			"key": "biome:synth/plugins/fm.ts",
+			"count": 2,
+			"hash": "032275daa5270716294c9d7d7ce2b67c96572c432c4c025d68c535cd140c540d"
+		},
+		{
+			"key": "biome:synth/plugins/fm6.ts",
+			"count": 2,
+			"hash": "5143fc7f037b09b223add1c6362732bf3e3a04570b86b8c74ba486e008f6d019"
+		},
+		{
+			"key": "biome:synth/plugins/harmonics.ts",
+			"count": 2,
+			"hash": "57102f75d63b9b5fc271dea5b763baea70a62891240e54ddacb57afba97f0dc7"
+		},
+		{
+			"key": "biome:synth/plugins/interfaces.ts",
+			"count": 3,
+			"hash": "aeb3491185085d32e765d0f42c58254ad5c766b7aa978a9bf6d6fba1fbf5883c"
+		},
+		{
+			"key": "biome:synth/plugins/noise.ts",
+			"count": 2,
+			"hash": "d6c5a0dc32a209c5cea836f32febda7a9e4aa2b765874ba44e378453d39b2478"
+		},
+		{
+			"key": "biome:synth/plugins/opl3.ts",
+			"count": 2,
+			"hash": "1cbc1a95c4989f33a7d84ab5bc9770c277b6498ded63245a6e20e2c50a7cfeec"
+		},
+		{
+			"key": "biome:synth/plugins/picked-string.ts",
+			"count": 2,
+			"hash": "8fd50dcb2645db4f560608924b3eb23e06562feefe0ec0facca72a8da592056b"
+		},
+		{
+			"key": "biome:synth/plugins/pulse.ts",
+			"count": 2,
+			"hash": "49064d284eb3588e03dc321739b3189b4a8443dd752fe57f269f25f8a88e8cac"
+		},
+		{
+			"key": "biome:synth/plugins/spectrum.ts",
+			"count": 2,
+			"hash": "6f9a18b8145fdcb99ec0d8236ab60721fc2c5424c0da482baf478e854ea2e6db"
+		},
+		{
+			"key": "biome:synth/plugins/supersaw.ts",
+			"count": 5,
+			"hash": "35334903a4e69240430d8059a9660e131669351bed5a96a4f48a3fc3149ced1d"
+		},
+		{
+			"key": "biome:synth/render/render-core.ts",
+			"count": 5,
+			"hash": "0982b2996604e9fd83b5a51b798c056c12cb11af46158f3b248fd3162db76691"
+		},
+		{
+			"key": "biome:synth/render/worklet.ts",
+			"count": 3,
+			"hash": "cbb9648533f2635145d132c7e25f489d9a9c7775c3dc386a784c619254c27cc0"
+		},
+		{
+			"key": "biome:synth/serialization.ts",
+			"count": 53,
+			"hash": "5e27a32fa833053b2090aaeabe4c05853f8e06d634520eefe156f69623d003ae"
+		},
+		{
+			"key": "biome:synth/socket/bridge.ts",
+			"count": 5,
+			"hash": "9324348acce19803dc2a4d25d3a226ac0680378b6066487d48fa7049def3a168"
+		},
+		{
+			"key": "biome:synth/socket/legacy-importer.ts",
+			"count": 1,
+			"hash": "0e87d7e7236b1f0f68e54c15cafe2d617819b43f1d0f70a710924045b16053dd"
+		},
+		{
+			"key": "biome:synth/song-serialization.ts",
+			"count": 1,
+			"hash": "4fffb628828b5a5d2625eb5581dc5e91d59218150d1549a20311ea49f532df7d"
+		},
+		{
+			"key": "biome:synth/song-utilities.ts",
+			"count": 5,
+			"hash": "7ef4b803cde6ab3d44826c9488ad9186c178d52917294a9be30378a8ce104422"
+		},
+		{
+			"key": "biome:synth/song.ts",
+			"count": 6,
+			"hash": "e9e7f94ff02a3f4682261b4ca1610151eeebc6d2c31a5e337b3b5bb805643719"
+		},
+		{
+			"key": "biome:synth/synth-deserialize.ts",
+			"count": 4,
+			"hash": "d45d6a21f2418919b4806ea2d826886c14e3dc5bce98e02c38bd530655972663"
+		},
+		{
+			"key": "biome:synth/synth-effects.ts",
+			"count": 1,
+			"hash": "8c05aeb058424a657dc27154a25c98798284638c50a73c54ffe74708a3a2bddb"
+		},
+		{
+			"key": "eslint:editor/changes/field-value.ts",
+			"count": 1,
+			"hash": "87d780f14f97aff5300ba900fcabdcd50fb053018cd7e7624053f4007af4809b"
+		},
+		{
+			"key": "eslint:editor/changes/filters.ts",
+			"count": 16,
+			"hash": "8c311cdd3628b611fc74a92448391464fe4a9fb4c565e30f048b4438d245d1e8"
+		},
+		{
+			"key": "eslint:editor/changes/instruments/effects.ts",
+			"count": 3,
+			"hash": "c5ce84cf7f74a323e9bc6b380e78cd877ba4a973659ccacf5a46f51a63e9208a"
+		},
+		{
+			"key": "eslint:editor/changes/instruments/envelopes.ts",
+			"count": 1,
+			"hash": "dfebcad43c87fe95060203a1b32b8a235864d2dbdea32c7eaaf12baeeca66b64"
+		},
+		{
+			"key": "eslint:editor/changes/instruments/presets.ts",
+			"count": 46,
+			"hash": "e0e5187aa294a9fd3094331e20dfddc65bcbbec0eacb47ae6423b38d48ef9e67"
+		},
+		{
+			"key": "eslint:editor/changes/notes.ts",
+			"count": 59,
+			"hash": "4225dddcaa471b72bc79b32bcb70705935d3d1b6d717cf4fce8bf1e892226b1a"
+		},
+		{
+			"key": "eslint:editor/changes/song.ts",
+			"count": 25,
+			"hash": "4695d3c23bf5cfde676e8ed023cfafdc416f066d5e46e871d11a3940f4808f8b"
+		},
+		{
+			"key": "eslint:editor/changes/util.ts",
+			"count": 1,
+			"hash": "1d27b94b4753f643fb31433533a92e63d4f0521da9f7ef94edd71aa9a6eb976a"
+		},
+		{
+			"key": "eslint:editor/components/bar-scroll-bar.ts",
+			"count": 13,
+			"hash": "eff9762c7646345ca80f3ef121e0c70f4e9c8f4ded36824637013d54d68d6cc1"
+		},
+		{
+			"key": "eslint:editor/components/channel-row.ts",
+			"count": 5,
+			"hash": "d55204963cf75288ac2113a8011da902e8e7a505344001406ccfe825b104f285"
+		},
+		{
+			"key": "eslint:editor/components/command-palette.ts",
+			"count": 6,
+			"hash": "c7251aa29a8bd03556a1b179cfbb09f5447251c57cbc79e5c3fe32744e5d841e"
+		},
+		{
+			"key": "eslint:editor/components/editor-layout.ts",
+			"count": 7,
+			"hash": "e0c42cd3e8ee96cd0e4fbcc911c4f99ef965d18bf6ca9003590ec5e7057a15f6"
+		},
+		{
+			"key": "eslint:editor/components/effects-panel.ts",
+			"count": 3,
+			"hash": "9000149e599c4f4cc76e816ef6e2db7a2b66dfb06a2d9f3a1b3b2a05918aec84"
+		},
+		{
+			"key": "eslint:editor/components/envelope-editor.ts",
+			"count": 53,
+			"hash": "81cdec5ddf617cbf640dc659541cac293d75bb5b5ee582f9348985d583d83eaa"
+		},
+		{
+			"key": "eslint:editor/components/fade-in-out-editor.ts",
+			"count": 24,
+			"hash": "47f98efc2671c3a500b32d422e010f467e7d5d4e15f7f641d9eec4485d6e2db2"
+		},
+		{
+			"key": "eslint:editor/components/filter-editor.ts",
+			"count": 74,
+			"hash": "a18b45157b68361143d1eababa0cf86ea34691c9865c5ed1926d498bf3f94499"
+		},
+		{
+			"key": "eslint:editor/components/harmonics-editor.ts",
+			"count": 13,
+			"hash": "5a273fc4ed4d1886a43278f851cd9fc0df603ab5dc917037052d1c483609f35a"
+		},
+		{
+			"key": "eslint:editor/components/instrument-bar.ts",
+			"count": 6,
+			"hash": "949ca5b95c5a8228bc310cb39c353b81f01c11d1a5347864fe3b11003a7d0aad"
+		},
+		{
+			"key": "eslint:editor/components/instrument-settings-panel.ts",
+			"count": 6,
+			"hash": "cf775149d8907b7829f9eb9842698eebc85116ca195fab072d60f7ba562f687d"
+		},
+		{
+			"key": "eslint:editor/components/loop-editor.ts",
+			"count": 50,
+			"hash": "57284689399a5c26893128ff9b67f0aaac9b338782d0dbbc98bf22a40ee8fabe"
+		},
+		{
+			"key": "eslint:editor/components/menu-bar.ts",
+			"count": 3,
+			"hash": "6c492b6c674f65970067d0c50489eb8a2427d6b04ae444fe403a7ec5a3e8b897"
+		},
+		{
+			"key": "eslint:editor/components/mute-editor.ts",
+			"count": 14,
+			"hash": "36f5376df41e168cd630a354a44fdaa7f8b5ad689b10e65c22ba9554b93c38a8"
+		},
+		{
+			"key": "eslint:editor/components/octave-scroll-bar.ts",
+			"count": 16,
+			"hash": "83e4777d30ecad1ae896f2719ea682b5ebf3d506b8d05019878e9e9e87eabae5"
+		},
+		{
+			"key": "eslint:editor/components/pattern-area.ts",
+			"count": 1,
+			"hash": "77597992ee6eb98e938c4bd37422d5c14e9655c1930bd3e43e25e4ef75794ac8"
+		},
+		{
+			"key": "eslint:editor/components/pattern-editor.ts",
+			"count": 277,
+			"hash": "5bce758e6717f1dde6dd6a30de7afde37b59980fa9b662ee8d747d248c3295d5"
+		},
+		{
+			"key": "eslint:editor/components/piano.ts",
+			"count": 40,
+			"hash": "ac821b5867d5dd4c1cf6c6d3b31c8bff18c9290ac2f0c2742760439e0ff29b71"
+		},
+		{
+			"key": "eslint:editor/components/playback-controls.ts",
+			"count": 5,
+			"hash": "c43edf947d7f519f3e4ab509aaae87a03c8a69c8263d4a9d1ec4e1fb40941627"
+		},
+		{
+			"key": "eslint:editor/components/settings-area.ts",
+			"count": 1,
+			"hash": "68983bcbb4fc2557a41021aa7ac200f2a67b7f15d41a05119bf4bbf61522cb54"
+		},
+		{
+			"key": "eslint:editor/components/shiggy/bubbles.ts",
+			"count": 3,
+			"hash": "1d909e8b1606a281759e0b2cde8efaddf09f9579cef901a4d0a6b8bcbefd75f9"
+		},
+		{
+			"key": "eslint:editor/components/shiggy/index.ts",
+			"count": 2,
+			"hash": "14818cde37b9a32346de42498232254adbaf23f0c55f75d113d2707212f0e470"
+		},
+		{
+			"key": "eslint:editor/components/shiggy/summoning.ts",
+			"count": 6,
+			"hash": "d5be6960337210bf77a0e625df9738b20b29128ac03c311bff4648811935b755"
+		},
+		{
+			"key": "eslint:editor/components/shiggy/tracking.ts",
+			"count": 8,
+			"hash": "70cc2ae2c7fff91769d51bfbee9cb28ecba30160d3801a2479f30eb422e07959"
+		},
+		{
+			"key": "eslint:editor/components/song-settings-panel.ts",
+			"count": 4,
+			"hash": "b745ca3e99eecef419315efbfb5d8233720d71db1596c1fff260d17132ccfe0b"
+		},
+		{
+			"key": "eslint:editor/components/spectrum-editor.ts",
+			"count": 37,
+			"hash": "3aa9870f5534e6bb39663c9377d7d0a73dc067b0edfbb5af183a5fe8fa25c20e"
+		},
+		{
+			"key": "eslint:editor/components/track-area.ts",
+			"count": 3,
+			"hash": "f2a6b47af78f7085b7bbac65926415654383cda1709bd9b54d7c3df7491b4950"
+		},
+		{
+			"key": "eslint:editor/components/track-editor.ts",
+			"count": 58,
+			"hash": "1d1dd76f0df69a88187555707c5c9b8418cf04c4eca9cd38b277e96560863c9a"
+		},
+		{
+			"key": "eslint:editor/config/editor-config.ts",
+			"count": 4,
+			"hash": "84d1b170e4987c048d9d61692665461164945768531dd9e898fa4a93fbde35b4"
+		},
+		{
+			"key": "eslint:editor/config/keyboard-layout.ts",
+			"count": 5,
+			"hash": "bbc59499f0f46ea58b7d810bbad42c360427820a94048223a0fefb789745c752"
+		},
+		{
+			"key": "eslint:editor/config/preset_category/core.ts",
+			"count": 3,
+			"hash": "2bd07fac7242cec87b7f51a6d6043efbccefe27c5d68dca993e665b4e8ad0f3d"
+		},
+		{
+			"key": "eslint:editor/config/preset_category/forks.ts",
+			"count": 2,
+			"hash": "02e20f5719fb6e2ea788aaca3d59965d513c131fe13121083c73ed5e869c0f82"
+		},
+		{
+			"key": "eslint:editor/core/change-dispatcher.ts",
+			"count": 9,
+			"hash": "7ee96ef8cbe7558829323f1ae5c7e0a54a7eb1e0906c3579f73a5d95c7f9167e"
+		},
+		{
+			"key": "eslint:editor/core/debug-log.ts",
+			"count": 14,
+			"hash": "b13bdeb53e40f5f710e9ee4282960c722b2be37a379afffca4e28413426bf7ac"
+		},
+		{
+			"key": "eslint:editor/core/debug-tools.ts",
+			"count": 90,
+			"hash": "2c2bf27af02b5862f998d7a7bc935af6589c33b4c71a33cabb12f30a1fcfed77"
+		},
+		{
+			"key": "eslint:editor/core/dev-inspector.ts",
+			"count": 56,
+			"hash": "680ca4e56dbf634f65ecb938b00a2946094f447132846ea7ef5d4081f2463de6"
+		},
+		{
+			"key": "eslint:editor/core/drumset-setup.ts",
+			"count": 4,
+			"hash": "31e4e45f0fb0783d6ed3d196472b0dafcf1f0562f391ae841e5d3a2ef13bc7cc"
+		},
+		{
+			"key": "eslint:editor/core/event-listener-setup.ts",
+			"count": 3,
+			"hash": "cf0937bd4acfa3298653e85d27768d596456966a6bbc201f25e4740c4951b55a"
+		},
+		{
+			"key": "eslint:editor/core/fm-operator-setup.ts",
+			"count": 6,
+			"hash": "bef12fd6cae909afde9f1eb0b3057bc524624c41b6d0f0e7eb3383f4342dce13"
+		},
+		{
+			"key": "eslint:editor/core/history-manager.ts",
+			"count": 8,
+			"hash": "80650e2996888a8fdead6114ef072fab1ce2a415ba1cf27e2851f0d293bc0e74"
+		},
+		{
+			"key": "eslint:editor/core/keyboard-handler.ts",
+			"count": 26,
+			"hash": "49254c8f21deb67327f2f0734af27316246fbcfa8e5927ac4e4eb5babbe4b038"
+		},
+		{
+			"key": "eslint:editor/core/menu-handler.ts",
+			"count": 8,
+			"hash": "fd0fda33bd74ef23eedaef844dd98c23d69f7f7a083c288ca264b01276008d4e"
+		},
+		{
+			"key": "eslint:editor/core/modulator-setup.ts",
+			"count": 12,
+			"hash": "1b1a8e1fdb60679571d2c65a40629771e92e3ea66edc13fb454e0cec1eb1d5ef"
+		},
+		{
+			"key": "eslint:editor/core/player-animator.ts",
+			"count": 5,
+			"hash": "a2638a1efe9a10025cc798397b4532c5a25bb3638184c1436d640b8262802de4"
+		},
+		{
+			"key": "eslint:editor/core/preferences.ts",
+			"count": 7,
+			"hash": "2e25bddf26f0067d0228e72db43d4f43491591d5f8b6ef455e4ddd99c40b5c5d"
+		},
+		{
+			"key": "eslint:editor/core/prompt-dock.ts",
+			"count": 19,
+			"hash": "5fbee65b5c73151490c37ddcd420feb16525b27851c67eb91c0c5e00116e9c67"
+		},
+		{
+			"key": "eslint:editor/core/prompt-drag.ts",
+			"count": 2,
+			"hash": "e631128d619ede0ae58e2933f8b59dd563c3ea7da513f73779c34c29fd58541c"
+		},
+		{
+			"key": "eslint:editor/core/prompt-focus-controller.ts",
+			"count": 1,
+			"hash": "5c6d04a896d20cbc53e437a4745da63eb314e1997a785c48957dcd4395400758"
+		},
+		{
+			"key": "eslint:editor/core/prompt-manager.ts",
+			"count": 21,
+			"hash": "b2544a7d87ffae661bcc8d53e7718de6d3c5f195ee9c53788898cb1c357e0b43"
+		},
+		{
+			"key": "eslint:editor/core/selection.ts",
+			"count": 57,
+			"hash": "f4fad5e4e7c9224f28aa0073650d9ddc317f8fd523a9d51a9c7d77a657a0adf6"
+		},
+		{
+			"key": "eslint:editor/core/song-performance.ts",
+			"count": 18,
+			"hash": "2b3097ade1c9ea1791789ba8e3b107a5fa4631c2a7f62e294cb9340c29658f21"
+		},
+		{
+			"key": "eslint:editor/core/tag-autocomplete.ts",
+			"count": 6,
+			"hash": "2feb2e8389e682055162d3f33162f1494888ce39312590c975f27bf3c7a52840"
+		},
+		{
+			"key": "eslint:editor/generated-ui/panel-factory.ts",
+			"count": 7,
+			"hash": "fd7e7b22e63c37a23a6433036b468b0bef1aaf38538c9a6a1e5dae98482f6363"
+		},
+		{
+			"key": "eslint:editor/io/midi-input.ts",
+			"count": 15,
+			"hash": "0860627dd65ce6e5c056590e175b03a1f766fe896ddba0999abc04ce95f18d0a"
+		},
+		{
+			"key": "eslint:editor/io/midi-parser.ts",
+			"count": 112,
+			"hash": "afc1e3e37be2303719aec1093a4c46b537cab86ebb2f5b8908f70180aadc0f87"
+		},
+		{
+			"key": "eslint:editor/io/song-recovery.ts",
+			"count": 10,
+			"hash": "a1a36429ebd38716d270ca3f097a72866ad5acabdde53ec32cd88ea450d65388"
+		},
+		{
+			"key": "eslint:editor/main.ts",
+			"count": 2,
+			"hash": "336dfea95704d39242aaf53ade0fbc61595b1062626ae51d1b90f2e90f2e3a5a"
+		},
+		{
+			"key": "eslint:editor/navigator/command-registry.ts",
+			"count": 2,
+			"hash": "b8937e4fa764120cbccef022347375956c225f053e6be2a424aab0bfa47a2033"
+		},
+		{
+			"key": "eslint:editor/navigator/contracts.ts",
+			"count": 1,
+			"hash": "9e6a83412393220446cc8a621ba92ec2b73ddefc8c9effcd2541df6eefbfa244"
+		},
+		{
+			"key": "eslint:editor/navigator/ownership.ts",
+			"count": 14,
+			"hash": "4c1dc6743a35747a72d1769c95218f57ffd8394e132d3fdce9cd9802229f6c1a"
+		},
+		{
+			"key": "eslint:editor/navigator/route-identity.ts",
+			"count": 1,
+			"hash": "3f1a44b4585a99a541529349de4245d1633c6f4f5c9963bc2bd22e8689c0d72f"
+		},
+		{
+			"key": "eslint:editor/prompts/add-samples-prompt.ts",
+			"count": 41,
+			"hash": "0b344096b446076f2cea6b269da148398c5774da26325b3195d50b7973a53407"
+		},
+		{
+			"key": "eslint:editor/prompts/add-samples-url-parser.ts",
+			"count": 12,
+			"hash": "455e9a8a8592eb531d30212de951d26abcec53c8077e2fa54c4b6fd985c880ba"
+		},
+		{
+			"key": "eslint:editor/prompts/base-prompt.ts",
+			"count": 9,
+			"hash": "0ebca92c632ed8a8956b92b98ec502573b5547a2802c16cfdd4e290c7328dbd0"
+		},
+		{
+			"key": "eslint:editor/prompts/beats-per-bar-prompt.ts",
+			"count": 10,
+			"hash": "83c4b17aaa44a683025214e18bb77bda3672073687f540c0ec2d7c097f3d1ecc"
+		},
+		{
+			"key": "eslint:editor/prompts/channel-settings-prompt.ts",
+			"count": 21,
+			"hash": "0fef8e9b511948da2194191755c0d24dfd3ae8f1ad97e477bab622eddf881dc9"
+		},
+		{
+			"key": "eslint:editor/prompts/channel-volume-visualizer-prompt.ts",
+			"count": 68,
+			"hash": "8e52732ab05522dea3a2624bd88a9960c63dcc3f3752ca0c4db64229f13e0b55"
+		},
+		{
+			"key": "eslint:editor/prompts/clean-channel-prompt.ts",
+			"count": 36,
+			"hash": "952d18cdcfc8742e1a927c2c1e600060f55856cd57a42745c7e7800c2de580f4"
+		},
+		{
+			"key": "eslint:editor/prompts/custom-chip-prompt.ts",
+			"count": 12,
+			"hash": "7ea447e10834853fff9e6ccd08043d93f6989f84ab1b8f4022db71b28520ad6e"
+		},
+		{
+			"key": "eslint:editor/prompts/custom-filter-prompt.ts",
+			"count": 11,
+			"hash": "f19eef745f528c391f51f484bdb2426ae5c4e2a64fc261e2533b50f876bb2660"
+		},
+		{
+			"key": "eslint:editor/prompts/custom-scale-prompt.ts",
+			"count": 5,
+			"hash": "2719c9eda532d521ff6eb4249f5a881bdc960f30d6fa38ed5301823b683d23f3"
+		},
+		{
+			"key": "eslint:editor/prompts/custom-theme-prompt.ts",
+			"count": 14,
+			"hash": "7e545088a4f4acf41e84644b9776bbb1f7aae2511b338086990ad263ac0513a4"
+		},
+		{
+			"key": "eslint:editor/prompts/euclidgen-algorithm.ts",
+			"count": 1,
+			"hash": "f940b941681ab9a7bb0920710cc60550b0c92de434c9c449a018c37cbd061e83"
+		},
+		{
+			"key": "eslint:editor/prompts/euclidgen-note-generator.ts",
+			"count": 10,
+			"hash": "1884bceb1ab4055cbb4b91db513ad18732ba0b6f6eea4440ac7aa7a15ffcb5b2"
+		},
+		{
+			"key": "eslint:editor/prompts/euclidgen-renderer.ts",
+			"count": 13,
+			"hash": "472be4c8ead94b9fcca7c44fc74a13d8f649374b736fd702a58fff1372a34c86"
+		},
+		{
+			"key": "eslint:editor/prompts/euclidgen-rhythm-prompt.ts",
+			"count": 69,
+			"hash": "66ac93babc10994d115f874e6d35b8256e8c1d21a3b913c8e78ae5b681ae627b"
+		},
+		{
+			"key": "eslint:editor/prompts/export-midi.ts",
+			"count": 9,
+			"hash": "7d052774038bcca2b9cd6258ea4b8a5dae464a5f631e9705f913fa1813819f7e"
+		},
+		{
+			"key": "eslint:editor/prompts/export-prompt.ts",
+			"count": 133,
+			"hash": "0f79710d35ad0d502a876ca2069f28fe08e856963f360335a22b38d606ce9516"
+		},
+		{
+			"key": "eslint:editor/prompts/import-prompt.ts",
+			"count": 8,
+			"hash": "be37eafbe8a843e6a7eb5102c8f62562346bf3c8cec244f2ac4e21e23916ce95"
+		},
+		{
+			"key": "eslint:editor/prompts/input-helpers.ts",
+			"count": 3,
+			"hash": "a874a14680074a82f72b3d498812202f80e8bd89f1b3097a094b27dec540cff7"
+		},
+		{
+			"key": "eslint:editor/prompts/instrument-browser-prompt.ts",
+			"count": 52,
+			"hash": "a6103f49949631358af631492dd12cdebf0433a6c7b5950da2de54c499b8cea9"
+		},
+		{
+			"key": "eslint:editor/prompts/instrument-export-prompt.ts",
+			"count": 10,
+			"hash": "89773059c7b52510d22f61c7fee4829dc24721af99d996810aa10072ea4d3cbb"
+		},
+		{
+			"key": "eslint:editor/prompts/instrument-import-prompt.ts",
+			"count": 11,
+			"hash": "7a44730bb40aa6db644297fb02a9aa4468caa5a380bdd333bb2c2b6ba333739e"
+		},
+		{
+			"key": "eslint:editor/prompts/keyboard-shortcuts-prompt.ts",
+			"count": 5,
+			"hash": "2e2abc6eb30d6e55838a6b6ad6ea952bf9b19ce146852c9f965eef70aa7526d8"
+		},
+		{
+			"key": "eslint:editor/prompts/layout-prompt.ts",
+			"count": 8,
+			"hash": "89db83853d327f610dfd8a8c0e501f5f4277bbe4eb034f98c83cca31f150f144"
+		},
+		{
+			"key": "eslint:editor/prompts/limiter-prompt.ts",
+			"count": 28,
+			"hash": "1fe77f80db49a9f273c3fbd2c9d5965dabf7b516ab8ba4c27ef77ebb3d64ddcb"
+		},
+		{
+			"key": "eslint:editor/prompts/move-notes-sideways-prompt.ts",
+			"count": 12,
+			"hash": "aa45518ac3be5619a3abe197374e94fecb78cca22b940d74afa217a1deef128d"
+		},
+		{
+			"key": "eslint:editor/prompts/octave-count-prompt.ts",
+			"count": 5,
+			"hash": "6a381a79930924e1173b65fc8917fe5974016996422349ee16729016a0ad7525"
+		},
+		{
+			"key": "eslint:editor/prompts/palette-prompt.ts",
+			"count": 52,
+			"hash": "89378d05e9a06d9adce469e88fc2672322ee30908a158f614182edf4032a8282"
+		},
+		{
+			"key": "eslint:editor/prompts/recording-setup-prompt.ts",
+			"count": 9,
+			"hash": "20c8eb28fe43e4b170fd50897dc035122a1f482c6f3f9337756a17b89a33892d"
+		},
+		{
+			"key": "eslint:editor/prompts/sample-loading-status-prompt.ts",
+			"count": 7,
+			"hash": "b3a1b17ae493fee590b565a57111e671a24abf1534266078fdbab37726bfae54"
+		},
+		{
+			"key": "eslint:editor/prompts/save.ts",
+			"count": 4,
+			"hash": "3acc359c398e3173678bc4ed9250bc211cc01be641cb6208395d1c76398ea348"
+		},
+		{
+			"key": "eslint:editor/prompts/shortener-config-prompt.ts",
+			"count": 5,
+			"hash": "435f9472c34faf720f852a36e5eb3d1f4931752bd7d8bf2557459a7b1b9183a9"
+		},
+		{
+			"key": "eslint:editor/prompts/song-duration-prompt.ts",
+			"count": 11,
+			"hash": "417e14f60569542ca701e1ac6ba86a38fdb7c2115fe5af20e7ba42c4f532efc6"
+		},
+		{
+			"key": "eslint:editor/prompts/song-recovery-prompt.ts",
+			"count": 12,
+			"hash": "bb8fbe44e111716ae97f46bb40edf8b0c14214a7a7a22450e95d53aa1bd56e4b"
+		},
+		{
+			"key": "eslint:editor/prompts/sustain-prompt.ts",
+			"count": 6,
+			"hash": "3e32da901d825badcb71b705bf44f8ebb3c8df07f095edbfe2b7762b19bbf933"
+		},
+		{
+			"key": "eslint:editor/prompts/theme-prompt.ts",
+			"count": 11,
+			"hash": "7bbf05ab66bd7738028f06be35065ad2889b5c7d9ebacf8117f77d5051e3b76f"
+		},
+		{
+			"key": "eslint:editor/prompts/tip-prompt.ts",
+			"count": 11,
+			"hash": "b65cc6f83860f15491e309b782059f05761ebcb1f3dbdb9588616b167a4c3d99"
+		},
+		{
+			"key": "eslint:editor/prompts/visual-loop-controls-handle.ts",
+			"count": 21,
+			"hash": "71a8cd7caec087f44bdfc6218fcdc1d3393b50d42eeb5e20cda3757f61cfe145"
+		},
+		{
+			"key": "eslint:editor/prompts/visual-loop-controls-prompt.ts",
+			"count": 66,
+			"hash": "7bfc99c768e851024cabc08855e72a40ebf31bffbe1728233f97580c6d665920"
+		},
+		{
+			"key": "eslint:editor/renderers/instrument-visibility.ts",
+			"count": 41,
+			"hash": "605d5216f479bd6245e5ff09a8258e54ba75d6835d976582232dfbdd8db29016"
+		},
+		{
+			"key": "eslint:editor/renderers/render-effects.ts",
+			"count": 1,
+			"hash": "88e2879617822899fac6d610702f7940dfe7e02199efb3a00770042b0323af93"
+		},
+		{
+			"key": "eslint:editor/renderers/render-instrument-values.ts",
+			"count": 24,
+			"hash": "3086ebffc4bafe24cd055bdd29b0072cca15c698f05f3ba53c1d023e98a02ec0"
+		},
+		{
+			"key": "eslint:editor/renderers/render-layout.ts",
+			"count": 9,
+			"hash": "c4e4c8c5ba9f2d40ac238bb54c39495179d93df4d8bc39a431fa094531c24a2e"
+		},
+		{
+			"key": "eslint:editor/renderers/render-mod-settings.ts",
+			"count": 49,
+			"hash": "901fccb65b354facea924460a865e399c50342e7d9ad2e13662919b9b12ceb32"
+		},
+		{
+			"key": "eslint:editor/renderers/render-post-sync.ts",
+			"count": 7,
+			"hash": "3bb1357121e4ece045749082cdbc7580a41ca72306e1a91c1b4947840d09abd8"
+		},
+		{
+			"key": "eslint:editor/rendering/custom-algorithm-canvas.ts",
+			"count": 16,
+			"hash": "bcf116820026d21c59f895ae20bec025d6910a115f9550f8516b0d8375f16161"
+		},
+		{
+			"key": "eslint:editor/rendering/style.ts",
+			"count": 1,
+			"hash": "6686dd978ddee8bd0c7807f4de9546f15c879fbba78b33f26596c1a24bf6fc2d"
+		},
+		{
+			"key": "eslint:editor/song-custom-samples.ts",
+			"count": 5,
+			"hash": "404231f60be93c77061fb483af481f2189858ba856ae77e28b893d1af733f8a9"
+		},
+		{
+			"key": "eslint:editor/song-document.ts",
+			"count": 16,
+			"hash": "2b2c5f9ac61f4d97eb46a0e5657f2fd89034ba3e6a5e748a19dbef77ae94f66d"
+		},
+		{
+			"key": "eslint:editor/song-editor.ts",
+			"count": 51,
+			"hash": "741006d0ee2d6aa25532871ec5511af34c790a0d581dbeef56bda671ff45a648"
+		},
+		{
+			"key": "eslint:editor/ui/array-buffer-reader.ts",
+			"count": 2,
+			"hash": "9739c5b6a6f4b760700744964b2ed7ec3816c5819a329cf141df5b125d8793f6"
+		},
+		{
+			"key": "eslint:editor/ui/array-buffer-writer.ts",
+			"count": 16,
+			"hash": "0cb173cfbdd616af9b2d577367233fa001e45ee66897bd6ddf22f011c4346a02"
+		},
+		{
+			"key": "eslint:editor/ui/build-helpers.ts",
+			"count": 7,
+			"hash": "c5baf39d6088586b11780daa2e475df8ef5936c05f3369825e59c5d2228db575"
+		},
+		{
+			"key": "eslint:editor/ui/chips/tag-list-item.ts",
+			"count": 1,
+			"hash": "eeedc5003036612ce179bcc5d2c58f5e016c1e32d2b16bcecd0922889d047a78"
+		},
+		{
+			"key": "eslint:editor/ui/containers/form-row.ts",
+			"count": 1,
+			"hash": "744e30fe13d849b7bedcb66d3dad22a1b5ae30ad9ca8a00ad6af702fd08a1110"
+		},
+		{
+			"key": "eslint:editor/ui/containers/select-field.ts",
+			"count": 1,
+			"hash": "e159c2f670628c759564c1649a6b407bb4b14f9dada91bf8aee10b59b76701b7"
+		},
+		{
+			"key": "eslint:editor/ui/containers/select-row.ts",
+			"count": 1,
+			"hash": "11e3a0a7f13c7191d442bdb9fae4b2a1d6106f104a858bddb10eef33fcd517fb"
+		},
+		{
+			"key": "eslint:editor/ui/inputs/color-picker.ts",
+			"count": 10,
+			"hash": "0704feb2c4c08c7e7c1ac34d48002c0ad3ca756a173afc06fc1a5d3948f8db30"
+		},
+		{
+			"key": "eslint:editor/ui/inputs/input-box.ts",
+			"count": 2,
+			"hash": "f237149fc3a8f54f59bf655f6f8983796784a65b6fc3323a7e73ebc4758d9ad2"
+		},
+		{
+			"key": "eslint:editor/ui/layout/layout.ts",
+			"count": 2,
+			"hash": "0d72773af566ce435ad85d612cbbc207b2e7097d9766076f109320674518f59b"
+		},
+		{
+			"key": "eslint:editor/ui/prompts/prompt-components.ts",
+			"count": 2,
+			"hash": "835f152db49a440ab46df468dc621a0be22537a2207ca0c9fadded3eadcb0e4b"
+		},
+		{
+			"key": "eslint:editor/ui/rows/slider-row.ts",
+			"count": 2,
+			"hash": "8ba95042274e467c6960f25541f959672c2cc078c8a09aa6a65811b461f1e7d8"
+		},
+		{
+			"key": "eslint:editor/ui/select-helpers.ts",
+			"count": 4,
+			"hash": "103553ec6072c002c1031988b398a875398593b101eb31b9bb735507e8d406c7"
+		},
+		{
+			"key": "eslint:editor/ui/sliders/slider-num-widget.ts",
+			"count": 2,
+			"hash": "d6f18ca673709ac71e08a4211ee35dddd296a34af3244a9c57e677688b56ee57"
+		},
+		{
+			"key": "eslint:editor/ui/sliders/slider.ts",
+			"count": 19,
+			"hash": "5f4cbc79fbe8e9f5cb6d804783fcba04c096de257731a9c5c2b274078b15061e"
+		},
+		{
+			"key": "eslint:editor/ui/tip-span.ts",
+			"count": 1,
+			"hash": "f3a261c54a1c8eaf2d127f14a205a7ae9f3e0b03dccdaa152694c3362c2152d8"
+		},
+		{
+			"key": "eslint:player/player-controls.ts",
+			"count": 27,
+			"hash": "aeec9c7efb4cd5ad22605400ac74763740de717fe4e4134986629c0563ec941d"
+		},
+		{
+			"key": "eslint:player/player-keyboard.ts",
+			"count": 3,
+			"hash": "ec9d73dfc1f3117a4ad2c86513036c467ecf079c6bc410f8f546ed9c147da19c"
+		},
+		{
+			"key": "eslint:player/player-timeline.ts",
+			"count": 22,
+			"hash": "eabe49fc230b74c0f45925c314d901fcb2ac204df4a3a8712676ead75f3116da"
+		},
+		{
+			"key": "eslint:player/player-ui.ts",
+			"count": 10,
+			"hash": "a3a667e6932a3912b036e7dca1c953544e0f0896e76b032720ab01f932e0cc2d"
+		},
+		{
+			"key": "eslint:shared/color-config.ts",
+			"count": 81,
+			"hash": "7a736b7cd03c2b75ce1d7baaaa5d0e337accc093897c1b0c5ffe7ea1825e3a06"
+		},
+		{
+			"key": "eslint:shared/color-utils.ts",
+			"count": 20,
+			"hash": "2f527b6570562f39a03db41c0c95993b5cc458de4d732f2fbb985249f33decb8"
+		},
+		{
+			"key": "eslint:shared/events.ts",
+			"count": 7,
+			"hash": "d540cc607d63fb6d857d2547253002a25faa371366b48148f1877f80295d788f"
+		},
+		{
+			"key": "eslint:shared/pmd-adapter.ts",
+			"count": 14,
+			"hash": "b4715b66f7704185f604cb26fdbc29ba1dbfa3743c7b733309c98df505f1a74c"
+		},
+		{
+			"key": "eslint:shared/pmd/base16.ts",
+			"count": 2,
+			"hash": "8d578250ba170b0ea8c9c5dd47b86be40974033b8190c8088aab3f2cd7838e30"
+		},
+		{
+			"key": "eslint:shared/pmd/color.ts",
+			"count": 1,
+			"hash": "dec10300c7740009bf3465c4cb128ccf2855195068e9339e816d3e372e0977a2"
+		},
+		{
+			"key": "eslint:synth/audio-backend.ts",
+			"count": 61,
+			"hash": "bbd6323f525644658dd619103aed25b8262ecbd50026ac077bd462e377a00a3a"
+		},
+		{
+			"key": "eslint:synth/config/config-class.ts",
+			"count": 3,
+			"hash": "50c4336ed032692b9280bca13565927270493300a796a2acb041f45f120bdcad"
+		},
+		{
+			"key": "eslint:synth/config/instrument-registry.ts",
+			"count": 1,
+			"hash": "8b53f4df218b41aa44e9649ea058c3de61a9e3aacce454cf708fc41224bfe339"
+		},
+		{
+			"key": "eslint:synth/config/sample-loader.ts",
+			"count": 27,
+			"hash": "ca7719eb6d791509d558fc84007ddafd76e5825e7e13cb7dba44b4719f8d4d41"
+		},
+		{
+			"key": "eslint:synth/config/synth-math-utils.ts",
+			"count": 17,
+			"hash": "8ca43eb446f96742ced54f591ede11f1849c6b652505a1ec9456a3a7fa49b710"
+		},
+		{
+			"key": "eslint:synth/config/utils.ts",
+			"count": 6,
+			"hash": "3a5de577abfaba737f19358648a0b91b9ec335c40d26dac85754cae64fc50c10"
+		},
+		{
+			"key": "eslint:synth/deque.ts",
+			"count": 1,
+			"hash": "0e8753802ca75f55b1fd1d0ca4f1441486f066177d8d43a565d1af6c7742d39d"
+		},
+		{
+			"key": "eslint:synth/deserialize/load-custom-samples.ts",
+			"count": 4,
+			"hash": "5177c717c1253dd2b4a293972ec2352c847098f660d21b1cad433cc583cec7f8"
+		},
+		{
+			"key": "eslint:synth/dsp-utils.ts",
+			"count": 1,
+			"hash": "59bb41c54317c5d6b7db4592bde37b3c49049b3ff2c4ee4af987a0d1ca9e198a"
+		},
+		{
+			"key": "eslint:synth/envelope-computer.ts",
+			"count": 39,
+			"hash": "7e1bf821f36e356e81a561be559c3531035a5d3a09c580a80d9834adb33e350d"
+		},
+		{
+			"key": "eslint:synth/formats/json-serialization.ts",
+			"count": 149,
+			"hash": "f6a001994971fca3f330cc970efa195edcf60bd62381ef2380aaf85e96d23f61"
+		},
+		{
+			"key": "eslint:synth/formats/jukebox-exp-v2.ts",
+			"count": 8,
+			"hash": "8cdba4e48df86ba08f6e8d35de9855b064f27f1ab4ea646ea6f9a2b86e9ec8a1"
+		},
+		{
+			"key": "eslint:synth/formats/jukebox-exp.ts",
+			"count": 1,
+			"hash": "e0c38acc48708a3c7ace57dfe1fee9198318b32e4a15e146eb6891dcd8d97e38"
+		},
+		{
+			"key": "eslint:synth/formats/legacy-compat.ts",
+			"count": 2,
+			"hash": "0c61aa4f9bcc7cbe43f44b435b84fdcee21d8779f8f41e35a626b2bb34c52df0"
+		},
+		{
+			"key": "eslint:synth/instrument-state.ts",
+			"count": 39,
+			"hash": "188b3d08891625b47e1ebd1c2318a6c6ca1d4f0b6e4e1618375fbfd3d50d59ba"
+		},
+		{
+			"key": "eslint:synth/instruments/custom-algorithm.ts",
+			"count": 2,
+			"hash": "d38d95fa78c45a820474170ff24e5f676ef34e15ae966e67871f543a32b0e5a6"
+		},
+		{
+			"key": "eslint:synth/instruments/custom-feedback.ts",
+			"count": 2,
+			"hash": "27baea0bfd5bc8566ff39b420290c0beb2d11612845747fb7feade339ae2f994"
+		},
+		{
+			"key": "eslint:synth/instruments/envelope-settings.ts",
+			"count": 77,
+			"hash": "bf693e0320647168049af25dae34c05913679f720ebe6c3b7dffcc4f79ca7afd"
+		},
+		{
+			"key": "eslint:synth/instruments/filter-settings.ts",
+			"count": 15,
+			"hash": "d827e464ee984c1970b1b3e6308b00edb0ddaf342d55392c8cbda9ad0d260823"
+		},
+		{
+			"key": "eslint:synth/instruments/instrument.ts",
+			"count": 556,
+			"hash": "1a81fefb0be2fb84ec596482f39857b2a929fba11b24d5ba75092e5fedbe3695"
+		},
+		{
+			"key": "eslint:synth/mod-state.ts",
+			"count": 85,
+			"hash": "9251cb5c9e50fda2b0ae54cbb43f69e600052ca53125b9fa17770b1e708ae860"
+		},
+		{
+			"key": "eslint:synth/modules/chip/module.ts",
+			"count": 2,
+			"hash": "2abf6e9ba4beab3f4df48cb9a0314e762840ee70ab439b9fb82569698152198c"
+		},
+		{
+			"key": "eslint:synth/modules/custom-chip-wave/module.ts",
+			"count": 1,
+			"hash": "5346acbb836f6389bf69a8d7fb92a23ae9b06ca7727dcf8bb44c068a728e4a3f"
+		},
+		{
+			"key": "eslint:synth/modules/fm/module.ts",
+			"count": 4,
+			"hash": "ca5d7f4329b9546b3a23cba053332093b236625ff004004da6385bb5e9611dd6"
+		},
+		{
+			"key": "eslint:synth/modules/fm6/module.ts",
+			"count": 6,
+			"hash": "13937a3a966f9fb47516f46e55a4bad0a4304fa097557964e37fb042c9072cc4"
+		},
+		{
+			"key": "eslint:synth/modules/noise/module.ts",
+			"count": 1,
+			"hash": "7fc36730392aa53b37b2ca1cda9611f22461a2abb05cc2cd3f6abb9191d1b8b4"
+		},
+		{
+			"key": "eslint:synth/modules/opl3/module.ts",
+			"count": 4,
+			"hash": "57c6cfb4b5c078552899aef3355f306b38ad45f606fe5793015bfda49f88ff21"
+		},
+		{
+			"key": "eslint:synth/modules/opl3/serde.ts",
+			"count": 8,
+			"hash": "195dc9d6bf9c23824a27982e65f6fda4a1e27aae2b8193487715c7951cd501c4"
+		},
+		{
+			"key": "eslint:synth/modules/pulse/module.ts",
+			"count": 2,
+			"hash": "7d24443557991825961ed106d4d01e8f30f7c7452a07d33617c1e32ca3202328"
+		},
+		{
+			"key": "eslint:synth/modules/supersaw/module.ts",
+			"count": 5,
+			"hash": "69544728b4cac2530be2bdeb4314400cabb174de85e20c689011b199c6ec438e"
+		},
+		{
+			"key": "eslint:synth/notes.ts",
+			"count": 36,
+			"hash": "b86f2072480cfa4820d2ed7e2c60e27b7aa9b73e47cf2cfa422f682dd0670c0f"
+		},
+		{
+			"key": "eslint:synth/picked-string.ts",
+			"count": 4,
+			"hash": "d61c454b9d34acdf19fec61cde6ffeb9f139a886425a01c5455045902f29fd30"
+		},
+		{
+			"key": "eslint:synth/plugins/chip.ts",
+			"count": 16,
+			"hash": "9efd1b7ede883d0e840af749b3b568aaf5646f158d7a90e8b61a58b561ff3872"
+		},
+		{
+			"key": "eslint:synth/plugins/drumset.ts",
+			"count": 8,
+			"hash": "0e9f71c7742dcae6dda302040522826d60ba0e336dd4d584a63934087db7e874"
+		},
+		{
+			"key": "eslint:synth/plugins/effects.ts",
+			"count": 8,
+			"hash": "8d887246468f1e2568362a8daef9822ebb56e2f817b5e5f1770231b27631fe93"
+		},
+		{
+			"key": "eslint:synth/plugins/fm.ts",
+			"count": 8,
+			"hash": "c776159bf473487d02a59cccf88528441f508db8e77179ee7f0f46167884a3f3"
+		},
+		{
+			"key": "eslint:synth/plugins/fm6.ts",
+			"count": 6,
+			"hash": "54f6681845513e70e925305d14e5f645a240f62c850bdaf07ca850625f4db8c6"
+		},
+		{
+			"key": "eslint:synth/plugins/harmonics.ts",
+			"count": 7,
+			"hash": "b7d483c396c395b2211103e49986dc97e424da96e824a8340cc2697797447be6"
+		},
+		{
+			"key": "eslint:synth/plugins/interfaces.ts",
+			"count": 1,
+			"hash": "1d43040ff9a8c23d7aade6e685ca060edae0cb26ccd804d5bb4e007d393e1c89"
+		},
+		{
+			"key": "eslint:synth/plugins/mod.ts",
+			"count": 1,
+			"hash": "166c0144af1506917bfea244f3e46f23ff2294e79cbf036110b57867ac5f06db"
+		},
+		{
+			"key": "eslint:synth/plugins/noise.ts",
+			"count": 7,
+			"hash": "106616d37de2f91f8ffd6f4c874c310ce7370e66ab7868e53848f44a7d88e098"
+		},
+		{
+			"key": "eslint:synth/plugins/opl3.ts",
+			"count": 9,
+			"hash": "83d27589dba46c3141246c8581de654a55c10110a31a6b5a676c1edc9f175b26"
+		},
+		{
+			"key": "eslint:synth/plugins/picked-string.ts",
+			"count": 8,
+			"hash": "e3fd8c9e500189c1f7cc9a322328611bc149f80a4b039919c9f94f01166ed70b"
+		},
+		{
+			"key": "eslint:synth/plugins/pulse.ts",
+			"count": 7,
+			"hash": "59b5e4266aa27ca9bf2cc27750accc5a91dec1a2efaba9d99b3eb902b81c74e7"
+		},
+		{
+			"key": "eslint:synth/plugins/registry.ts",
+			"count": 1,
+			"hash": "fc0635b454e2a460d590f6f4a39bf88545e091db2a8bb009556aa30b5b6dd159"
+		},
+		{
+			"key": "eslint:synth/plugins/spectrum.ts",
+			"count": 7,
+			"hash": "64111901f1ec40e008d16938f6a5059e5679f023778dc98e2aeff567273945e4"
+		},
+		{
+			"key": "eslint:synth/plugins/supersaw.ts",
+			"count": 9,
+			"hash": "69a953f7f6a6a8d281b669ef9cb4ffbf56c4cc2d8eaf9f86f01b71750e964d2e"
+		},
+		{
+			"key": "eslint:synth/post-processing.ts",
+			"count": 7,
+			"hash": "4fb5ef5e1c7bcae166ac69ba6339a4b29b3ba3cf1ce52d81e2fcdc1c17d59e19"
+		},
+		{
+			"key": "eslint:synth/render/compute-tone.ts",
+			"count": 48,
+			"hash": "2b3d3868ec3e9725f984b7a79c9a348ef999c98cb86b3086012d5a906ce07576"
+		},
+		{
+			"key": "eslint:synth/render/render-core.ts",
+			"count": 17,
+			"hash": "4cc414f6fab84c430833071604fd4edeb75a24969c28aaa490fa5d09dfacc4af"
+		},
+		{
+			"key": "eslint:synth/render/snapshot.ts",
+			"count": 2,
+			"hash": "4220914bc9b565297dac779bf377324564b83bc8fd10a7f9e18398e7dc4a77b6"
+		},
+		{
+			"key": "eslint:synth/render/worklet-synth.ts",
+			"count": 8,
+			"hash": "99cc4b688d30733131aa04eac70d4f6e2072f7369698e0d12b926fe21f81bc6a"
+		},
+		{
+			"key": "eslint:synth/render/worklet.ts",
+			"count": 31,
+			"hash": "6315fcaa3fecc67a565b01064e9252d99a1ee9749ba891ea33013d8e67d3a969"
+		},
+		{
+			"key": "eslint:synth/serialization.ts",
+			"count": 53,
+			"hash": "5d298e7473499449c4e089c06819873ac9de26cbcfe8ffc1e76327c8894d3843"
+		},
+		{
+			"key": "eslint:synth/socket/bridge.ts",
+			"count": 9,
+			"hash": "906266d3bf42f46b404042bcc4ef2b87774c6df51f92ae0b36c81b6a96693506"
+		},
+		{
+			"key": "eslint:synth/socket/capability-lookup.ts",
+			"count": 1,
+			"hash": "d36edee92a8f5ef73934737e5e4d5da139599da03a9c7f73b166aafb3152422e"
+		},
+		{
+			"key": "eslint:synth/socket/effect-state.ts",
+			"count": 9,
+			"hash": "d71b6d382928b6c23ecd0a6f4ee0a39407f9b43ba8c8892e11f3ef021ee69d9e"
+		},
+		{
+			"key": "eslint:synth/socket/external-loader.ts",
+			"count": 6,
+			"hash": "fdda1f36fd6adad5ad14c4ce0fbc2a8bd19e4ec31e16f1fa3eb026c21691f1f1"
+		},
+		{
+			"key": "eslint:synth/socket/id-table.ts",
+			"count": 8,
+			"hash": "4580b350dca5d770a140ae426a4212c55ca057f53251c0badb011f29a132ef9e"
+		},
+		{
+			"key": "eslint:synth/socket/registry.ts",
+			"count": 4,
+			"hash": "4498f0a29f5d4f203e73f2b8f3f26ba4c9c678bc78dc20f32939899e292bf818"
+		},
+		{
+			"key": "eslint:synth/socket/serde.ts",
+			"count": 9,
+			"hash": "86fbf299ea6c5678712b007dde7ea91e0b12da82865ba7f3bc5514dcefcdbb66"
+		},
+		{
+			"key": "eslint:synth/song-utilities.ts",
+			"count": 34,
+			"hash": "78b86581219377753a7345e02c6eff573190aca367938ccd66327f366ac04a61"
+		},
+		{
+			"key": "eslint:synth/song.ts",
+			"count": 9,
+			"hash": "bb60ab4cc004793c95b0bffc57429f977b6fe55a0c0b8a3cb9bb2e8ec5f6ae81"
+		},
+		{
+			"key": "eslint:synth/synth-deserialize.ts",
+			"count": 198,
+			"hash": "4452991d7d4fe5bf1baf3b66868573aae48ab34970e624862c1873c7ada08945"
+		},
+		{
+			"key": "eslint:synth/synth-effects.ts",
+			"count": 2,
+			"hash": "ca18b94747b224471f2a7eef71e43d2a07c26961a754020391d8715488c027e6"
+		},
+		{
+			"key": "eslint:synth/synth-serialize.ts",
+			"count": 27,
+			"hash": "e61d7c5088137b5be61bc1dbe7414fcd889254f3aac00830a4d183ed82a33cbe"
+		},
+		{
+			"key": "eslint:synth/synth.ts",
+			"count": 272,
+			"hash": "e55379457730e9ff4f216a98416c628d7807799734525718b62da9d2d14057cb"
+		},
+		{
+			"key": "eslint:synth/synthesis/chip.ts",
+			"count": 31,
+			"hash": "42acdf13ed8ecdbcbed2e5adffc6facf3be3b14db147eddb1143c326746c28f9"
+		},
+		{
+			"key": "eslint:synth/synthesis/drum.ts",
+			"count": 10,
+			"hash": "0427f066562f34413653041db8b6bd481f8624bc2f3a691d3b6478163cf4daa4"
+		},
+		{
+			"key": "eslint:synth/synthesis/effects.ts",
+			"count": 4,
+			"hash": "eb399f8432fa8eaaa254878fb08353acc42a8e58a06990c23f8793c0e3a9bf85"
+		},
+		{
+			"key": "eslint:synth/synthesis/fm.ts",
+			"count": 11,
+			"hash": "255a09fa582fb3f393a646760057feee591a4312b23a3285420050ebec27f883"
+		},
+		{
+			"key": "eslint:synth/synthesis/fm6.ts",
+			"count": 6,
+			"hash": "6e713c84666317aac6661eaac8899af6b248b8879b9e60a1e6dcc8bc77d94771"
+		},
+		{
+			"key": "eslint:synth/synthesis/harmonics.ts",
+			"count": 7,
+			"hash": "c03de0123317daab34ffec4458c46a2415818182b5d8fb914b411a3151090659"
+		},
+		{
+			"key": "eslint:synth/synthesis/noise.ts",
+			"count": 14,
+			"hash": "3ac27fbabd6acbe75528e19b0f5f8b0c512a62de9f32b459fef2826e58c9ad6f"
+		},
+		{
+			"key": "eslint:synth/synthesis/opl3.ts",
+			"count": 7,
+			"hash": "6d4431403f6c96307d402b51228a84e7224ab6ce5db4c7ff50813db3cb5e36ed"
+		},
+		{
+			"key": "eslint:synth/synthesis/picked-string.ts",
+			"count": 1,
+			"hash": "77e901049f37a9577af113017cb0bac44e01523b1c0013ce45209675a1518071"
+		},
+		{
+			"key": "eslint:synth/synthesis/pulse.ts",
+			"count": 6,
+			"hash": "ec3766fbf4b484948a0a1b2f4b6e97690f9ed82e4e88f46ab32c44fe8307d26c"
+		},
+		{
+			"key": "eslint:synth/synthesis/spectrum.ts",
+			"count": 11,
+			"hash": "b4dc192db12e9f10fda85921484917673b8c881cbf80746f40af28653f7ae914"
+		},
+		{
+			"key": "eslint:synth/synthesis/supersaw.ts",
+			"count": 5,
+			"hash": "58cec4e88074a8165c65bbcfe8361af64086f623865edd7a75c0cbfab8c050dd"
+		},
+		{
+			"key": "eslint:synth/tone.ts",
+			"count": 2,
+			"hash": "e6ffe9db9831cc1166010a33602d76ebf3f367d5a8132f4632154e50a165b166"
+		},
+		{
+			"key": "eslint:synth/util.ts",
+			"count": 3,
+			"hash": "43adc93c1f4dad84847f6505105db5ca900d23f3919937dfd9074058a082dfcb"
+		},
+		{
+			"key": "eslint:synth/waves.ts",
+			"count": 4,
+			"hash": "5c73b99cee128a85235d91909b030f43b4188de25b29764fd43dbea9322d4f22"
+		}
+	]
+}

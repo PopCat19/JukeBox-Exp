@@ -7,13 +7,13 @@
 //   with NG appended to preset names.
 // - Edit presets in-editor and export via Ctrl+Shift+I to get updated settings.
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const presetsNgCategories: InputPresetCategory[] = [
 	{
 		name: "Presets NG",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "chip NG",
 

@@ -6,14 +6,14 @@
 // - Exports preset categories: Custom Instruments through Novelty
 
 import { getRegisteredPlugins } from "../../../synth/plugins/registry";
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const coreCategories: InputPresetCategory[] = [
 	{
 		// The order of this array needs to line up with the order of the InstrumentType declarations in SynthConfig.ts. (changes.ts' random instrument generation relies on this, for one.)
 		name: "Custom Instruments",
-		presets: <DictionaryArray<Preset>>toNameMap(
+		presets: toNameMap(
 			getRegisteredPlugins().map((p) => ({
 				name: p.displayName ?? p.name,
 				customType: p.type,
@@ -22,7 +22,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Unmodified",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "chip",
 				generalMidi: false,
@@ -455,7 +455,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Retro Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "square wave",
 				midiProgram: 80,
@@ -862,7 +862,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Keyboard Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "grand piano 1",
 				midiProgram: 0,
@@ -1192,7 +1192,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Idiophone Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "celesta",
 				midiProgram: 8,
@@ -1726,7 +1726,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Guitar Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "nylon guitar",
 				midiProgram: 24,
@@ -1848,7 +1848,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Picked Bass Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "acoustic bass",
 				midiProgram: 32,
@@ -2079,7 +2079,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Picked String Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "pizzicato strings",
 				midiProgram: 45,
@@ -2265,7 +2265,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Distortion Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "overdrive guitar",
 				midiProgram: 29,
@@ -2513,7 +2513,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Bellows Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "drawbar organ 1",
 				midiProgram: 16,
@@ -2762,7 +2762,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "String Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "violin 1",
 				midiProgram: 40,
@@ -3266,7 +3266,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Vocal Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "choir soprano",
 				midiProgram: 94,
@@ -3703,7 +3703,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Brass Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "trumpet",
 				midiProgram: 56,
@@ -3966,7 +3966,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Reed Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "soprano sax",
 				midiProgram: 64,
@@ -4296,7 +4296,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Flute Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "flute 1",
 				midiProgram: 73,
@@ -4612,7 +4612,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Pad Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "new age pad",
 				midiProgram: 88,
@@ -5063,7 +5063,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Drum Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "standard drumset",
 				midiProgram: 116,
@@ -5442,7 +5442,7 @@ export const coreCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Novelty Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "guitar fret noise",
 				midiProgram: 120,

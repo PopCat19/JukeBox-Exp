@@ -56,6 +56,7 @@ export default tseslint.config(
             "tests/css-var-contract.test.ts",
             "tests/interactions-behavior.test.ts",
             "tests/loop-editor-contract.test.ts",
+            "tests/lint-baseline.test.ts",
             "tests/song-document-contract.test.ts",
             "tests/song-data-recovery.test.ts",
             "tests/song-round-trip.test.ts",

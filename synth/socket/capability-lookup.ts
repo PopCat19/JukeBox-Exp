@@ -107,7 +107,7 @@ export function getInstrumentCapabilities(instrument: Instrument): InstrumentCap
 			return { ...DEFAULT_CAPABILITIES, ...mod.capabilities };
 		}
 	}
-	const legacy = LEGACY_TYPE_CAPABILITIES[instrument.type as InstrumentType];
+	const legacy = LEGACY_TYPE_CAPABILITIES[instrument.type];
 	if (legacy) return legacy;
 	return DEFAULT_CAPABILITIES;
 }

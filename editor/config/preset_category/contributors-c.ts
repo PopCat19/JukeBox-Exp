@@ -5,13 +5,13 @@
 // This module:
 // - Exports preset categories: 3001ideaz through Jacobar475
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const contributorCategoriesC: InputPresetCategory[] = [
 	{
 		name: "3001ideaz's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.1 presets--------------
 			{
 				name: "Fakebit Bass",
@@ -1401,7 +1401,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 	},
 	{
 		name: "ex1's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.3 presets--------------
 			{
 				name: "Crunchy Crushed Bass",
@@ -2248,7 +2248,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 	},
 	{
 		name: "Ashiiware's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.3 presets--------------
 			{
 				name: "Sol Pad",
@@ -10816,7 +10816,7 @@ export const contributorCategoriesC: InputPresetCategory[] = [
 	},
 	{
 		name: "Jacobar475's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.0 presets--------------
 			{
 				name: "Jafo wave",

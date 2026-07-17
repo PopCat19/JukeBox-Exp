@@ -5,13 +5,13 @@
 // This module:
 // - Exports preset categories: DX7FM, ThatBeepboxGuy, HoneykitKD, Calamity, truemori, The TuneCrusher, Bagel, DamageLol
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const contributorCategoriesA1: InputPresetCategory[] = [
 	{
 		name: "DX7FM's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Simple Bass",
 				generalMidi: false,
@@ -9352,7 +9352,7 @@ export const contributorCategoriesA1: InputPresetCategory[] = [
 	},
 	{
 		name: "ThatBeepboxGuy's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Better Distortion Guitar",
 				generalMidi: false,
@@ -13344,7 +13344,7 @@ export const contributorCategoriesA1: InputPresetCategory[] = [
 	},
 	{
 		name: "HoneykitKD's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Resonant Lead",
 				generalMidi: false,
@@ -15894,7 +15894,7 @@ export const contributorCategoriesA1: InputPresetCategory[] = [
 	},
 	{
 		name: "Calamity's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "growly bass",
 				generalMidi: false,
@@ -17718,7 +17718,7 @@ export const contributorCategoriesA1: InputPresetCategory[] = [
 	},
 	{
 		name: "truemori's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "flute staccato",
 				generalMidi: false,
@@ -18673,7 +18673,7 @@ export const contributorCategoriesA1: InputPresetCategory[] = [
 	},
 	{
 		name: "The TuneCrusher's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Blip Pulse",
 				generalMidi: false,
@@ -20005,7 +20005,7 @@ export const contributorCategoriesA1: InputPresetCategory[] = [
 	},
 	{
 		name: "Bagel's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "grandmaster piano",
 				generalMidi: false,
@@ -20579,7 +20579,7 @@ export const contributorCategoriesA1: InputPresetCategory[] = [
 	},
 	{
 		name: "DamageLol's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Phighting Lead",
 				generalMidi: false,

@@ -5,13 +5,13 @@
 // This module:
 // - Exports preset categories: Krmailence through august
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const contributorCategoriesA2: InputPresetCategory[] = [
 	{
 		name: "Krmailence's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Fake Arpeggiator",
 				generalMidi: false,
@@ -1013,7 +1013,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 	},
 	{
 		name: "ia.kisha's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Vague Memory Chimes",
 				generalMidi: false,
@@ -1683,7 +1683,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 	},
 	{
 		name: "KoraCaesh's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.0--------------
 			// { name: "", generalMidi: false, tags:[""], settings: {} },
 			// { name: "", generalMidi: false, tags:[""], settings: {} },
@@ -1693,7 +1693,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 	},
 	{
 		name: "snowirei's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "weird choir",
 				generalMidi: false,
@@ -2423,7 +2423,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 	},
 	{
 		name: "HappyLemonLime's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.0.1--------------
 			{
 				name: "cave oo",
@@ -3034,7 +3034,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 	},
 	{
 		name: "spendog's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.2.0--------------
 			{
 				name: "ethereal organ stab",
@@ -4371,7 +4371,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 	},
 	{
 		name: "SomethingOriginal's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.1.0--------------
 			{
 				name: "FM Light Piano",
@@ -5073,7 +5073,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 	},
 	{
 		name: "Minecraft Note Blocks - eggfry",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Golden Bell",
 				generalMidi: false,
@@ -7608,7 +7608,7 @@ export const contributorCategoriesA2: InputPresetCategory[] = [
 	},
 	{
 		name: "august's presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "shaky bass",
 				generalMidi: false,

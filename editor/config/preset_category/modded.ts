@@ -5,13 +5,13 @@
 // This module:
 // - Exports preset categories: BulbBox, Misc Modded, UnBox Synth Lead
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const moddedCategories: InputPresetCategory[] = [
 	{
 		name: "BulbBox Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// Drum Presets
 			{
 				name: "BulbBox C1 Square Kick",
@@ -1921,7 +1921,7 @@ export const moddedCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Misc Modded Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// -------------JukeBox 0.0.1--------------
 			{
 				name: "modbox theepsynth",
@@ -2809,7 +2809,7 @@ export const moddedCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Misc Modded Novelty Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// Made by Slarmoo
 			{
 				name: "bitcrushed artifacts (Slarmoo's Box)",
@@ -3958,7 +3958,7 @@ export const moddedCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Misc Modded Presets",
-		/*DRUMS*/ presets: <DictionaryArray<Preset>>toNameMap([
+		/*DRUMS*/ presets: toNameMap([
 			// -------------JukeBox 0.0.1--------------
 			{
 				name: "nes white (UltraBox)",
@@ -4609,7 +4609,7 @@ export const moddedCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "UnBox Synth Lead",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Filtered Sawtooth Lead",
 				midiProgram: 82,

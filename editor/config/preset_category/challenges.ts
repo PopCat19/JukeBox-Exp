@@ -5,17 +5,17 @@
 // This module:
 // - Exports preset categories: UnBox Drums, Weekly Challenges, CoolTasDude
 
-import { type DictionaryArray, toNameMap } from "../../../synth/synth-config";
-import type { InputPresetCategory, Preset } from "./types";
+import { toNameMap } from "../../../synth/synth-config";
+import type { InputPresetCategory } from "./types";
 
 export const challengeCategories: InputPresetCategory[] = [
 	{
 		name: "UnBox Drums",
-		presets: <DictionaryArray<Preset>>toNameMap([]),
+		presets: toNameMap([]),
 	},
 	{
 		name: "Mid's Weekly Challenges",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "Chocolate Pulse",
 				generalMidi: false,
@@ -1399,7 +1399,7 @@ export const challengeCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "Gelli's Vanilla Challenge",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			{
 				name: "ufo pad",
 				generalMidi: false,
@@ -1714,7 +1714,7 @@ export const challengeCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "BeepBox T6 R3 Bonus Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// set 1
 			{
 				name: "T6 Cactus",
@@ -1989,7 +1989,7 @@ export const challengeCategories: InputPresetCategory[] = [
 	},
 	{
 		name: "CoolTasDude's Presets",
-		presets: <DictionaryArray<Preset>>toNameMap([
+		presets: toNameMap([
 			// Jukebox 0.0.1
 			{
 				name: "electrodonk",
