@@ -33,7 +33,7 @@ export class ImportPrompt extends BasePrompt {
 		"Browse\u2026",
 	);
 	private readonly _modeImportSelect: HTMLSelectElement = select(
-		{ class: "importBrowseButton" },
+		{ class: "importModeSelect" },
 		option({ value: "auto" }, "Auto-detect mode (for json)"),
 		option({ value: "BeepBox" }, "BeepBox"),
 		option({ value: "ModBox" }, "ModBox"),
@@ -61,8 +61,7 @@ export class ImportPrompt extends BasePrompt {
 			{ class: "importNote2" },
 			"BeepBox can also (crudely) import .mid files. There are many tools available for creating .mid files. Shorter and simpler songs are more likely to work well.",
 		),
-		this._modeImportSelect,
-		this._browseButton,
+		div({ class: "importFileRow" }, this._modeImportSelect, this._browseButton),
 		this._fileInput,
 		this._cancelButton,
 	);

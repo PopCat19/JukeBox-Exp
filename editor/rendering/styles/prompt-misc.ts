@@ -79,14 +79,25 @@ export function buildPromptMiscCSS(): string {
 	width: 300px;
 }
 
-.beepboxEditor .prompt.importPrompt select {
-	width: 100%;
+.beepboxEditor .prompt.importPrompt .importFileRow {
+	display: flex;
+	align-items: center;
+	gap: var(--gap-md);
 	margin-bottom: 0.5em;
 }
 
-.beepboxEditor .prompt.importPrompt .importBrowseButton {
-	width: 100%;
-	margin-bottom: 0.5em;
+.beepboxEditor .prompt.importPrompt .importFileRow > select {
+	flex: 1 1 auto;
+	min-width: 0;
+	width: auto;
+	margin-bottom: 0;
+}
+
+.beepboxEditor .prompt.importPrompt .importFileRow > .importBrowseButton {
+	flex: 0 0 auto;
+	width: auto;
+	padding: 0 var(--padding-10);
+	margin-bottom: 0;
 }
 
 .beepboxEditor .prompt.importPrompt .importNote {
