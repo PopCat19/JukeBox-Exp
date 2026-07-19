@@ -869,13 +869,15 @@ describe("native navigator extraction", () => {
 		expect(css).toContain(".navigator-detached-content > .navigator-native-pane");
 	});
 
-	test("Export Song keeps standalone geometry and uses bounded attached form anatomy", () => {
+	test("Export Song keeps standalone geometry and fills the attached pane width", () => {
 		const css = buildPromptExportCSS();
 		expect(css).toMatch(/\.prompt\.exportPrompt \{[^}]*box-sizing: border-box;[^}]*width: 340px;[^}]*max-width: 340px;/s);
 		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane\.exportPrompt \{[^}]*align-items: flex-start;/s);
-		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane\.exportPrompt \.exportPromptContent \{[^}]*width: min\(440px, 100%\);[^}]*max-width: 440px;/s);
-		expect(css).toMatch(/\.prompt\.exportPrompt \.exportField \{[^}]*display: grid;[^}]*grid-template-columns: minmax\(0, 9rem\) minmax\(0, 1fr\);[^}]*min-width: 0;/s);
+		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane\.exportPrompt \.exportPromptContent \{[^}]*width: 100%;[^}]*max-width: none;/s);
+		expect(css).toMatch(/\.prompt\.exportPrompt \.exportField \{[^}]*display: grid;[^}]*grid-template-columns: minmax\(0, 7rem\) minmax\(0, 1fr\);[^}]*min-width: 0;/s);
 		expect(css).toMatch(/\.prompt\.exportPrompt \.exportField > input\[type="text"\],[^{]*\.exportField > select \{[^}]*max-width: 100%;[^}]*min-width: 0;/s);
+		expect(css).toMatch(/\.prompt\.exportPrompt \.exportPromptFooter \.exportButton \{[^}]*width: 100%;/s);
+		expect(css).toContain(".exportPromptFooter .exportButton::before { display: none; }");
 		expect(css).toContain(".navigator-pane-host > .navigator-native-pane.exportPrompt {");
 		expect(css).not.toContain(".navigator-native-pane .exportPrompt {");
 		expect(css).not.toMatch(/\.navigator-pane-host[^,{]*[> ](?:button|input|select):hover/);
@@ -884,25 +886,26 @@ describe("native navigator extraction", () => {
 	test("Export Song keeps detached sizing and narrow overflow containment", () => {
 		const css = buildPromptExportCSS();
 		expect(css).toMatch(/\.navigator-detached-content > \.navigator-native-pane\.exportPrompt \.exportPromptContent \{[^}]*width: min\(520px, 100%\);[^}]*max-width: 520px;/s);
-		expect(css).toMatch(/\.prompt\.exportPrompt \.exportPlaybackControls \{[^}]*min-width: 0;[^}]*flex-wrap: wrap;/s);
+		expect(css).toMatch(/\.prompt\.exportPrompt \.exportPlaybackControls \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/s);
+		expect(css).toMatch(/\.prompt\.exportPrompt \.exportOptionControls \{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/s);
 		expect(css).toContain("overflow-wrap: anywhere");
 		expect(css).toContain("@media (max-width: 639px)");
 		expect(css).toMatch(/@media \(max-width: 639px\) \{[\s\S]*\.prompt\.exportPrompt \{ width: min\(340px, calc\(100vw - 16px\)\); max-width: 340px; \}/);
-		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane\.exportPrompt \.exportPromptContent \{ width: 100%; \}/s);
 	});
 
 	test("Export Song DOM keeps fields, status, and actions in one bounded content flow", async () => {
 		const source = await Bun.file("editor/prompts/export-prompt.ts").text();
 		expect(source).toContain('{ class: "exportPromptContent" }');
-		expect(source.match(/{ class: "exportField" }/g)?.length).toBe(6);
-		expect(source.match(/label\(\s*\{ class: "exportField" \}/g)?.length).toBe(5);
-		expect(source.match(/label\(\s*\{ class: "export(?:Check|Loop)Control" \}/g)?.length).toBe(3);
+		expect(source.match(/{ class: "exportField" }/g)?.length).toBe(3);
+		expect(source.match(/label\(\s*\{ class: "exportField" \}/g)?.length).toBe(3);
+		expect(source.match(/{ class: "exportSection"/g)?.length).toBe(3);
+		expect(source.match(/label\(\s*\{ class: "export(?:Check|Loop)Control" \}/g)?.length).toBe(5);
 		expect(source).toContain('"aria-labelledby": this._playbackLabelId');
 		expect(source).toContain('role: "group"');
 		expect(source).toContain("HTMLOutputElement = output(");
 		expect(source).toMatch(/this\._oggWarning,[\s\S]*this\._outputProgressContainer,[\s\S]*exportPromptFooter/);
 		expect(source).toContain('maxlength: 250');
-		expect(source).toMatch(/\? "grid"\s*: "none"/);
+		expect(source).toMatch(/\? ""\s*: "none"/);
 	});
 });
 

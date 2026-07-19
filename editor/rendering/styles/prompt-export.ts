@@ -22,12 +22,19 @@ export function buildPromptExportCSS(): string {
 .beepboxEditor .prompt.exportPrompt .exportPromptBody {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 12px;
 	min-width: 0;
 }
+.beepboxEditor .prompt.exportPrompt .exportSection {
+	display: flex;
+	flex-direction: column;
+	gap: ${Gap.md};
+	min-width: 0;
+}
+.beepboxEditor .prompt.exportPrompt .exportSectionLabel { margin: 0; }
 .beepboxEditor .prompt.exportPrompt .exportField {
 	display: grid;
-	grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
+	grid-template-columns: minmax(0, 7rem) minmax(0, 1fr);
 	align-items: center;
 	gap: ${Gap.lg};
 	min-width: 0;
@@ -45,18 +52,20 @@ export function buildPromptExportCSS(): string {
 	max-width: 100%;
 	min-width: 0;
 }
-.beepboxEditor .prompt.exportPrompt .exportPlaybackControls {
-	display: flex;
+.beepboxEditor .prompt.exportPrompt .exportPlaybackControls,
+.beepboxEditor .prompt.exportPrompt .exportOptionControls {
+	display: grid;
 	align-items: center;
-	justify-content: space-between;
 	gap: ${Gap.md};
 	min-width: 0;
-	flex-wrap: wrap;
 }
+.beepboxEditor .prompt.exportPrompt .exportPlaybackControls { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.beepboxEditor .prompt.exportPrompt .exportOptionControls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .beepboxEditor .prompt.exportPrompt .exportCheckControl,
 .beepboxEditor .prompt.exportPrompt .exportLoopControl {
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: 4px;
 	min-width: 0;
 }
@@ -77,20 +86,25 @@ export function buildPromptExportCSS(): string {
 	justify-content: flex-end;
 	min-width: 0;
 }
+.beepboxEditor .prompt.exportPrompt .exportPromptFooter > .prompt-button-row { width: 100%; }
+.beepboxEditor .prompt.exportPrompt .exportPromptFooter .exportButton {
+	justify-content: center;
+	width: 100%;
+}
+.beepboxEditor .prompt.exportPrompt .exportPromptFooter .exportButton::before { display: none; }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt {
-	align-items: stretch;
+	align-items: flex-start;
 	border: 0;
 	outline: none;
 	box-shadow: none;
 	text-align: left;
 }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .exportPromptContent {
-	align-self: center;
-	flex: 1 1 auto;
-	width: min(100%, 520px);
-	max-width: 520px;
+	align-self: stretch;
+	flex: 0 1 auto;
+	width: 100%;
+	max-width: none;
 }
-.beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .exportPromptFooter { margin-top: auto; }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .prompt-button-row { outline: none; }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt button:focus-visible {
 	outline: 2px solid var(--hout, var(--primary-text));
@@ -102,11 +116,7 @@ export function buildPromptExportCSS(): string {
 }
 @media (max-width: 639px) {
 	.beepboxEditor .prompt.exportPrompt { width: min(340px, calc(100vw - 16px)); max-width: 340px; }
-	.beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .exportPromptContent {
-		width: 100%;
-		max-width: none;
-	}
-	.beepboxEditor .prompt.exportPrompt .exportField { grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr); gap: 8px; }
+	.beepboxEditor .prompt.exportPrompt .exportField { grid-template-columns: minmax(0, 7rem) minmax(0, 1fr); gap: 8px; }
 }
 `;
 }

@@ -100,19 +100,31 @@ export class ExportPrompt extends BasePrompt {
 			{ class: "exportPromptContent" },
 			div(
 				{ class: "exportPromptBody" },
-				label(
-					{ class: "exportField" },
-					div({ class: "exportFieldLabel" }, "File name:"),
-					this._fileName,
-				),
-				label(
-					{ class: "exportField" },
-					div({ class: "exportFieldLabel" }, "Length:"),
-					this._computedSamplesLabel,
+				div(
+					{ class: "exportSection", role: "group", "aria-label": "File" },
+					div({ class: "sectionLabel exportSectionLabel" }, "File"),
+					label(
+						{ class: "exportField" },
+						div({ class: "exportFieldLabel" }, "File name:"),
+						this._fileName,
+					),
+					label(
+						{ class: "exportField" },
+						div({ class: "exportFieldLabel" }, "Format:"),
+						this._formatSelect,
+					),
+					label(
+						{ class: "exportField" },
+						div({ class: "exportFieldLabel" }, "Length:"),
+						this._computedSamplesLabel,
+					),
 				),
 				div(
-					{ class: "exportField" },
-					div({ class: "exportFieldLabel", id: this._playbackLabelId }, "Playback:"),
+					{ class: "exportSection" },
+					div(
+						{ class: "sectionLabel exportSectionLabel", id: this._playbackLabelId },
+						"Playback",
+					),
 					div(
 						{
 							class: "exportPlaybackControls",
@@ -136,20 +148,22 @@ export class ExportPrompt extends BasePrompt {
 						),
 					),
 				),
-				label(
-					{ class: "exportField" },
-					div({ class: "exportFieldLabel" }, "Remove Whitespace:"),
-					this._removeWhitespace,
-				),
-				label(
-					{ class: "exportField" },
-					div({ class: "exportFieldLabel" }, "Keep Open:"),
-					this._keepOpen,
-				),
-				label(
-					{ class: "exportField" },
-					div({ class: "exportFieldLabel" }, "Format:"),
-					this._formatSelect,
+				div(
+					{ class: "exportSection", role: "group", "aria-label": "Options" },
+					div({ class: "sectionLabel exportSectionLabel" }, "Options"),
+					div(
+						{ class: "exportOptionControls" },
+						label(
+							{ class: "exportCheckControl" },
+							this._removeWhitespace,
+							div({ class: "exportControlLabel" }, "Remove Whitespace"),
+						),
+						label(
+							{ class: "exportCheckControl" },
+							this._keepOpen,
+							div({ class: "exportControlLabel" }, "Keep Open"),
+						),
+					),
 				),
 				this._oggWarning,
 				div(
@@ -239,7 +253,7 @@ export class ExportPrompt extends BasePrompt {
 			removeWsRow.style.display = ["json", "json-exp", "json-legacy"].includes(
 				this._formatSelect.value,
 			)
-				? "grid"
+				? ""
 				: "none";
 		}
 		const showOgg = this._formatSelect.value === "ogg" || this._formatSelect.value === "opus";
