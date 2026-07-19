@@ -9,7 +9,7 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import { Synth } from "../../synth";
+import { Song, Synth } from "../../synth";
 import { toJukeboxExpJson, toJukeboxExpV2Json, toLegacyCompatJson } from "../../synth/formats";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
@@ -54,6 +54,16 @@ export class ExportPrompt extends BasePrompt {
 		"0:00",
 	);
 	private readonly _enableIntro: HTMLInputElement = input({ type: "checkbox" });
+	private readonly _loopStartInput: HTMLInputElement = input({
+		type: "number",
+		min: "1",
+		step: "1",
+	});
+	private readonly _loopEndInput: HTMLInputElement = input({
+		type: "number",
+		min: "1",
+		step: "1",
+	});
 	private readonly _loopDropDown: HTMLInputElement = input({
 		type: "number",
 		min: "1",
@@ -76,6 +86,10 @@ export class ExportPrompt extends BasePrompt {
 	);
 	private readonly _removeWhitespace: HTMLInputElement = input({ type: "checkbox" });
 	private readonly _keepOpen: HTMLInputElement = input({ type: "checkbox" });
+	private readonly _loopDependency: HTMLDivElement = div(
+		{ class: "exportLoopDependency" },
+		"Intro includes bars before Loop start. Outro includes bars after Loop end.",
+	);
 	private readonly _oggWarning: HTMLDivElement = div(
 		{ class: "exportOggWarning" },
 		"Warning: .ogg files aren't supported on as many devices as mp3 or wav. So Playback might not be possible on specific devices.",
@@ -92,6 +106,8 @@ export class ExportPrompt extends BasePrompt {
 		this._outputProgressBar,
 		this._outputProgressLabel,
 	);
+	private _observedLoopStart: number = -1;
+	private _observedLoopLength: number = -1;
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt exportPrompt noSelection" },
@@ -114,7 +130,7 @@ export class ExportPrompt extends BasePrompt {
 						this._formatSelect,
 					),
 					label(
-						{ class: "exportField" },
+						{ class: "exportField exportLengthField" },
 						div({ class: "exportFieldLabel" }, "Length:"),
 						this._computedSamplesLabel,
 					),
@@ -125,6 +141,20 @@ export class ExportPrompt extends BasePrompt {
 						{ class: "sectionLabel exportSectionLabel", id: this._playbackLabelId },
 						"Playback",
 					),
+					div(
+						{ class: "exportLoopBounds" },
+						label(
+							{ class: "exportLoopBoundaryControl" },
+							div({ class: "exportControlLabel" }, "Loop start"),
+							this._loopStartInput,
+						),
+						label(
+							{ class: "exportLoopBoundaryControl" },
+							div({ class: "exportControlLabel" }, "Loop end"),
+							this._loopEndInput,
+						),
+					),
+					this._loopDependency,
 					div(
 						{
 							class: "exportPlaybackControls",
@@ -185,21 +215,7 @@ export class ExportPrompt extends BasePrompt {
 		this._fileName.value = this._doc.song.title;
 
 		this._loopDropDown.value = "1";
-
-		if (this._doc.song.loopStart === 0) {
-			this._enableIntro.checked = false;
-			setDisabled(this._enableIntro, true);
-		} else {
-			this._enableIntro.checked = true;
-			setDisabled(this._enableIntro, false);
-		}
-		if (this._doc.song.loopStart + this._doc.song.loopLength === this._doc.song.barCount) {
-			this._enableOutro.checked = false;
-			setDisabled(this._enableOutro, true);
-		} else {
-			this._enableOutro.checked = true;
-			setDisabled(this._enableOutro, false);
-		}
+		this._syncLoopControlsFromSong();
 
 		const lastExportFormat: string | null = window.localStorage.getItem("exportFormat");
 		if (lastExportFormat != null) {
@@ -222,11 +238,14 @@ export class ExportPrompt extends BasePrompt {
 		});
 
 		this._fileName.addEventListener("input", ExportPrompt._validateFileName);
+		this._loopStartInput.addEventListener("change", this._whenLoopStartChanged);
+		this._loopEndInput.addEventListener("change", this._whenLoopEndChanged);
 		this._loopDropDown.addEventListener("blur", ExportPrompt._validateNumber);
 		this._enableOutro.addEventListener("click", this._updateSamplesLabel);
 		this._enableIntro.addEventListener("click", this._updateSamplesLabel);
 		this._loopDropDown.addEventListener("change", this._updateSamplesLabel);
 		this._formatSelect.addEventListener("change", this._updateWarnings);
+		this._doc.notifier.watch(this._whenDocumentChanged);
 		// Save "Keep Open" preference immediately so closing the prompt doesn't discard it
 		this._keepOpen.addEventListener("change", () => {
 			window.localStorage.setItem("exportKeepOpen", String(this._keepOpen.checked));
@@ -235,10 +254,80 @@ export class ExportPrompt extends BasePrompt {
 		this._updateSamplesLabel();
 	}
 
+	private _syncLoopControlsFromSong(): void {
+		this._observedLoopStart = this._doc.song.loopStart;
+		this._observedLoopLength = this._doc.song.loopLength;
+		this._loopStartInput.value = `${this._doc.song.loopStart + 1}`;
+		this._loopEndInput.value = `${this._doc.song.loopStart + this._doc.song.loopLength}`;
+		this._enableIntro.checked = this._doc.song.loopStart > 0;
+		this._enableOutro.checked =
+			this._doc.song.loopStart + this._doc.song.loopLength < this._doc.song.barCount;
+		this._updateLoopDependencies();
+	}
+
+	private _whenDocumentChanged = (): void => {
+		if (
+			this._observedLoopStart !== this._doc.song.loopStart ||
+			this._observedLoopLength !== this._doc.song.loopLength
+		) {
+			this._syncLoopControlsFromSong();
+		}
+	};
+
+	private _whenLoopStartChanged = (): void => {
+		this._validateLoopRange("start");
+	};
+
+	private _whenLoopEndChanged = (): void => {
+		this._validateLoopRange("end");
+	};
+
+	private _validateLoopRange(changed: "start" | "end"): void {
+		const barCount = this._doc.song.barCount;
+		let start = Math.max(1, Math.min(barCount, Math.floor(Number(this._loopStartInput.value))));
+		let end = Math.max(1, Math.min(barCount, Math.floor(Number(this._loopEndInput.value))));
+		if (!Number.isFinite(start)) start = 1;
+		if (!Number.isFinite(end)) end = barCount;
+		if (start > end) {
+			if (changed === "start") end = start;
+			else start = end;
+		}
+		this._loopStartInput.value = `${start}`;
+		this._loopEndInput.value = `${end}`;
+		this._updateLoopDependencies();
+	}
+
+	private _updateLoopDependencies(): void {
+		const start = Number(this._loopStartInput.value);
+		const end = Number(this._loopEndInput.value);
+		this._loopStartInput.max = `${end}`;
+		this._loopEndInput.min = `${start}`;
+		this._loopEndInput.max = `${this._doc.song.barCount}`;
+		const introWasDisabled = this._enableIntro.disabled;
+		const outroWasDisabled = this._enableOutro.disabled;
+		setDisabled(this._enableIntro, start <= 1);
+		setDisabled(this._enableOutro, end >= this._doc.song.barCount);
+		if (this._enableIntro.disabled) this._enableIntro.checked = false;
+		else if (introWasDisabled) this._enableIntro.checked = true;
+		if (this._enableOutro.disabled) this._enableOutro.checked = false;
+		else if (outroWasDisabled) this._enableOutro.checked = true;
+		this._updateSamplesLabel();
+	}
+
+	private _getExportSong(): Song {
+		const song = Object.assign(new Song(), this._doc.song);
+		const loopStart = Number(this._loopStartInput.value) - 1;
+		const loopEnd = Number(this._loopEndInput.value);
+		song.loopStart = loopStart;
+		song.loopLength = loopEnd - loopStart;
+		return song;
+	}
+
 	private _updateSamplesLabel = (): void => {
+		const exportSynth = new Synth(this._getExportSong());
 		(this._computedSamplesLabel.firstChild as Text).textContent = ExportPrompt.samplesToTime(
 			this._doc,
-			this._doc.synth.getTotalSamples(
+			exportSynth.getTotalSamples(
 				this._enableIntro.checked,
 				this._enableOutro.checked,
 				+this._loopDropDown.value - 1,
@@ -308,7 +397,10 @@ export class ExportPrompt extends BasePrompt {
 	public override cleanUp(): void {
 		super.cleanUp();
 		this._cancelRendering();
+		this._doc.notifier.unwatch(this._whenDocumentChanged);
 		this._fileName.removeEventListener("input", ExportPrompt._validateFileName);
+		this._loopStartInput.removeEventListener("change", this._whenLoopStartChanged);
+		this._loopEndInput.removeEventListener("change", this._whenLoopEndChanged);
 		this._loopDropDown.removeEventListener("blur", ExportPrompt._validateNumber);
 	}
 
@@ -331,7 +423,7 @@ export class ExportPrompt extends BasePrompt {
 			case "midi":
 				this.outputStarted = true;
 				exportToMidi(
-					this._doc.song,
+					this._getExportSong(),
 					this._fileName.value.trim(),
 					this._enableIntro.checked,
 					Number(this._loopDropDown.value),
@@ -393,7 +485,8 @@ export class ExportPrompt extends BasePrompt {
 	private _exportTo(type: string): void {
 		this.thenExportTo = type;
 		this.currentChunk = 0;
-		this.synth = new Synth(this._doc.song);
+		const exportSong = this._getExportSong();
+		this.synth = new Synth(exportSong);
 		if (type === "wav" || type === "ogg" || type === "opus")
 			this.synth.samplesPerSecond = 48000;
 		else if (type === "mp3") this.synth.samplesPerSecond = Config.defaultSampleRate;
@@ -401,11 +494,11 @@ export class ExportPrompt extends BasePrompt {
 		this._outputProgressLabel.innerText = "0%";
 		this.synth.loopRepeatCount = Number(this._loopDropDown.value) - 1;
 		if (!this._enableIntro.checked) {
-			for (let i = 0; i < this._doc.song.loopStart; i++) this.synth.goToNextBar();
+			for (let i = 0; i < exportSong.loopStart; i++) this.synth.goToNextBar();
 		}
-		this.synth.initModFilters(this._doc.song);
+		this.synth.initModFilters(exportSong);
 		this.synth.computeLatestModValues();
-		this.synth.warmUpSynthesizer(this._doc.song);
+		this.synth.warmUpSynthesizer(exportSong);
 		this.sampleFrames = this.synth.getTotalSamples(
 			this._enableIntro.checked,
 			this._enableOutro.checked,
@@ -637,7 +730,7 @@ export class ExportPrompt extends BasePrompt {
 
 	private _exportToJson(): void {
 		const json = JSON.stringify(
-			this._doc.song.toJsonObject(
+			this._getExportSong().toJsonObject(
 				this._enableIntro.checked,
 				Number(this._loopDropDown.value),
 				this._enableOutro.checked,
@@ -651,7 +744,7 @@ export class ExportPrompt extends BasePrompt {
 
 	private _exportToJsonExp(): void {
 		const json = JSON.stringify(
-			toJukeboxExpV2Json(this._doc.song),
+			toJukeboxExpV2Json(this._getExportSong()),
 			null,
 			this._removeWhitespace.checked ? undefined : "\t",
 		);
@@ -661,7 +754,7 @@ export class ExportPrompt extends BasePrompt {
 
 	private _exportToJsonLegacy(): void {
 		const json = JSON.stringify(
-			toLegacyCompatJson(toJukeboxExpJson(this._doc.song)),
+			toLegacyCompatJson(toJukeboxExpJson(this._getExportSong())),
 			null,
 			this._removeWhitespace.checked ? undefined : "\t",
 		);
@@ -670,7 +763,7 @@ export class ExportPrompt extends BasePrompt {
 	}
 
 	private _exportToHtml(): void {
-		const html = `<!DOCTYPE html><meta charset="utf-8">Redirecting to <a href="${new URL(`#${this._doc.song.toBase64String()}`, location.href).href}">song</a>...<script>location.assign(location.hash);</script>`;
+		const html = `<!DOCTYPE html><meta charset="utf-8">Redirecting to <a href="${new URL(`#${this._getExportSong().toBase64String()}`, location.href).href}">song</a>...<script>location.assign(location.hash);</script>`;
 		save(new Blob([html], { type: "text/html" }), `${this._fileName.value.trim()}.html`);
 		this._close();
 	}

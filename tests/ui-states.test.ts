@@ -322,8 +322,8 @@ describe("refactor proof: export-prompt route intro/outro disabled through setDi
 		const joined = lines.join("\n");
 		const introCalls = (joined.match(/setDisabled\(this\._enableIntro,/g) || []).length;
 		const outroCalls = (joined.match(/setDisabled\(this\._enableOutro,/g) || []).length;
-		expect(introCalls).toBe(2);
-		expect(outroCalls).toBe(2);
+		expect(introCalls).toBe(1);
+		expect(outroCalls).toBe(1);
 	});
 });
 
