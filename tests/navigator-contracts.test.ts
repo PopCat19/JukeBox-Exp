@@ -996,6 +996,7 @@ describe("navigator shell", () => {
 
 	test("route forms use compact PMD controls and bounded pane scrolling", async () => {
 		const navigatorCSS = buildNavigatorCSS();
+		const navigatorPanesCSS = buildNavigatorPanesCSS();
 		const smallCSS = buildPromptSmallCSS();
 		const miscCSS = buildPromptMiscCSS();
 		const compactSearchCSS = buildPromptCompactSearchCSS();
@@ -1012,6 +1013,8 @@ describe("navigator shell", () => {
 		expect(navigatorCSS).toMatch(/\.navigator-pane-host \{[^}]*padding: 12px[^}]*overflow: hidden/s);
 		expect(navigatorCSS).toMatch(/\.navigator-workspace \{[^}]*overflow: hidden/s);
 		expect(navigatorCSS).toMatch(/\.navigator-route-list \{[^}]*overflow: auto/s);
+		expect(navigatorPanesCSS).toMatch(/\.navigator-pane-host > \.customFilterPrompt\.navigator-native-pane,[^{]*\.cvvPrompt\.navigator-native-pane \{[^}]*overflow-x: hidden[^}]*overflow-y: auto[^}]*overscroll-behavior: contain/s);
+		expect(navigatorPanesCSS).not.toMatch(/\.navigator-detached-content > \.customFilterPrompt\.navigator-native-pane[^}]*overflow-y: auto/s);
 		expect(samples).toContain('h2({}, "Add Samples")');
 		expect(euclid).toContain("checkboxInput()");
 		expect(euclid).not.toContain('type: "checkbox"');

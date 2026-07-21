@@ -32,13 +32,19 @@ export function buildNavigatorPanesCSS(): string {
 	max-height: none !important;
 	margin: 0 !important;
 	padding: 0 !important;
-	overflow: visible;
+	overflow: hidden;
 	transform: none !important;
 	border-radius: 0 !important;
 	box-shadow: none !important;
 	background: transparent !important;
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
+}
+.beepboxEditor .navigator-pane-host > .customFilterPrompt.navigator-native-pane,
+.beepboxEditor .navigator-pane-host > .cvvPrompt.navigator-native-pane {
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior: contain;
 }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane:hover,
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.focused,
