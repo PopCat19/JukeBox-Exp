@@ -34,6 +34,7 @@
             rustc
             rust-analyzer
             wasm-pack
+            lld
             binaryen # wasm-opt for post-build optimization
           ];
 
