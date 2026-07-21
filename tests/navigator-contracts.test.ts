@@ -1064,6 +1064,7 @@ describe("navigator shell", () => {
 		expect(visualizer).toContain('class: "cvvInstrumentList"');
 		expect(navigatorPanesCSS).toContain("gap: 4px;");
 		expect(visualizer).toContain('padding: 0; position: relative; z-index: 1;');
+		expect(visualizer).toContain('height: 12px; display: block; margin: 0;');
 		expect(visualizer).toContain('height: 20px; display: block; margin: 0;');
 		expect(visualizer).toContain('border-top: 2px solid var(--ui-widget-background); margin: 0;');
 		expect(visualizer).toContain("flex-wrap: nowrap");

@@ -287,7 +287,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _scrubTrack: HTMLDivElement = div(
 		{
-			style: "width: calc(100% - 24px); height: 12px; display: block; margin: 4px 12px 0px 12px; cursor: pointer; touch-action: none; position: relative; background: var(--secondary-text); border-radius: 6px; overflow: hidden;",
+			style: "width: 100%; height: 12px; display: block; margin: 0; cursor: pointer; touch-action: none; position: relative; background: var(--secondary-text); border-radius: 6px; overflow: hidden;",
 		},
 		this._scrubFill,
 	);
