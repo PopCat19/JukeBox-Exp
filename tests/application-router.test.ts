@@ -189,6 +189,95 @@ describe("application router", () => {
 		expect(focusCount).toBe(0);
 	});
 
+	test("document prompt changes wait for canonical open state", async () => {
+		const ownsDom = typeof document === "undefined";
+		if (ownsDom) GlobalRegistrator.register();
+		try {
+			const { SongEditor } = await import("../editor/song-editor");
+			type PromptChangeHost = {
+				doc: { prompt: string | null };
+				_lastPrompt: string | null;
+				_pendingPromptChange: { requested: string | null } | null;
+				_queuedPromptChange: string | null | undefined;
+				_onDocPromptChange(): void;
+				_applicationRouter: { routePrompt(scope: string): Promise<boolean> };
+				_closeNavigatorMode(): Promise<boolean>;
+			};
+			type Attempt = {
+				scope: string;
+				resolve(opened: boolean): void;
+				reject(error: Error): void;
+			};
+			const attempts: Attempt[] = [];
+			const onDocPromptChange = (
+				SongEditor.prototype as unknown as {
+					_onDocPromptChange(this: PromptChangeHost): void;
+				}
+			)._onDocPromptChange;
+			const host: PromptChangeHost = {
+				doc: { prompt: "theme" },
+				_lastPrompt: "export",
+				_pendingPromptChange: null,
+				_queuedPromptChange: undefined,
+				_onDocPromptChange: () => { onDocPromptChange.call(host); },
+				_applicationRouter: {
+					routePrompt: (scope) => {
+						let resolve!: (opened: boolean) => void;
+						let reject!: (error: Error) => void;
+						const result = new Promise<boolean>((accept, deny) => {
+							resolve = accept;
+							reject = deny;
+						});
+						attempts.push({ scope, resolve, reject });
+						return result.then((opened) => {
+							if (opened) {
+								host._lastPrompt = scope;
+								host.doc.prompt = scope;
+							}
+							return opened;
+						});
+					},
+				},
+				_closeNavigatorMode: () => Promise.resolve(false),
+			};
+
+			host._onDocPromptChange();
+			host._onDocPromptChange();
+			host.doc.prompt = "drumsetSettings";
+			host._onDocPromptChange();
+			expect(attempts.map(({ scope }) => scope)).toEqual(["theme"]);
+			expect(host._lastPrompt).toBe("export");
+
+			attempts[0].resolve(true);
+			await Promise.resolve();
+			await Promise.resolve();
+			expect(attempts.map(({ scope }) => scope)).toEqual(["theme", "drumsetSettings"]);
+			expect(host._lastPrompt).toBe("theme");
+
+			attempts[1].resolve(false);
+			await Promise.resolve();
+			await Promise.resolve();
+			expect(host.doc.prompt).toBe("theme");
+			expect(host._lastPrompt).toBe("theme");
+
+			host.doc.prompt = "palette";
+			host._onDocPromptChange();
+			attempts[2].reject(new Error("route failed"));
+			await Promise.resolve();
+			await Promise.resolve();
+			expect(host.doc.prompt).toBe("theme");
+			expect(host._lastPrompt).toBe("theme");
+
+			host.doc.prompt = null;
+			host._onDocPromptChange();
+			await Promise.resolve();
+			expect(String(host.doc.prompt)).toBe("theme");
+			expect(host._lastPrompt).toBe("theme");
+		} finally {
+			if (ownsDom) GlobalRegistrator.unregister();
+		}
+	});
+
 	test("unavailable Navigator routes resolve false before construction", async () => {
 		let opens = 0;
 		let focusCount = 0;

@@ -1194,6 +1194,20 @@ describe("navigator shell", () => {
 		}
 	});
 
+	test("migrates legacy Navigator collapse booleans", () => {
+		try {
+			for (const [stored, expanded] of [
+				["true", true],
+				["false", false],
+			] as const) {
+				window.localStorage.setItem("navigatorSectionsExpanded", stored);
+				expect(new Preferences().navigatorSectionsExpanded).toEqual({ "*": expanded });
+			}
+		} finally {
+			window.localStorage.removeItem("navigatorSectionsExpanded");
+		}
+	});
+
 	test("searches routes and invokes canonical route navigation", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		let opened = "";

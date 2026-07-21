@@ -158,7 +158,7 @@
 		{
 			"key": "biome:editor/song-editor.ts",
 			"count": 1,
-			"hash": "abde68a13e3eb6d1a1a2b588ad6814d01802170b693eefac9709bc86ce27dcee"
+			"hash": "33ad63e5971d3b29c5208a4c37ce6a16c0cbd96edcaa4dfc9fc1cd5514214764"
 		},
 		{
 			"key": "biome:editor/ui/array-buffer-writer.ts",
@@ -1033,7 +1033,7 @@
 		{
 			"key": "eslint:editor/song-editor.ts",
 			"count": 51,
-			"hash": "2cbf5014744e0117de47cedb4317a674ebe15e1b2de38eae0e26fbd900b8ffdb"
+			"hash": "cf052785ebfc135438652e77d77d6fcde83e4fd055508fc765ac5d06d4f62dd2"
 		},
 		{
 			"key": "eslint:editor/ui/array-buffer-reader.ts",

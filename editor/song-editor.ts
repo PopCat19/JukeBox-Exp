@@ -2330,16 +2330,44 @@ export class SongEditor
 	);
 	private _highlightedInstrumentIndex: number = -1;
 	private _lastPrompt: string | null = null;
+	private _pendingPromptChange: { requested: string | null } | null = null;
+	private _queuedPromptChange: string | null | undefined;
 
-	private _onDocPromptChange = (): void => {
-		if (this.doc.prompt === this._lastPrompt) return;
-		this._lastPrompt = this.doc.prompt;
-		if (this._lastPrompt === null) {
-			void this._navigatorRuntime.closeNavigator();
-		} else {
-			void this._applicationRouter.routePrompt(this._lastPrompt);
+	private _onDocPromptChange(): void {
+		const requested = this.doc.prompt;
+		if (this._pendingPromptChange !== null) {
+			this._queuedPromptChange =
+				requested === this._pendingPromptChange.requested ? undefined : requested;
+			return;
 		}
-	};
+		if (requested === this._lastPrompt) return;
+
+		const attempt = { requested };
+		this._pendingPromptChange = attempt;
+		const finish = (opened: boolean): void => {
+			if (this._pendingPromptChange !== attempt) return;
+			this._pendingPromptChange = null;
+			if (!opened && this.doc.prompt === requested) {
+				this.doc.prompt = this._lastPrompt;
+			}
+			const queued = this._queuedPromptChange;
+			this._queuedPromptChange = undefined;
+			if (queued !== undefined) this.doc.prompt = queued;
+			this._onDocPromptChange();
+		};
+
+		try {
+			const operation =
+				requested === null
+					? this._closeNavigatorMode()
+					: this._applicationRouter.routePrompt(requested);
+			void operation.then(finish, () => {
+				finish(false);
+			});
+		} catch {
+			finish(false);
+		}
+	}
 
 	private _renderedInstrumentCount: number = 0;
 	private _renderedChannel: number = -1;
@@ -3296,7 +3324,9 @@ export class SongEditor
 		new MenuHandler(this, this._fileMenu, this._editMenu, this._optionsMenu);
 
 		this.doc.notifier.watch(this.whenUpdated);
-		this.doc.notifier.watch(this._onDocPromptChange);
+		this.doc.notifier.watch(() => {
+			this._onDocPromptChange();
+		});
 		this.doc.modRecordingHandler = () => {
 			this.handleModRecording();
 		};
