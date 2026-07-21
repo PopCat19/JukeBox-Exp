@@ -2238,9 +2238,15 @@ export class SongEditor
 		},
 		undefined,
 		() => this.doc.getCurrentInstrumentObj(),
-		() => this.doc.prefs.navigatorSectionsExpanded,
-		(expanded) => {
-			this.doc.prefs.navigatorSectionsExpanded = expanded;
+		(section) =>
+			this.doc.prefs.navigatorSectionsExpanded[section] ??
+			this.doc.prefs.navigatorSectionsExpanded["*"] ??
+			true,
+		(section, expanded) => {
+			this.doc.prefs.navigatorSectionsExpanded = {
+				...this.doc.prefs.navigatorSectionsExpanded,
+				[section]: expanded,
+			};
 			this.doc.prefs.save();
 		},
 	);

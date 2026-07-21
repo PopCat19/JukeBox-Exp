@@ -51,8 +51,8 @@ export class NavigatorShell implements PaneHost {
 	private readonly routes: readonly NavigatorRoute[];
 	private readonly onRoute: ((id: string) => void) | undefined;
 	private readonly getFocusedInstrument: (() => Instrument | null) | undefined;
-	private readonly getSectionsExpanded: (() => boolean) | undefined;
-	private readonly setSectionsExpanded: ((expanded: boolean) => void) | undefined;
+	private readonly getSectionExpanded: ((section: string) => boolean) | undefined;
+	private readonly setSectionExpanded: ((section: string, expanded: boolean) => void) | undefined;
 	private activeRouteId: string | undefined;
 	private visibilityGeneration = 0;
 	private dragDispose: (() => void) | null = null;
@@ -67,8 +67,8 @@ export class NavigatorShell implements PaneHost {
 		onRoute?: (id: string) => void,
 		routes: readonly NavigatorRoute[] = DEFAULT_ROUTES,
 		getFocusedInstrument?: () => Instrument | null,
-		getSectionsExpanded?: () => boolean,
-		setSectionsExpanded?: (expanded: boolean) => void,
+		getSectionExpanded?: (section: string) => boolean,
+		setSectionExpanded?: (section: string, expanded: boolean) => void,
 	) {
 		this.container = document.createElement("div");
 		this.container.className = "prompt navigator-shell navigator-prompt-variant fill-y";
@@ -77,8 +77,8 @@ export class NavigatorShell implements PaneHost {
 		this.routes = routes;
 		this.onRoute = onRoute;
 		this.getFocusedInstrument = getFocusedInstrument;
-		this.getSectionsExpanded = getSectionsExpanded;
-		this.setSectionsExpanded = setSectionsExpanded;
+		this.getSectionExpanded = getSectionExpanded;
+		this.setSectionExpanded = setSectionExpanded;
 		const heading = document.createElement("h2");
 		heading.textContent = title;
 		this.container.append(heading);
@@ -274,18 +274,19 @@ export class NavigatorShell implements PaneHost {
 				),
 		];
 		for (const category of categories) {
-			const matches = routes.filter(
-				(route) =>
-					route.category === category &&
-					(query === "" ||
-						`${route.title} ${route.id} ${route.category}`
-							.toLocaleLowerCase()
-							.includes(query)),
-			);
+			const matches = routes.filter((route) => {
+				if (route.category !== category) return false;
+				if (query === "") return true;
+				const familyMembers = route.tabs?.flatMap((tab) => [tab.title, tab.id]) ?? [];
+				return [route.title, route.id, route.category, ...familyMembers]
+					.join(" ")
+					.toLocaleLowerCase()
+					.includes(query);
+			});
 			if (matches.length === 0) continue;
 			const group = document.createElement("div");
 			group.className = "navigator-route-group";
-			const expanded = this.getSectionsExpanded?.() ?? true;
+			const expanded = this.getSectionExpanded?.(category) ?? true;
 			const disclosure = document.createElement("button");
 			disclosure.type = "button";
 			disclosure.className = "navigator-route-group-title";
@@ -301,8 +302,8 @@ export class NavigatorShell implements PaneHost {
 			routeContent.id = disclosure.getAttribute("aria-controls")!;
 			routeContent.hidden = !expanded;
 			disclosure.addEventListener("click", () => {
-				const next = !(this.getSectionsExpanded?.() ?? true);
-				this.setSectionsExpanded?.(next);
+				const next = disclosure.getAttribute("aria-expanded") !== "true";
+				this.setSectionExpanded?.(category, next);
 				disclosure.setAttribute("aria-expanded", String(next));
 				disclosure.title = `${next ? "Collapse" : "Expand"} ${category}`;
 				routeContent.hidden = !next;

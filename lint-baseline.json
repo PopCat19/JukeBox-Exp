@@ -48,7 +48,7 @@
 		{
 			"key": "biome:editor/core/preferences.ts",
 			"count": 5,
-			"hash": "027c557f35f0da42cefa3ffe7f2520d2fc18f99e55731fc7b513dea19643e127"
+			"hash": "394fa5711c8e9c98da6296e5b656d7bcd98bcbc30d3cadead6af94609d05a80c"
 		},
 		{
 			"key": "biome:editor/core/prompt-manager.ts",
@@ -158,7 +158,7 @@
 		{
 			"key": "biome:editor/song-editor.ts",
 			"count": 1,
-			"hash": "b9aaff8cad34735b82b9c1b36cf13193859d919e4a956dacc4d910e293133900"
+			"hash": "abde68a13e3eb6d1a1a2b588ad6814d01802170b693eefac9709bc86ce27dcee"
 		},
 		{
 			"key": "biome:editor/ui/array-buffer-writer.ts",
@@ -698,7 +698,7 @@
 		{
 			"key": "eslint:editor/core/preferences.ts",
 			"count": 7,
-			"hash": "efaf85bee3682fa168ac9079eea976c60ced8174197c39e5fa5e8eb9cc7a366a"
+			"hash": "5ae332dce68d39e2e1d277ee6ec38fbe38b74e2ef406d65c3d7890bc9fa124da"
 		},
 		{
 			"key": "eslint:editor/core/prompt-dock.ts",
@@ -773,7 +773,7 @@
 		{
 			"key": "eslint:editor/navigator/navigator-shell.ts",
 			"count": 1,
-			"hash": "70e3268f52b9829fa9c5c13fe2706b7e442d0d9acc19a87c8c821bf5c9f457e7"
+			"hash": "e80a84511b75b4def993f68511cc2ec07f9234d69303485284119fb2dc20a963"
 		},
 		{
 			"key": "eslint:editor/navigator/ownership.ts",
@@ -1033,7 +1033,7 @@
 		{
 			"key": "eslint:editor/song-editor.ts",
 			"count": 51,
-			"hash": "fb28338589a3853ccdc2c0ce6b852795fa0d2a7236439e26bafea2cb8384d924"
+			"hash": "2cbf5014744e0117de47cedb4317a674ebe15e1b2de38eae0e26fbd900b8ffdb"
 		},
 		{
 			"key": "eslint:editor/ui/array-buffer-reader.ts",

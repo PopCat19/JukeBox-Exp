@@ -21,6 +21,21 @@ type PrefEntry<T = any> = {
 	serialize?: (val: T) => string;
 };
 
+export type NavigatorSectionsExpanded = Partial<Record<string, boolean>>;
+
+function parseNavigatorSectionsExpanded(raw: string): NavigatorSectionsExpanded {
+	if (raw === "true" || raw === "false") return { "*": raw === "true" };
+	try {
+		const parsed: unknown = JSON.parse(raw);
+		if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+		const entries = Object.entries(parsed);
+		if (entries.some(([, expanded]) => typeof expanded !== "boolean")) return {};
+		return Object.fromEntries(entries) as NavigatorSectionsExpanded;
+	} catch {
+		return {};
+	}
+}
+
 // Schema: one entry per stored preference.  Entries at the end handle
 // special cases (scale, fullScreen migration) that don't fit the pattern.
 const prefSchema: PrefEntry[] = [
@@ -45,7 +60,12 @@ const prefSchema: PrefEntry[] = [
 	{ key: "showInstrumentScrollbars", default: true },
 	{ key: "closePromptByClickoff", default: true },
 	{ key: "showPromptBackdrop", default: true },
-	{ key: "navigatorSectionsExpanded", default: true },
+	{
+		key: "navigatorSectionsExpanded",
+		default: {},
+		parse: parseNavigatorSectionsExpanded,
+		serialize: (value: NavigatorSectionsExpanded) => JSON.stringify(value),
+	},
 	{ key: "displayBrowserUrl", default: true },
 	// { key: "enableTagSearch", default: true } — removed, tags handled by instrument-browser-prompt
 	// notesFlashWhenPlayed: original code had a typo ("flase" for "false")
@@ -153,7 +173,7 @@ export class Preferences {
 	public showInstrumentScrollbars: boolean = true;
 	public closePromptByClickoff: boolean = true;
 	public showPromptBackdrop: boolean = true;
-	public navigatorSectionsExpanded: boolean = true;
+	public navigatorSectionsExpanded: NavigatorSectionsExpanded = {};
 	public loopEnabled: boolean = true;
 	public enableScrollStep: boolean = false;
 	public doubleClickSliderReset: boolean = false;

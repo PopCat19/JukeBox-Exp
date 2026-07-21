@@ -2,17 +2,11 @@
 
 import type { Instrument } from "../../synth";
 import { getInstrumentCapabilities } from "../../synth/socket/capability-lookup";
+import type { InstrumentCapabilities } from "../../synth/socket/capability-schema";
 import { commandRegistry } from "./command-registry";
 import type { PaneRoute } from "./contracts";
 
-export type NavigatorRouteCapability =
-	| "hasCustomWaveEditor"
-	| "hasHarmonics"
-	| "hasSpectrum"
-	| "hasNoteFilter"
-	| "hasLoopControls"
-	| "hasStringSustain"
-	| "isDrumset";
+export type NavigatorRouteCapability = keyof InstrumentCapabilities;
 
 export interface NavigatorCatalogRoute {
 	readonly id: string;
@@ -62,11 +56,6 @@ const capability =
 	(name: NavigatorRouteCapability) =>
 	(instrument: Instrument): boolean =>
 		getInstrumentCapabilities(instrument)[name];
-const drumset = (instrument: Instrument): boolean => {
-	const caps = getInstrumentCapabilities(instrument);
-	return caps.hasSpectrum && caps.isDrumset;
-};
-
 export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.freeze([
 	{
 		title: "Project Data",
@@ -148,7 +137,7 @@ export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.fr
 				"hasStringSustain",
 				capability("hasStringSustain"),
 			),
-			routeItem("drumsetSettings", "Drumset settings", "isDrumset", drumset),
+			routeItem("drumsetSettings", "Drumset settings", "isDrumset", capability("isDrumset")),
 		],
 	},
 	{

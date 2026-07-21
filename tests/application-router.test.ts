@@ -15,15 +15,6 @@ function mutableContext(): { channel: number; filters: number[] } {
 	return { channel: 2, filters: [1, 3] };
 }
 
-async function rejectionMessage(promise: Promise<unknown>): Promise<string> {
-	try {
-		await promise;
-	} catch (error) {
-		return error instanceof Error ? error.message : String(error);
-	}
-	throw new Error("expected promise rejection");
-}
-
 describe("application router", () => {
 	test("keeps explicit global routes immutable", async () => {
 		const opened: GlobalApplicationRoute[] = [];
@@ -194,24 +185,43 @@ describe("application router", () => {
 				focus: () => { focusCount++; },
 			},
 		});
-		await router.routePrompt("importInstrument");
+		expect(await router.routePrompt("importInstrument")).toBeFalse();
 		expect(focusCount).toBe(0);
 	});
 
-	test("rejects invalid routes before invoking targets", async () => {
+	test("unavailable Navigator routes resolve false before construction", async () => {
+		let opens = 0;
+		let focusCount = 0;
+		const router = new ApplicationRouter({
+			openGlobal: () => {},
+			navigator: {
+				canOpen: () => "Unavailable for focused instrument.",
+				open: () => { opens++; return Promise.resolve(true); },
+				focus: () => { focusCount++; },
+			},
+		});
+		const attempt = router.routePrompt("drumsetSettings");
+		expect(await attempt).toBeFalse();
+		expect(opens).toBe(0);
+		expect(focusCount).toBe(0);
+	});
+
+	test("rejects invalid routes synchronously before invoking targets", () => {
 		let opens = 0;
 		const router = new ApplicationRouter({
 			openGlobal: () => { opens++; },
 			navigator: { open: () => { opens++; return Promise.resolve(true); }, focus: () => {} },
 		});
-		expect(await rejectionMessage(router.route({ presentation: "global", scope: "" }))).toContain(
+		expect(() => router.route({ presentation: "global", scope: "" })).toThrow(
 			"non-empty string",
 		);
-		expect(await rejectionMessage(router.route({
-			presentation: "navigator",
-			commandId: "open-bad",
-			route: { paneId: "bad", context: { callback: () => {} } as never },
-		}))).toContain("JSON values");
+		expect(() =>
+			router.route({
+				presentation: "navigator",
+				commandId: "open-bad",
+				route: { paneId: "bad", context: { callback: () => {} } as never },
+			}),
+		).toThrow("JSON values");
 		expect(opens).toBe(0);
 	});
 });

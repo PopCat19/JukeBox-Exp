@@ -84,7 +84,7 @@ export function buildNavigatorCSS(): string {
 	border-radius: var(--border-radius-medium);
 }
 .beepboxEditor .navigator-route-group-content { display: flex; flex-direction: column; gap: 4px; }
-.beepboxEditor .navigator-route[disabled] { opacity: 0.55; cursor: not-allowed; }
+.beepboxEditor .navigator-route[disabled] { opacity: 0.24; cursor: not-allowed; }
 .beepboxEditor .navigator-route.selectableRow:not(.active) { background: var(--ui-widget-background); }
 .beepboxEditor .navigator-route {
 	min-width: 0;

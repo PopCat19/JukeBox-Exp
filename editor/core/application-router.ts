@@ -85,10 +85,10 @@ export class ApplicationRouter {
 		});
 	}
 
-	async route(route: ApplicationRoute): Promise<boolean> {
+	route(route: ApplicationRoute): Promise<boolean> {
 		if (route.presentation === "global") {
 			this.targets.openGlobal(snapshotGlobalRoute(route));
-			return true;
+			return Promise.resolve(true);
 		}
 		if (typeof route.commandId !== "string" || route.commandId.length === 0) {
 			throw new TypeError("navigator commandId must be a non-empty string");
@@ -96,11 +96,12 @@ export class ApplicationRouter {
 		const navigator = this.targets.navigator;
 		if (navigator === undefined) throw new Error("navigator routing is not configured");
 		const paneRoute = snapshotPaneRoute(route.route);
-		const unavailable = navigator.canOpen?.(paneRoute);
-		if (unavailable !== undefined) throw new Error(unavailable);
-		if (!(await navigator.open(paneRoute))) return false;
-		navigator.onOpened?.(paneRoute);
-		navigator.focus();
-		return true;
+		if (navigator.canOpen?.(paneRoute) !== undefined) return Promise.resolve(false);
+		return navigator.open(paneRoute).then((opened) => {
+			if (!opened) return false;
+			navigator.onOpened?.(paneRoute);
+			navigator.focus();
+			return true;
+		});
 	}
 }

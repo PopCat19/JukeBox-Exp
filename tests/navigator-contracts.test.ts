@@ -6,6 +6,7 @@
 import { describe, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { Window } from "happy-dom";
+import { Preferences } from "../editor/core/preferences";
 import { PromptPlaybackOwnership, PromptRootOwnership } from "../editor/core/prompt-manager";
 import { PopoutDocumentSync } from "../editor/core/popout-document-sync";
 import { PromptPopout } from "../editor/core/prompt-popout";
@@ -28,13 +29,19 @@ import { SongDocument } from "../editor/song-document";
 import { NavigatorDetachedHost } from "../editor/navigator/navigator-detached-host";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
-import { navigatorOtherRoutes, navigatorRouteCatalog } from "../editor/navigator/route-catalog";
+import {
+	getNavigatorRouteAvailability,
+	navigatorOtherRoutes,
+	navigatorRouteCatalog,
+} from "../editor/navigator/route-catalog";
 import { buildNavigatorCSS } from "../editor/rendering/styles/prompt-navigator";
 import { buildSharedUICSS } from "../editor/rendering/styles/shared-ui";
 import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
 import { createPromptPaneOwner } from "../editor/navigator/prompt-pane-owner";
 import { canonicalRouteIdentity, type PaneIdentity } from "../editor/navigator/route-identity";
 import { events } from "../shared/events";
+import { InstrumentType } from "../synth/config/instrument-registry";
+import type { Instrument } from "../synth/instruments/instrument";
 import * as Navigator from "../editor/navigator";
 
 if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
@@ -956,6 +963,18 @@ describe("navigator shell", () => {
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("keyboardShortcuts");
 	});
 
+	test("drumset settings follow the canonical drumset capability", () => {
+		const drumset = { type: InstrumentType.drumset } as Instrument;
+		const chip = { type: InstrumentType.chip } as Instrument;
+		expect(getNavigatorRouteAvailability("drumsetSettings", drumset)).toEqual({
+			available: true,
+		});
+		expect(getNavigatorRouteAvailability("drumsetSettings", chip)).toEqual({
+			available: false,
+			error: "Drumset settings is unavailable for the focused instrument.",
+		});
+	});
+
 	test("shared prompt titlebar and controls keep their PMD height under constrained flex layout", () => {
 		const css = buildPromptShellCSS();
 		expect(css).toMatch(/\.prompt-titlebar \{[^}]*flex-shrink: 0;[^}]*height: 28px;[^}]*min-height: 28px;[^}]*overflow: hidden;/s);
@@ -991,6 +1010,7 @@ describe("navigator shell", () => {
 		expect(css).toMatch(/\.navigator-workspace \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*display: flex[^}]*flex: 1 1 0[^}]*flex-direction: column[^}]*overflow: hidden/s);
 		expect(css).not.toContain(".navigator-route.active");
+		expect(css).toContain(".navigator-route[disabled] { opacity: 0.24;");
 		const sharedCSS = buildSharedUICSS();
 		expect(sharedCSS).toMatch(/\.selectableRow \{[^}]*padding: var\(--padding-6\) var\(--padding-12\)[^}]*outline: 2px solid transparent[^}]*outline-offset: -2px[^}]*box-shadow: none[^}]*background: var\(--prompt-list-item-bg\)[^}]*font-size: 12px/s);
 		expect(css).toMatch(/\.navigator-route\.selectableRow\.active \{[^}]*background: var\(--cta-bg\)[^}]*color: var\(--cta-fg\)[^}]*border-color: var\(--cta-bg\)/s);
@@ -1128,6 +1148,52 @@ describe("navigator shell", () => {
 		expect(second.element.parentElement?.classList.contains("navigator-pane-host")).toBeTrue();
 	});
 
+	test("persists collapse state independently for each section", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const expanded: Record<string, boolean> = {};
+		const createShell = (): NavigatorShell =>
+			new NavigatorShell(
+				"Navigator",
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				(section) => expanded[section] ?? true,
+				(section, value) => { expanded[section] = value; },
+			);
+		const shell = createShell();
+		const headings = shell.container.querySelectorAll<HTMLButtonElement>(
+			".navigator-route-group-title",
+		);
+		headings[0].click();
+		expect(expanded).toEqual({ "Project Data": false });
+		expect(headings[0].getAttribute("aria-expanded")).toBe("false");
+		expect(headings[1].getAttribute("aria-expanded")).toBe("true");
+		const restored = createShell();
+		const restoredHeadings = restored.container.querySelectorAll<HTMLButtonElement>(
+			".navigator-route-group-title",
+		);
+		expect(restoredHeadings[0].getAttribute("aria-expanded")).toBe("false");
+		expect(restoredHeadings[1].getAttribute("aria-expanded")).toBe("true");
+	});
+
+	test("stores typed per-section collapse preferences", () => {
+		window.localStorage.removeItem("navigatorSectionsExpanded");
+		try {
+			const preferences = new Preferences();
+			preferences.navigatorSectionsExpanded = { "Project Data": false, Help: true };
+			preferences.save();
+			const restored = new Preferences();
+			expect(restored.navigatorSectionsExpanded).toEqual({
+				"Project Data": false,
+				Help: true,
+			});
+		} finally {
+			window.localStorage.removeItem("navigatorSectionsExpanded");
+		}
+	});
+
 	test("searches routes and invokes canonical route navigation", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		let opened = "";
@@ -1157,6 +1223,14 @@ describe("navigator shell", () => {
 		expect(shell.container.querySelector(".navigator-route")?.textContent).toBe(
 			"Custom Chip Settings",
 		);
+		search.value = "exportInstrument";
+		search.dispatchEvent(new Event("input"));
+		expect(
+			Array.from(
+				shell.container.querySelectorAll<HTMLButtonElement>(".navigator-route"),
+				(button) => button.dataset.routeId,
+			),
+		).toEqual(["importInstrument", "exportInstrument"]);
 		search.value = "sample";
 		search.dispatchEvent(new Event("input"));
 		const route = shell.container.querySelector<HTMLButtonElement>(".navigator-route");
