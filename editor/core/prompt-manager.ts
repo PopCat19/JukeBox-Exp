@@ -140,6 +140,7 @@ export class PromptManager {
 	// should not flash; user-targeted opens should.
 	private _userInitiatedOpen: boolean = false;
 	private _openingForNavigator: boolean = false;
+	private _navigatorTipName: string | null = null;
 	// Cursor position and target element rect at last click before a
 	// prompt opens. Used by _spawnNearCursor for desktop desktop
 	// (near cursor) vs mobile (centered) spawning.
@@ -246,12 +247,20 @@ export class PromptManager {
 		return this._rootOwnership.claim(prompt);
 	}
 
-	public openForNavigator(promptName: string): void {
+	public openForNavigator(promptName: string, context?: unknown): void {
+		this._navigatorTipName =
+			promptName === "tipPromptScope" &&
+			context !== null &&
+			typeof context === "object" &&
+			typeof (context as { tipName?: unknown }).tipName === "string"
+				? (context as { tipName: string }).tipName
+				: null;
 		this._openingForNavigator = true;
 		try {
 			this.open(promptName);
 		} finally {
 			this._openingForNavigator = false;
+			this._navigatorTipName = null;
 		}
 	}
 
@@ -619,7 +628,7 @@ export class PromptManager {
 				newPrompt = new KeyboardShortcutsPrompt(doc);
 				break;
 			case "tipPromptScope":
-				newPrompt = new TipPrompt(doc, "tipPromptScope");
+				newPrompt = new TipPrompt(doc, this._navigatorTipName ?? "tipPromptScope");
 				break;
 			default:
 				newPrompt = new TipPrompt(doc, promptName);

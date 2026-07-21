@@ -955,6 +955,7 @@ describe("navigator shell", () => {
 		});
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("instrumentTags");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("tipPromptScope");
+		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("stringSustain");
 		expect(navigatorOtherRoutes.map((route) => route.id)).toContain("keyboardShortcuts");
 	});
 
@@ -1320,9 +1321,11 @@ describe("navigator shell", () => {
 		let current: Prompt | null = null;
 		let navigatorClaimed = false;
 		let keyCount = 0;
+		let openedContext: SerializableValue | undefined;
 		let allowLeave = false;
 		let leaveRequests = 0;
-		const openPrompt = (scope: string) => {
+		const openPrompt = (scope: string, context?: SerializableValue) => {
+			openedContext = context;
 				const container = document.createElement("article");
 				container.tabIndex = -1;
 				container.className = "prompt fill-y shaded docked legacyPrompt";
@@ -1371,7 +1374,8 @@ describe("navigator shell", () => {
 		);
 		runtime = new NavigatorRuntime(shell, adapter.create);
 		document.body.append(shell.container);
-		await runtime.open({ paneId: "export" });
+		await runtime.open({ paneId: "export", context: { source: "navigator" } });
+		expect(openedContext).toEqual({ source: "navigator" });
 		const root = shell.container.querySelector<HTMLElement>("[data-navigator-scope=export]");
 		expect(root?.textContent).toBe("domain:export");
 		expect(root?.classList.contains("navigator-native-pane")).toBeTrue();

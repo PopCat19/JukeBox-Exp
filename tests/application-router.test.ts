@@ -116,7 +116,7 @@ describe("application router", () => {
 		expect(manager).toContain('case "export":');
 	});
 
-	test("preserves unknown legacy TipPrompt scopes without unstable command ids", async () => {
+	test("routes named editor tips through the canonical Help pane", async () => {
 		const opened: PaneRoute[] = [];
 		const router = new ApplicationRouter({
 			openGlobal: () => {},
@@ -129,9 +129,9 @@ describe("application router", () => {
 			await router.routePrompt(scope);
 		}
 		expect(opened).toEqual([
-			{ paneId: "algorithm" },
-			{ paneId: "pitchRange" },
-			{ paneId: "modChannel" },
+			{ paneId: "tipPromptScope", context: { tipName: "algorithm" } },
+			{ paneId: "tipPromptScope", context: { tipName: "pitchRange" } },
+			{ paneId: "tipPromptScope", context: { tipName: "modChannel" } },
 		]);
 	});
 

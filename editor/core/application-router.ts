@@ -72,10 +72,15 @@ export class ApplicationRouter {
 
 	routePrompt(scope: string, context?: SerializableValue): Promise<void> {
 		const command = getPromptCommand(scope);
+		const isTipScope = command === undefined && scope !== "tipPromptScope";
+		const paneId = isTipScope ? "tipPromptScope" : scope;
+		const routeContext = isTipScope
+			? { tipName: scope, ...(context === undefined ? {} : { source: context }) }
+			: context;
 		return this.route({
 			presentation: "navigator",
 			commandId: command?.id ?? "legacy-prompt",
-			route: { paneId: scope, ...(context === undefined ? {} : { context }) },
+			route: { paneId, ...(routeContext === undefined ? {} : { context: routeContext }) },
 		});
 	}
 
