@@ -10,7 +10,7 @@ export type CommandArgumentSpec =
 
 export interface CommandExecutionContext {
 	getBarCount(): number;
-	openNavigator(route: PaneRoute): Promise<void>;
+	openNavigator(route: PaneRoute): Promise<unknown>;
 	goToBar(bar: number): void;
 	selectBars(firstBar: number, lastBar: number): void;
 }
@@ -63,11 +63,11 @@ function navigatorCommand(
 			routeContext?: SerializableValue,
 		): Promise<CommandExecutionResult> => {
 			if (argumentText.trim() !== "") return failure(`${label} takes no arguments.`);
-			await context.openNavigator({
+			const opened = await context.openNavigator({
 				paneId: scope,
 				...(routeContext === undefined ? {} : { context: routeContext }),
 			});
-			return success();
+			return opened === false ? failure(`${label} is unavailable right now.`) : success();
 		},
 	});
 }

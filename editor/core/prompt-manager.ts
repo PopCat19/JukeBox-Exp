@@ -10,6 +10,7 @@
 import { HarmonicsEditorPrompt } from "../components/harmonics-editor";
 import type { PatternEditor } from "../components/pattern-editor";
 import { type SpectrumEditor, SpectrumEditorPrompt } from "../components/spectrum-editor";
+import { getNavigatorRouteAvailability } from "../navigator/route-catalog";
 import { BeatsPerBarPrompt } from "../prompts/beats-per-bar-prompt";
 import { ChannelSettingsPrompt } from "../prompts/channel-settings-prompt";
 import { CleanChannelPrompt } from "../prompts/clean-channel-prompt";
@@ -343,6 +344,14 @@ export class PromptManager {
 				: null);
 		this._clickInfo = null;
 
+		const availability = getNavigatorRouteAvailability(
+			promptName,
+			this._host.doc.getCurrentInstrumentObj(),
+		);
+		if (!availability.available) {
+			log.log("open: unavailable focused route", promptName, availability.error);
+			return;
+		}
 		this._userInitiatedOpen = true;
 		this._host.doc.openPrompt(promptName);
 		this._setPrompt(promptName);
@@ -540,6 +549,14 @@ export class PromptManager {
 		}
 
 		log.log("_setPrompt: creating new", promptName);
+		const availability = getNavigatorRouteAvailability(
+			promptName,
+			this._host.doc.getCurrentInstrumentObj(),
+		);
+		if (!availability.available) {
+			log.log("_setPrompt: unavailable focused route", promptName, availability.error);
+			return;
+		}
 
 		const doc = this._host.doc;
 		const refs = this._refs;

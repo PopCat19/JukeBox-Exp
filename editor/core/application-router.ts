@@ -18,6 +18,7 @@ export interface GlobalApplicationRoute {
 export type ApplicationRoute = GlobalApplicationRoute | NavigatorCommandReference;
 
 export interface NavigatorRouteTarget {
+	canOpen?(route: PaneRoute): string | undefined;
 	open(route: PaneRoute): Promise<boolean>;
 	onOpened?(route: PaneRoute): void;
 	focus(): void;
@@ -70,7 +71,7 @@ function snapshotGlobalRoute(route: GlobalApplicationRoute): GlobalApplicationRo
 export class ApplicationRouter {
 	constructor(private readonly targets: ApplicationRouterTargets) {}
 
-	routePrompt(scope: string, context?: SerializableValue): Promise<void> {
+	routePrompt(scope: string, context?: SerializableValue): Promise<boolean> {
 		const command = getPromptCommand(scope);
 		const isTipScope = command === undefined && scope !== "tipPromptScope";
 		const paneId = isTipScope ? "tipPromptScope" : scope;
@@ -84,10 +85,10 @@ export class ApplicationRouter {
 		});
 	}
 
-	async route(route: ApplicationRoute): Promise<void> {
+	async route(route: ApplicationRoute): Promise<boolean> {
 		if (route.presentation === "global") {
 			this.targets.openGlobal(snapshotGlobalRoute(route));
-			return;
+			return true;
 		}
 		if (typeof route.commandId !== "string" || route.commandId.length === 0) {
 			throw new TypeError("navigator commandId must be a non-empty string");
@@ -95,9 +96,11 @@ export class ApplicationRouter {
 		const navigator = this.targets.navigator;
 		if (navigator === undefined) throw new Error("navigator routing is not configured");
 		const paneRoute = snapshotPaneRoute(route.route);
-		if (await navigator.open(paneRoute)) {
-			navigator.onOpened?.(paneRoute);
-			navigator.focus();
-		}
+		const unavailable = navigator.canOpen?.(paneRoute);
+		if (unavailable !== undefined) throw new Error(unavailable);
+		if (!(await navigator.open(paneRoute))) return false;
+		navigator.onOpened?.(paneRoute);
+		navigator.focus();
+		return true;
 	}
 }

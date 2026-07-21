@@ -101,6 +101,7 @@ import { NavigatorDetachedHost } from "./navigator/navigator-detached-host";
 import { LegacyPromptPaneFactory } from "./navigator/navigator-route-host";
 import { NavigatorRuntime } from "./navigator/navigator-runtime";
 import { NavigatorShell } from "./navigator/navigator-shell";
+import { getNavigatorRouteAvailability } from "./navigator/route-catalog";
 import { CustomChipPrompt } from "./prompts/custom-chip-prompt";
 import type { Prompt } from "./prompts/prompt";
 import {
@@ -2232,7 +2233,16 @@ export class SongEditor
 			this.popoutCurrentPrompt();
 		},
 		() => void this._closeNavigatorMode(),
-		(scope) => void this._applicationRouter.routePrompt(scope),
+		(scope) => {
+			void this._applicationRouter.routePrompt(scope);
+		},
+		undefined,
+		() => this.doc.getCurrentInstrumentObj(),
+		() => this.doc.prefs.navigatorSectionsExpanded,
+		(expanded) => {
+			this.doc.prefs.navigatorSectionsExpanded = expanded;
+			this.doc.prefs.save();
+		},
 	);
 	public readonly mainLayer: HTMLDivElement = div(
 		{ class: "beepboxEditor", tabIndex: "0" },
@@ -2246,13 +2256,18 @@ export class SongEditor
 	private readonly _legacyPromptPanes: LegacyPromptPaneFactory = new LegacyPromptPaneFactory(
 		this._promptManager,
 		() => this._closeNavigatorMode(),
-		(scope) => this._applicationRouter.routePrompt(scope),
+		async (scope) => {
+			await this._applicationRouter.routePrompt(scope);
+		},
+		() => this.doc.getCurrentInstrumentObj(),
 	);
 	private readonly _nativePanes = new NativePaneFactory(
 		this.doc,
 		this,
 		() => this._closeNavigatorMode(),
-		(scope) => this._applicationRouter.routePrompt(scope),
+		async (scope) => {
+			await this._applicationRouter.routePrompt(scope);
+		},
 	);
 	private readonly _navigatorRuntime: NavigatorRuntime = new NavigatorRuntime(
 		this._navigatorShell,
@@ -2264,6 +2279,13 @@ export class SongEditor
 	private readonly _applicationRouter: ApplicationRouter = new ApplicationRouter({
 		openGlobal: () => undefined,
 		navigator: {
+			canOpen: (route) => {
+				const result = getNavigatorRouteAvailability(
+					route.paneId,
+					this.doc.getCurrentInstrumentObj(),
+				);
+				return result.available ? undefined : result.error;
+			},
 			open: (route) => this._navigatorRuntime.open(route),
 			onOpened: (route) => {
 				this._lastPrompt = route.paneId;
@@ -4068,6 +4090,7 @@ export class SongEditor
 		renderLayout(this._layoutRefs, this.doc);
 		this._promptManager.syncBackdropPreference();
 		this._navigatorShell.setBackdropPreference(prefs.showPromptBackdrop);
+		this._navigatorShell.refreshRoutes();
 
 		const instrumentIndex: number = this.doc.getCurrentInstrument();
 		// During playback, skip repeated settings renders unless navigation changed

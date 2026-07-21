@@ -4,6 +4,7 @@ import type { Prompt } from "../prompts/prompt";
 import type { PaneLifecycle, PaneRoute, SerializableValue } from "./contracts";
 import type { PaneOwner } from "./ownership";
 import { flattenPromptRootForNavigator } from "./prompt-pane-owner";
+import { guardNavigatorRoute } from "./route-catalog";
 import { canonicalRouteIdentity } from "./route-identity";
 
 interface LegacyPromptManager {
@@ -18,9 +19,11 @@ export class LegacyPromptPaneFactory {
 		private readonly prompts: LegacyPromptManager,
 		private readonly closePane: () => Promise<boolean>,
 		private readonly openPane: (scope: string) => Promise<void>,
+		private readonly getFocusedInstrument?: () => import("../../synth").Instrument | null,
 	) {}
 
 	create = (route: PaneRoute): PaneOwner => {
+		guardNavigatorRoute(route, this.getFocusedInstrument?.());
 		this.prompts.openForNavigator(route.paneId, route.context);
 		const prompt = this.prompts.prompt;
 		if (prompt === null || prompt.name !== route.paneId) {

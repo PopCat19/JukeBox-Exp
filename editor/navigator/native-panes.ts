@@ -7,6 +7,7 @@ import { createChannelVolumeVisualizerPane } from "./channel-volume-visualizer-p
 import type { PaneRoute } from "./contracts";
 import { createInstrumentBrowserPane } from "./instrument-browser-pane";
 import type { PaneOwner } from "./ownership";
+import { guardNavigatorRoute } from "./route-catalog";
 
 export class NativePaneFactory {
 	constructor(
@@ -26,6 +27,7 @@ export class NativePaneFactory {
 	}
 
 	create = (route: PaneRoute): PaneOwner => {
+		guardNavigatorRoute(route, this.doc.getCurrentInstrumentObj());
 		switch (route.paneId) {
 			case "instrumentBrowser":
 			case "instrumentTags":
