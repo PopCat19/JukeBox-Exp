@@ -779,6 +779,25 @@ describe("native navigator extraction", () => {
 		expect(detached).toBeTrue();
 	});
 
+	test("sidebar toggle hides route list and expands workspace", () => {
+		const shell = new NavigatorShell();
+		const button = shell.container.querySelector<HTMLButtonElement>(".navigator-sidebar-toggle-button");
+		const sidebar = shell.container.querySelector<HTMLElement>("#navigator-sidebar");
+		if (button === null || sidebar === null) throw new Error("missing sidebar toggle");
+		expect(button.parentElement?.querySelector(".shadeButton")).not.toBeNull();
+		expect(button.parentElement?.children[1]).toBe(button);
+		expect(button.getAttribute("aria-expanded")).toBe("true");
+		expect(sidebar.hidden).toBeFalse();
+		button.click();
+		expect(button.getAttribute("aria-expanded")).toBe("false");
+		expect(button.getAttribute("aria-label")).toBe("Show route list");
+		expect(sidebar.hidden).toBeTrue();
+		expect(shell.container.classList.contains("navigator-sidebar-collapsed")).toBeTrue();
+		button.click();
+		expect(sidebar.hidden).toBeFalse();
+		expect(shell.container.classList.contains("navigator-sidebar-collapsed")).toBeFalse();
+	});
+
 	test("instrument tags share the canonical browser identity", () => {
 		expect(canonicalRouteIdentity({ paneId: "instrumentTags" })).toBe(
 			canonicalRouteIdentity({ paneId: "instrumentBrowser" }),
@@ -966,6 +985,7 @@ describe("navigator shell", () => {
 		expect(promptCSS).toMatch(/\.prompt:hover \{[^}]*outline: 2px solid/s);
 		expect(promptCSS).toMatch(/\.promptContainer\.navigatorVisible \{[^}]*display: flex !important/s);
 		expect(css).toContain("grid-template-columns: 224px minmax(0, 1fr)");
+		expect(css).toMatch(/\.navigator-sidebar-collapsed \.navigator-content \{[^}]*grid-template-columns: minmax\(0, 1fr\)/s);
 		expect(css).toMatch(/\.navigator-workspace \{[^}]*border: 2px solid var\(--ui-widget-background\)[^}]*border-radius: var\(--border-radius-medium\)/s);
 		expect(css).toMatch(/\.navigator-route-list \{[^}]*padding: 12px[^}]*border: 2px solid var\(--ui-widget-background\)[^}]*border-radius: var\(--border-radius-medium\)/s);
 		expect(css).not.toMatch(/\.navigator-sidebar \{[^}]*border:/s);

@@ -29,7 +29,8 @@ export function buildNavigatorCSS(): string {
 	max-height: 40px;
 	padding: 6px 14px;
 }
-.beepboxEditor .navigator-detach-button { flex: var(--flex-fit); }
+.beepboxEditor .navigator-detach-button,
+.beepboxEditor .navigator-sidebar-toggle-button { flex: var(--flex-fit); }
 .beepboxEditor .navigator-content {
 	display: grid;
 	grid-template-columns: 224px minmax(0, 1fr);
@@ -37,6 +38,9 @@ export function buildNavigatorCSS(): string {
 	gap: 12px;
 	flex: 1 1 auto;
 	min-height: 0;
+}
+.beepboxEditor .navigator-sidebar-toggle-button {
+	font-size: 16px;
 }
 .beepboxEditor .navigator-workspace {
 	border: 2px solid var(--ui-widget-background);
@@ -47,6 +51,12 @@ export function buildNavigatorCSS(): string {
 	flex-direction: column;
 	gap: 8px;
 	min-width: 0;
+}
+.beepboxEditor .navigator-sidebar-collapsed .navigator-content {
+	grid-template-columns: minmax(0, 1fr);
+}
+.beepboxEditor .navigator-sidebar-collapsed .navigator-sidebar {
+	display: none;
 }
 .beepboxEditor .navigator-route-search { box-sizing: border-box; width: 100%; }
 .beepboxEditor .navigator-route-list {
@@ -103,6 +113,8 @@ export function buildNavigatorCSS(): string {
 @media (max-width: 639px) {
 	.beepboxEditor .navigator-content { display: flex; flex-direction: column; box-sizing: border-box; max-width: 100%; gap: 8px; overflow-x: hidden; }
 	.beepboxEditor .navigator-sidebar { flex: 0 0 auto; box-sizing: border-box; width: 100%; max-width: 100%; overflow: hidden; }
+	.beepboxEditor .navigator-sidebar-collapsed .navigator-content { display: flex; }
+	.beepboxEditor .navigator-sidebar-collapsed .navigator-workspace { flex: 1 1 auto; }
 	.beepboxEditor .navigator-route-list { box-sizing: border-box; max-width: 100%; flex-direction: row; gap: 12px; overflow-x: auto; }
 	.beepboxEditor .navigator-route-group { flex: 0 0 auto; flex-direction: row; align-items: center; }
 	.beepboxEditor .navigator-route-group-title { position: sticky; left: 0; }

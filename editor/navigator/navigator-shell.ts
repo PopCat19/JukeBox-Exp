@@ -27,6 +27,8 @@ export class NavigatorShell implements PaneHost {
 	private readonly routeList: HTMLDivElement;
 	private readonly routeSearch: HTMLInputElement;
 	private readonly titleHeading: HTMLHeadingElement;
+	private readonly sidebar: HTMLElement;
+	private readonly sidebarToggleButton: HTMLButtonElement;
 	private readonly workspace: HTMLElement;
 	private readonly detachButton: HTMLButtonElement | null;
 	private readonly routes: readonly NavigatorRoute[];
@@ -79,6 +81,16 @@ export class NavigatorShell implements PaneHost {
 		if (titleHeading === null) throw new Error("Navigator titlebar heading was not built");
 		this.titleHeading = titleHeading;
 		this.titleHeading.id = "navigator-active-title";
+		this.sidebarToggleButton = iconButton("navigator-sidebar-toggle-button", {
+			type: "button",
+			title: "Hide route list",
+		});
+		this.sidebarToggleButton.setAttribute("aria-label", "Hide route list");
+		this.sidebarToggleButton.setAttribute("aria-controls", "navigator-sidebar");
+		this.sidebarToggleButton.setAttribute("aria-expanded", "true");
+		this.sidebarToggleButton.textContent = "◀";
+		this.sidebarToggleButton.addEventListener("click", this.toggleSidebar);
+		titlebar.insertBefore(this.sidebarToggleButton, this.titleHeading);
 		if (this.detachButton !== null) {
 			const cancel = titlebar.querySelector(".cancelButton");
 			titlebar.insertBefore(this.detachButton, cancel);
@@ -93,19 +105,29 @@ export class NavigatorShell implements PaneHost {
 		this.routeSearch.addEventListener("input", () => {
 			this.renderRoutes(routes);
 		});
-		const sidebar = document.createElement("aside");
-		sidebar.className = "navigator-sidebar";
-		sidebar.append(inputRow({}, this.routeSearch), this.routeList);
+		this.sidebar = document.createElement("aside");
+		this.sidebar.className = "navigator-sidebar";
+		this.sidebar.id = "navigator-sidebar";
+		this.sidebar.append(inputRow({}, this.routeSearch), this.routeList);
 		this.workspace = document.createElement("section");
 		this.workspace.className = "navigator-workspace";
 		this.workspace.setAttribute("aria-labelledby", this.titleHeading.id);
 		this.body = document.createElement("div");
 		this.body.className = "navigator-pane-host";
 		this.workspace.append(this.body);
-		content.append(sidebar, this.workspace);
+		content.append(this.sidebar, this.workspace);
 		this.container.append(content);
 		this.renderRoutes(routes);
 	}
+
+	private toggleSidebar = (): void => {
+		const hidden = this.container.classList.toggle("navigator-sidebar-collapsed");
+		this.sidebar.hidden = hidden;
+		this.sidebarToggleButton.textContent = hidden ? "▶" : "◀";
+		this.sidebarToggleButton.title = hidden ? "Show route list" : "Hide route list";
+		this.sidebarToggleButton.setAttribute("aria-label", this.sidebarToggleButton.title);
+		this.sidebarToggleButton.setAttribute("aria-expanded", String(!hidden));
+	};
 
 	setDockController(dock: PromptDock): void {
 		this.dock = dock;
