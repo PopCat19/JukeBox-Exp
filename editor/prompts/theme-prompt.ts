@@ -113,6 +113,7 @@ export class ThemePrompt extends BasePrompt {
 	});
 
 	private _pmdControls!: HTMLDivElement;
+	private _pmdLayoutFrame: number | null = null;
 
 	public readonly container: HTMLDivElement;
 	private readonly lastTheme: string | null = window.localStorage.getItem("colorTheme");
@@ -176,6 +177,13 @@ export class ThemePrompt extends BasePrompt {
 	private _updatePMDVisibility(): void {
 		const isPMD = this._themeSelect.value === ColorConfig.PMD_THEME;
 		this._pmdControls.style.display = isPMD ? "flex" : "none";
+		if (this._pmdLayoutFrame !== null) window.cancelAnimationFrame(this._pmdLayoutFrame);
+		this._pmdLayoutFrame = isPMD
+			? window.requestAnimationFrame(() => {
+					this._pmdLayoutFrame = null;
+					this._pmdHueSlider.refreshLayout();
+				})
+			: null;
 	}
 
 	private _onPMDChange = (): void => {
@@ -203,6 +211,13 @@ export class ThemePrompt extends BasePrompt {
 		this.discard();
 		this._finishClose();
 	};
+
+	public override cleanUp(): void {
+		if (this._pmdLayoutFrame !== null) window.cancelAnimationFrame(this._pmdLayoutFrame);
+		this._pmdLayoutFrame = null;
+		this._pmdHueSlider.container.removeEventListener("keydown", this._onPMDHueKeyDown);
+		super.cleanUp();
+	}
 
 	public override discard(): void {
 		if (this.committed) return;

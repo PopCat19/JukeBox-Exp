@@ -87,8 +87,7 @@ export function buildNavigatorCSS(): string {
 	flex-direction: column;
 	min-width: 0;
 	min-height: 0;
-	overflow: auto;
-	overscroll-behavior: contain;
+	overflow: hidden;
 }
 .beepboxEditor .navigator-pane-host {
 	display: flex;
@@ -97,7 +96,7 @@ export function buildNavigatorCSS(): string {
 	min-width: 0;
 	min-height: 0;
 	padding: 12px;
-	overflow: visible;
+	overflow: hidden;
 	color: var(--secondary-text);
 }
 .beepboxEditor .navigator-pane-host > .sampleBrowserPrompt > h2 { display: none; }

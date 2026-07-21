@@ -202,15 +202,40 @@ export function buildPromptCompactSearchCSS(): string {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-	/* Fixed (not min-height) so a long tag list can't push the
-	 * modal taller when the user switches to the Tags tab. The
-	 * tag grid inside the Tags tab uses flex: 1 + overflow-y:
-	 * auto, so the list scrolls within this fixed envelope
-	 * instead of extending the prompt. Matched to the presets
-	 * tab's natural intrinsic height (search row + 400px pane +
-	 * info + instructions + tag banner). */
+	/* Standalone prompts keep a fixed envelope so tab changes do not resize them. */
 	height: 520px;
 	flex-shrink: 0;
+}
+
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt {
+	width: 100% !important;
+	height: 100% !important;
+	max-width: none !important;
+	max-height: none !important;
+	min-height: 0;
+}
+
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .presetsTabContent,
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .tagsTabContent,
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .typesTabContent {
+	flex: 1 1 0;
+	height: auto;
+	min-height: 0;
+}
+
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .presetPaneContainer,
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .tagGridContainer,
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .typesTabContent > :first-child {
+	flex: 1 1 0 !important;
+	height: auto !important;
+	min-height: 0 !important;
+	background: var(--editor-background);
+}
+
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .categoryListPane,
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .presetListPane {
+	min-height: 0;
+	background: var(--editor-background);
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .tagGridContainer {

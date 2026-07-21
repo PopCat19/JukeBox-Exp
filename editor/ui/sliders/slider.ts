@@ -312,6 +312,10 @@ export class Slider {
 		this._syncVisual();
 	}
 
+	public refreshLayout(): void {
+		this._syncVisual();
+	}
+
 	public getValueBeforeProspectiveChange(): number {
 		return this._oldValue;
 	}
