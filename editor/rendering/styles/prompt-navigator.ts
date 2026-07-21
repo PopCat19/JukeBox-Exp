@@ -3,6 +3,7 @@
 export function buildNavigatorCSS(): string {
 	return `
 .beepboxEditor .navigator-shell[hidden] { display: none; }
+.beepboxEditor .screen-reader-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .beepboxEditor .navigator-shell.navigator-backdrop-disabled {
 	background: var(--editor-background);
 }
@@ -76,8 +77,15 @@ export function buildNavigatorCSS(): string {
 	color: var(--secondary-text);
 	font-size: 10px;
 	font-weight: 600;
+	text-align: left;
 	text-transform: uppercase;
+	background: var(--ui-widget-background);
+	border: 0;
+	border-radius: var(--border-radius-medium);
 }
+.beepboxEditor .navigator-route-group-content { display: flex; flex-direction: column; gap: 4px; }
+.beepboxEditor .navigator-route[disabled] { opacity: 0.55; cursor: not-allowed; }
+.beepboxEditor .navigator-route.selectableRow:not(.active) { background: var(--ui-widget-background); }
 .beepboxEditor .navigator-route {
 	min-width: 0;
 	overflow: hidden;

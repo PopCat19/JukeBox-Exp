@@ -18,7 +18,7 @@ import { parseMidiFile } from "../io/midi-parser";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, p, input, select, option, button } = HTML;
+const { div, h2, p, input, button } = HTML;
 
 type ImportCompletion = () => unknown;
 
@@ -32,18 +32,7 @@ export class ImportPrompt extends BasePrompt {
 		{ class: "importBrowseButton" },
 		"Browse\u2026",
 	);
-	private readonly _modeImportSelect: HTMLSelectElement = select(
-		{ class: "importModeSelect" },
-		option({ value: "auto" }, "Auto-detect mode (for json)"),
-		option({ value: "BeepBox" }, "BeepBox"),
-		option({ value: "ModBox" }, "ModBox"),
-		option({ value: "JummBox" }, "JummBox"),
-		option({ value: "SynthBox" }, "SynthBox"),
-		option({ value: "GoldBox" }, "GoldBox"),
-		option({ value: "PaandorasBox" }, "PaandorasBox"),
-		option({ value: "UltraBox" }, "UltraBox"),
-		option({ value: "slarmoosbox" }, "Slarmoo's Box"),
-	);
+	private readonly _importMode = "auto";
 
 	private _operation = 0;
 	private _disposed = false;
@@ -61,7 +50,7 @@ export class ImportPrompt extends BasePrompt {
 			{ class: "importNote2" },
 			"BeepBox can also (crudely) import .mid files. There are many tools available for creating .mid files. Shorter and simpler songs are more likely to work well.",
 		),
-		div({ class: "importFileRow" }, this._modeImportSelect, this._browseButton),
+		div({ class: "importFileRow" }, this._browseButton),
 		this._fileInput,
 		this._cancelButton,
 	);
@@ -152,7 +141,7 @@ export class ImportPrompt extends BasePrompt {
 						this._showLoading();
 						this._doc.goBackToStart();
 						this._doc.record(
-							new ChangeSong(this._doc, songText, this._modeImportSelect.value),
+							new ChangeSong(this._doc, songText, this._importMode),
 							false,
 							true,
 						);
@@ -269,7 +258,7 @@ export class ImportPrompt extends BasePrompt {
 			throw new Error("Song JSON must contain at least one channel");
 		}
 		const tempSong = new Song();
-		tempSong.fromJsonObject(json, this._modeImportSelect.value);
+		tempSong.fromJsonObject(json, this._importMode);
 		if (tempSong.channels.length === 0) throw new Error("Song JSON has no supported channels");
 	}
 

@@ -132,6 +132,8 @@ export class CommandPalette {
 			} else {
 				this.error.textContent = result.error ?? "Command failed.";
 			}
+		} catch (error) {
+			this.error.textContent = error instanceof Error ? error.message : String(error);
 		} finally {
 			this.executing = false;
 		}

@@ -45,6 +45,7 @@ const prefSchema: PrefEntry[] = [
 	{ key: "showInstrumentScrollbars", default: true },
 	{ key: "closePromptByClickoff", default: true },
 	{ key: "showPromptBackdrop", default: true },
+	{ key: "navigatorSectionsExpanded", default: true },
 	{ key: "displayBrowserUrl", default: true },
 	// { key: "enableTagSearch", default: true } — removed, tags handled by instrument-browser-prompt
 	// notesFlashWhenPlayed: original code had a typo ("flase" for "false")
@@ -152,6 +153,7 @@ export class Preferences {
 	public showInstrumentScrollbars: boolean = true;
 	public closePromptByClickoff: boolean = true;
 	public showPromptBackdrop: boolean = true;
+	public navigatorSectionsExpanded: boolean = true;
 	public loopEnabled: boolean = true;
 	public enableScrollStep: boolean = false;
 	public doubleClickSliderReset: boolean = false;

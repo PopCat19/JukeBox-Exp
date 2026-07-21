@@ -48,12 +48,12 @@
 		{
 			"key": "biome:editor/core/preferences.ts",
 			"count": 5,
-			"hash": "67a723345e3214ad34c2b136b18e3c2ebdfc4c188203b9e7c9d620443a12d828"
+			"hash": "027c557f35f0da42cefa3ffe7f2520d2fc18f99e55731fc7b513dea19643e127"
 		},
 		{
 			"key": "biome:editor/core/prompt-manager.ts",
 			"count": 1,
-			"hash": "01b0a831035a351c9c703bb9c8d3a64f4d2b8d1410f5bd49513604a56060a5fd"
+			"hash": "3143c850aa470557490ace8a30ea0a714d527fd37271d28214a8dfa02daae0af"
 		},
 		{
 			"key": "biome:editor/core/selection.ts",
@@ -158,7 +158,7 @@
 		{
 			"key": "biome:editor/song-editor.ts",
 			"count": 1,
-			"hash": "c82eebf9432890eeb4ade8a5622d0180a507723fa13d3b4a14835f244ae76423"
+			"hash": "b9aaff8cad34735b82b9c1b36cf13193859d919e4a956dacc4d910e293133900"
 		},
 		{
 			"key": "biome:editor/ui/array-buffer-writer.ts",
@@ -698,7 +698,7 @@
 		{
 			"key": "eslint:editor/core/preferences.ts",
 			"count": 7,
-			"hash": "2e25bddf26f0067d0228e72db43d4f43491591d5f8b6ef455e4ddd99c40b5c5d"
+			"hash": "efaf85bee3682fa168ac9079eea976c60ced8174197c39e5fa5e8eb9cc7a366a"
 		},
 		{
 			"key": "eslint:editor/core/prompt-dock.ts",
@@ -718,7 +718,7 @@
 		{
 			"key": "eslint:editor/core/prompt-manager.ts",
 			"count": 23,
-			"hash": "821cd80331241e3c446364368caa8c9e18ee5a8b709c8e2e3a1d8452360d487b"
+			"hash": "02d23b8dc941168fda10aed620f4849ebf6b5b586112f0888be25337143ce25e"
 		},
 		{
 			"key": "eslint:editor/core/selection.ts",
@@ -771,6 +771,11 @@
 			"hash": "9e6a83412393220446cc8a621ba92ec2b73ddefc8c9effcd2541df6eefbfa244"
 		},
 		{
+			"key": "eslint:editor/navigator/navigator-shell.ts",
+			"count": 1,
+			"hash": "70e3268f52b9829fa9c5c13fe2706b7e442d0d9acc19a87c8c821bf5c9f457e7"
+		},
+		{
 			"key": "eslint:editor/navigator/ownership.ts",
 			"count": 14,
 			"hash": "4c1dc6743a35747a72d1769c95218f57ffd8394e132d3fdce9cd9802229f6c1a"
@@ -817,8 +822,8 @@
 		},
 		{
 			"key": "eslint:editor/prompts/custom-chip-prompt.ts",
-			"count": 12,
-			"hash": "7ea447e10834853fff9e6ccd08043d93f6989f84ab1b8f4022db71b28520ad6e"
+			"count": 13,
+			"hash": "bc1eb8c4d4b03b6ffac4b23db362b821489fbb29772d943d8fefdccf3700e440"
 		},
 		{
 			"key": "eslint:editor/prompts/custom-filter-prompt.ts",
@@ -867,8 +872,8 @@
 		},
 		{
 			"key": "eslint:editor/prompts/import-prompt.ts",
-			"count": 8,
-			"hash": "acd9a3024109e87da0070a14631cb8771fab34f6230419b4756bff7c98a92229"
+			"count": 6,
+			"hash": "75ae13e26c3ca760063bcd7ca9b14852476201705204e3d89ceeff44977a13b5"
 		},
 		{
 			"key": "eslint:editor/prompts/input-helpers.ts",
@@ -1028,7 +1033,7 @@
 		{
 			"key": "eslint:editor/song-editor.ts",
 			"count": 51,
-			"hash": "5e552355a3666c9dce8c7358daf68b575304485cec21c4c86c1a521d4a4f17a5"
+			"hash": "fb28338589a3853ccdc2c0ce6b852795fa0d2a7236439e26bafea2cb8384d924"
 		},
 		{
 			"key": "eslint:editor/ui/array-buffer-reader.ts",

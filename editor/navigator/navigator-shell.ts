@@ -1,23 +1,40 @@
 // Purpose: Provides the persistent PMD navigator shell and pane host.
 
+import type { Instrument } from "../../synth";
 import type { PromptDock } from "../core/prompt-dock";
 import { attachPromptDrag } from "../core/prompt-drag";
 import { buildPromptTitlebar } from "../prompts/base-prompt";
 import { iconButton, inputRow, searchInput, selectableRow, setSelectableRowActive } from "../ui";
 import type { PaneHost, PaneRoot } from "./contracts";
-import { catalogItemRoutes, navigatorOtherRoutes, navigatorRouteCatalog } from "./route-catalog";
+import {
+	catalogItemRoutes,
+	getNavigatorRouteAvailability,
+	navigatorOtherRoutes,
+	navigatorRouteCatalog,
+} from "./route-catalog";
 
 export interface NavigatorRoute {
 	readonly id: string;
 	readonly title: string;
 	readonly category: string;
+	readonly tabs?: readonly { readonly id: string; readonly title: string }[];
 }
 
 const DEFAULT_ROUTES: readonly NavigatorRoute[] = navigatorRouteCatalog
 	.flatMap((group) =>
-		group.items
-			.flatMap(catalogItemRoutes)
-			.map((route) => ({ ...route, category: group.title })),
+		group.items.map((item) => {
+			if (item.kind === "tabs") {
+				const first = item.routes[0];
+				return {
+					id: first.id,
+					title: item.title,
+					category: group.title,
+					tabs: item.routes.map(({ id, title }) => ({ id, title })),
+				};
+			}
+			const [route] = catalogItemRoutes(item);
+			return { ...route, category: group.title };
+		}),
 	)
 	.concat(navigatorOtherRoutes.map((route) => ({ ...route, category: "Other tools" })));
 
@@ -33,6 +50,9 @@ export class NavigatorShell implements PaneHost {
 	private readonly detachButton: HTMLButtonElement | null;
 	private readonly routes: readonly NavigatorRoute[];
 	private readonly onRoute: ((id: string) => void) | undefined;
+	private readonly getFocusedInstrument: (() => Instrument | null) | undefined;
+	private readonly getSectionsExpanded: (() => boolean) | undefined;
+	private readonly setSectionsExpanded: ((expanded: boolean) => void) | undefined;
 	private activeRouteId: string | undefined;
 	private visibilityGeneration = 0;
 	private dragDispose: (() => void) | null = null;
@@ -46,6 +66,9 @@ export class NavigatorShell implements PaneHost {
 		onClose?: () => void,
 		onRoute?: (id: string) => void,
 		routes: readonly NavigatorRoute[] = DEFAULT_ROUTES,
+		getFocusedInstrument?: () => Instrument | null,
+		getSectionsExpanded?: () => boolean,
+		setSectionsExpanded?: (expanded: boolean) => void,
 	) {
 		this.container = document.createElement("div");
 		this.container.className = "prompt navigator-shell navigator-prompt-variant fill-y";
@@ -53,6 +76,9 @@ export class NavigatorShell implements PaneHost {
 		this.container.tabIndex = -1;
 		this.routes = routes;
 		this.onRoute = onRoute;
+		this.getFocusedInstrument = getFocusedInstrument;
+		this.getSectionsExpanded = getSectionsExpanded;
+		this.setSectionsExpanded = setSectionsExpanded;
 		const heading = document.createElement("h2");
 		heading.textContent = title;
 		this.container.append(heading);
@@ -153,6 +179,10 @@ export class NavigatorShell implements PaneHost {
 		this.updateDetachAvailability();
 	};
 
+	refreshRoutes(): void {
+		this.renderRoutes(this.routes);
+	}
+
 	setBackdropPreference(enabled: boolean): void {
 		if (this.backdropPreference === enabled) return;
 		this.backdropPreference = enabled;
@@ -173,9 +203,11 @@ export class NavigatorShell implements PaneHost {
 		this.container.hidden = false;
 		this.body.hidden = false;
 		this.updateDetachAvailability();
-		const routeId = root.element.dataset.navigatorScope;
+		const routeId = root.element.dataset.navigatorScope ?? "";
 		this.activeRouteId = routeId;
-		const route = this.routes.find((entry) => entry.id === routeId);
+		const route = this.routes.find(
+			(entry) => entry.id === routeId || entry.tabs?.some((tab) => tab.id === routeId),
+		);
 		if (route !== undefined) {
 			this.titleHeading.textContent = route.title;
 			const routeButtons =
@@ -253,10 +285,29 @@ export class NavigatorShell implements PaneHost {
 			if (matches.length === 0) continue;
 			const group = document.createElement("div");
 			group.className = "navigator-route-group";
-			const heading = document.createElement("h4");
-			heading.className = "navigator-route-group-title";
-			heading.textContent = category;
-			group.append(heading);
+			const expanded = this.getSectionsExpanded?.() ?? true;
+			const disclosure = document.createElement("button");
+			disclosure.type = "button";
+			disclosure.className = "navigator-route-group-title";
+			disclosure.textContent = category;
+			disclosure.title = `${expanded ? "Collapse" : "Expand"} ${category}`;
+			disclosure.setAttribute("aria-expanded", String(expanded));
+			disclosure.setAttribute(
+				"aria-controls",
+				`navigator-group-${category.replace(/[^a-z0-9]+/gi, "-")}`,
+			);
+			const routeContent = document.createElement("div");
+			routeContent.className = "navigator-route-group-content";
+			routeContent.id = disclosure.getAttribute("aria-controls")!;
+			routeContent.hidden = !expanded;
+			disclosure.addEventListener("click", () => {
+				const next = !(this.getSectionsExpanded?.() ?? true);
+				this.setSectionsExpanded?.(next);
+				disclosure.setAttribute("aria-expanded", String(next));
+				disclosure.title = `${next ? "Collapse" : "Expand"} ${category}`;
+				routeContent.hidden = !next;
+			});
+			group.append(disclosure, routeContent);
 			const catalogGroup = navigatorRouteCatalog.find((entry) => entry.title === category);
 			const catalogRoutes = catalogGroup?.items.flatMap(catalogItemRoutes) ?? [];
 			const catalogRouteIds = new Set(catalogRoutes.map((route) => route.id));
@@ -264,30 +315,45 @@ export class NavigatorShell implements PaneHost {
 				catalogGroup === undefined
 					? matches
 					: [
-							...catalogRoutes.flatMap((itemRoute) =>
-								matches.filter((candidate) => candidate.id === itemRoute.id),
+							...matches.filter((candidate) =>
+								catalogRoutes.some((itemRoute) => candidate.id === itemRoute.id),
 							),
 							...matches.filter((candidate) => !catalogRouteIds.has(candidate.id)),
 						];
-			for (const route of orderedMatches) group.append(this.createRouteButton(route));
+			for (const route of orderedMatches) routeContent.append(this.createRouteButton(route));
 			this.routeList.append(group);
 		}
 	}
 
-	private createRouteButton(route: NavigatorRoute): HTMLButtonElement {
+	private createRouteButton(route: NavigatorRoute): HTMLElement {
+		if (route.tabs !== undefined) {
+			const family = document.createElement("div");
+			family.className = "navigator-route-family";
+			family.setAttribute("role", "tablist");
+			for (const tab of route.tabs) family.append(this.createTabButton(tab, route.title));
+			return family;
+		}
+		return this.createTabButton({ id: route.id, title: route.title }, route.title);
+	}
+
+	private createTabButton(
+		tab: { readonly id: string; readonly title: string },
+		familyTitle: string,
+	): HTMLButtonElement {
 		const button = document.createElement("button");
 		button.type = "button";
 		button.className = "navigator-route";
-		button.dataset.routeId = route.id;
-		button.textContent = route.title;
-		button.title = route.title;
-		const active =
-			route.title === "Project Data"
-				? ["import", "export", "songRecovery"].includes(this.activeRouteId ?? "")
-				: route.title === "Instrument Data"
-					? ["importInstrument", "exportInstrument"].includes(this.activeRouteId ?? "")
-					: route.id === this.activeRouteId;
+		button.dataset.routeId = tab.id;
+		button.textContent = familyTitle === tab.title ? tab.title : `${familyTitle}: ${tab.title}`;
+		button.title = button.textContent;
+		if (familyTitle !== tab.title) button.setAttribute("role", "tab");
+		const availability = getNavigatorRouteAvailability(tab.id, this.getFocusedInstrument?.());
+		button.disabled = !availability.available;
+		button.setAttribute("aria-disabled", String(!availability.available));
+		if (!availability.available) button.title = availability.error ?? button.title;
+		const active = tab.id === this.activeRouteId;
 		selectableRow(button, active);
+		button.setAttribute("aria-selected", String(active));
 		button.setAttribute("aria-current", active ? "page" : "false");
 		let primaryPress = false;
 		let suppressClick = false;
@@ -299,17 +365,18 @@ export class NavigatorShell implements PaneHost {
 			primaryPress = false;
 		});
 		button.addEventListener("mouseup", (event) => {
-			if (!primaryPress || event.button !== 0) return;
+			if (!availability.available || !primaryPress || event.button !== 0) return;
 			primaryPress = false;
 			suppressClick = true;
-			this.onRoute?.(route.id);
+			this.onRoute?.(tab.id);
 		});
 		button.addEventListener("click", (event) => {
+			if (!availability.available) return;
 			if (suppressClick && event.detail > 0) {
 				suppressClick = false;
 				return;
 			}
-			this.onRoute?.(route.id);
+			this.onRoute?.(tab.id);
 		});
 		return button;
 	}
