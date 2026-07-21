@@ -1021,13 +1021,14 @@ describe("navigator shell", () => {
 		const smallCSS = buildPromptSmallCSS();
 		const miscCSS = buildPromptMiscCSS();
 		const compactSearchCSS = buildPromptCompactSearchCSS();
-		const [samples, euclid, theme, rawTheme, loop, slider] = await Promise.all([
+		const [samples, euclid, theme, rawTheme, loop, slider, visualizer] = await Promise.all([
 			Bun.file("editor/prompts/add-samples-prompt.ts").text(),
 			Bun.file("editor/prompts/euclidgen-rhythm-prompt.ts").text(),
 			Bun.file("editor/prompts/theme-prompt.ts").text(),
 			Bun.file("editor/prompts/custom-theme-prompt.ts").text(),
 			Bun.file("editor/prompts/visual-loop-controls-prompt.ts").text(),
 			Bun.file("editor/ui/sliders/slider.ts").text(),
+			Bun.file("editor/prompts/channel-volume-visualizer-prompt.ts").text(),
 		]);
 		expect(navigatorCSS).toContain(".navigator-pane-host > .sampleBrowserPrompt > h2 { display: none; }");
 		expect(navigatorCSS).not.toContain(".navigator-active-title");
@@ -1035,7 +1036,14 @@ describe("navigator shell", () => {
 		expect(navigatorCSS).toMatch(/\.navigator-workspace \{[^}]*overflow: hidden/s);
 		expect(navigatorCSS).toMatch(/\.navigator-route-list \{[^}]*overflow: auto/s);
 		expect(navigatorPanesCSS).toMatch(/\.navigator-pane-host > \.customFilterPrompt\.navigator-native-pane,[^{]*\.cvvPrompt\.navigator-native-pane \{[^}]*overflow-x: hidden[^}]*overflow-y: auto[^}]*overscroll-behavior: contain/s);
+		expect(navigatorPanesCSS).toMatch(/\.navigator-pane-host > \.cvvPrompt \{[^}]*container-type: inline-size/s);
 		expect(navigatorPanesCSS).toMatch(/\.navigator-pane-host > \.cvvPrompt \.cvvContentGrid \{[^}]*grid-template-columns: repeat\(6, minmax\(0, 1fr\)\)[^}]*min-height: 0[^}]*overflow-y: auto/s);
+		expect(navigatorPanesCSS).toMatch(/\.navigator-sidebar-collapsed \.navigator-pane-host > \.cvvPrompt \.cvvContentGrid \{[^}]*repeat\(8, minmax\(0, 1fr\)\)/s);
+		expect(navigatorPanesCSS).toMatch(/\.cvvChannelTile \{[^}]*aspect-ratio: 1/);
+		expect(navigatorPanesCSS).toContain("@container (max-width: 540px)");
+		expect(navigatorPanesCSS).toContain("grid-template-columns: repeat(4, minmax(0, 1fr))");
+		expect(navigatorPanesCSS).toContain("@container (max-width: 300px)");
+		expect(navigatorPanesCSS).toContain("grid-template-columns: repeat(2, minmax(0, 1fr))");
 		expect(navigatorPanesCSS).not.toMatch(/\.navigator-detached-content > \.customFilterPrompt\.navigator-native-pane[^}]*overflow-y: auto/s);
 		expect(samples).toContain('h2({}, "Add Samples")');
 		expect(euclid).toContain("checkboxInput()");
@@ -1052,6 +1060,16 @@ describe("navigator shell", () => {
 		expect(loop).toContain('class: "prompt noSelection visualLoopControlsPrompt"');
 		expect(loop).toContain('window.removeEventListener("mousemove"');
 		expect(loop).toContain('window.removeEventListener("mouseup"');
+		expect(visualizer).toContain('class: "cvvChannelTile"');
+		expect(visualizer).toContain('class: "cvvInstrumentList"');
+		expect(navigatorPanesCSS).toContain("gap: 4px;");
+		expect(visualizer).toContain('padding: 0; position: relative; z-index: 1;');
+		expect(visualizer).toContain('height: 20px; display: block; margin: 0;');
+		expect(visualizer).toContain('border-top: 2px solid var(--ui-widget-background); margin: 0;');
+		expect(visualizer).toContain("flex-wrap: nowrap");
+		expect(visualizer).toContain("compactInstrumentLabels ? `I${j + 1}` : instrName");
+		expect(visualizer).toContain("title: instrName");
+		expect(visualizer).not.toContain('"aria-label": instrName');
 		const manager = await Bun.file("editor/core/prompt-manager.ts").text();
 		expect(manager).toContain('container.closest(".navigator-workspace")');
 		expect(manager).toContain("if (navigatorWorkspace == null) e.preventDefault();");

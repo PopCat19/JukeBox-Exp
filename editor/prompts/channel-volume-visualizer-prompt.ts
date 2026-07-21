@@ -174,7 +174,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _channelsPane: HTMLDivElement = div(
 		{
-			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 4px 12px 12px 12px; position: relative; z-index: 1;",
+			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 0; position: relative; z-index: 1;",
 		},
 		this._contentContainer,
 	);
@@ -370,12 +370,12 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// Piano key octave display — two rows of octave-spanning keys that
 	// light up to the channel's 80x PMD color when pitches are active.
 	private readonly _octaveRow0Svg: SVGSVGElement = svg({
-		style: "width: calc(100% - 24px); height: 20px; display: block; margin: 2px 12px; overflow: visible; shape-rendering: crispEdges;",
+		style: "width: 100%; height: 20px; display: block; margin: 0; overflow: visible; shape-rendering: crispEdges;",
 		viewBox: "0 0 28 1",
 		preserveAspectRatio: "none",
 	});
 	private readonly _octaveRow1Svg: SVGSVGElement = svg({
-		style: "width: calc(100% - 24px); height: 20px; display: block; margin: 2px 12px; overflow: visible; shape-rendering: crispEdges;",
+		style: "width: 100%; height: 20px; display: block; margin: 0; overflow: visible; shape-rendering: crispEdges;",
 		viewBox: "0 0 28 1",
 		preserveAspectRatio: "none",
 	});
@@ -495,14 +495,14 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			tabindex: "0",
 		},
 		h2(
-			{ style: "margin: 12px 12px 0px 12px; text-align: center;" },
+			{ style: "margin: 0; text-align: center;" },
 			"Channel Volume Visualizer",
 		),
 		// Top bar — play/pause, volume meter, stats
 		div(
 			{
 				class: "cvvHeader",
-				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 4px 12px 0px 12px;",
+				style: "display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; padding: 0;",
 			},
 			this._playPauseButton,
 			this._stopButton,
@@ -522,7 +522,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		// Progress / scrub bar
 		this._scrubTrack,
 		// Divider
-		div({ style: "border-top: 2px solid var(--ui-widget-background); margin: 0 12px;" }),
+		div({ style: "border-top: 2px solid var(--ui-widget-background); margin: 0;" }),
 		// Piano key octave rows
 		this._octaveRow0Svg,
 		this._octaveRow1Svg,
@@ -1907,7 +1907,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 			const dbLabel = span(
 				{
-					style: `color: ${channelColors.primaryChannel}; opacity: 0.8; font-size: 10px; font-weight: 600; font-family: monospace; text-align: center; display: block; white-space: pre-line;`,
+					style: `color: ${channelColors.primaryChannel}; opacity: 0.8; font-size: 9px; font-weight: 600; font-family: monospace; text-align: center; display: block; white-space: pre-line;`,
 				},
 				"Pk:-inf\nA:-inf\n-inf/-inf",
 			);
@@ -1925,6 +1925,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			);
 
 			const channelDiv = div({
+				class: "cvvChannelTile",
 				style: `display: flex; flex-direction: column; padding: 4px 8px; min-width: 0; overflow: hidden; position: relative; border: 2px solid ${
 					isMuted ? "var(--mute-button-normal)" : channelColors.primaryChannel
 				}; border-radius: var(--border-radius-medium); background: var(--editor-background); cursor: pointer; ${isMuted ? "opacity: 0.5;" : ""} ${isDimmed ? "opacity: 0.5;" : ""}`,
@@ -1951,7 +1952,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			headerDiv.appendChild(
 				span(
 					{
-						style: `font-weight: bold; color: ${channelColors.primaryChannel}; font-size: ${Typography.sizeSm}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 1; min-width: 0;`,
+						style: `font-weight: bold; color: ${channelColors.primaryChannel}; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 1; min-width: 0;`,
 					},
 					channelName,
 				),
@@ -1960,7 +1961,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			headerDiv.appendChild(
 				span(
 					{
-						style: `font-size: 10px; font-weight: 600; color: ${channelColors.primaryChannel}; opacity: 0.7;`,
+						style: `font-size: 9px; font-weight: 600; color: ${channelColors.primaryChannel}; opacity: 0.7;`,
 					},
 					channelType,
 				),
@@ -1971,7 +1972,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 				headerDiv.appendChild(
 					span(
 						{
-							style: `font-size: 10px; font-weight: 600; color: ${channelColors.primaryNote}; margin-left: 4px;`,
+							style: `font-size: 9px; font-weight: 600; color: ${channelColors.primaryNote}; margin-left: 4px;`,
 						},
 						`P${patternIndex}`,
 					),
@@ -2001,8 +2002,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 
 			// Show instruments
 			if (channel.instruments.length > 0) {
+				const compactInstrumentLabels = channel.instruments.length > 1;
 				const instrDiv = div({
-					style: "display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; justify-content: center;",
+					class: "cvvInstrumentList",
+					style: "display: flex; flex-wrap: nowrap; gap: 3px; margin-top: 3px; justify-content: center; min-width: 0; overflow: hidden;",
 				});
 
 				// Get instruments in current pattern for highlighting
@@ -2033,7 +2036,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 					const instrName = total > 1 ? `${typeName} ${nth}` : typeName;
 					const instrSpan = span(
 						{
-							style: `font-size: 10px; font-weight: 600; padding: 1px 4px; border-radius: var(--border-radius-medium); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: ${
+							title: instrName,
+							style: `flex: ${compactInstrumentLabels ? "1 1 0" : "0 1 auto"}; font-size: 9px; font-weight: 600; padding: 1px 3px; border-radius: var(--border-radius-medium); max-width: 100%; min-width: 0; overflow: hidden; text-align: center; text-overflow: ellipsis; white-space: nowrap; background: ${
 								isPlaying
 									? "white"
 									: inPattern
@@ -2043,7 +2047,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 								inPattern || isPlaying ? "1" : "0.5"
 							};`,
 						},
-						instrName,
+						compactInstrumentLabels ? `I${j + 1}` : instrName,
 					);
 					const instrKey = `${i}-${j}`;
 					this._instrumentSpans.set(instrKey, instrSpan);

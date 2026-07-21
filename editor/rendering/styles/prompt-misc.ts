@@ -355,7 +355,7 @@ export function buildPromptMiscCSS(): string {
 .beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
 	display: grid;
 	grid-template-columns: repeat(6, 1fr);
-	gap: 8px;
+	gap: 4px;
 	align-content: start;
 }
 @media (max-width: 639px) {

@@ -46,6 +46,12 @@ export function buildNavigatorPanesCSS(): string {
 	overflow-y: auto;
 	overscroll-behavior: contain;
 }
+.beepboxEditor .navigator-pane-host > .cvvPrompt.navigator-native-pane {
+	box-sizing: border-box;
+	width: 100% !important;
+	max-width: 100% !important;
+	min-width: 0;
+}
 .beepboxEditor .navigator-pane-host > .navigator-native-pane:hover,
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.focused,
 .beepboxEditor .navigator-pane-host > .navigator-native-pane:focus-visible {
@@ -78,11 +84,36 @@ export function buildNavigatorPanesCSS(): string {
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
 }
+.beepboxEditor .navigator-pane-host > .cvvPrompt {
+	container-type: inline-size;
+}
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvContentGrid {
 	grid-template-columns: repeat(6, minmax(0, 1fr));
+	gap: 4px;
 	min-width: 0;
 	min-height: 0;
 	overflow-y: auto;
+}
+.beepboxEditor .navigator-sidebar-collapsed .navigator-pane-host > .cvvPrompt .cvvContentGrid {
+	grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+.beepboxEditor .navigator-pane-host > .cvvPrompt .cvvChannelTile {
+	aspect-ratio: 1;
+	min-height: 0;
+	font-size: 9px;
+}
+.beepboxEditor .navigator-pane-host > .cvvPrompt .cvvInstrumentList > span {
+	flex: 0 1 auto;
+}
+@container (max-width: 540px) {
+	.beepboxEditor .navigator-pane-host > .cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+@container (max-width: 300px) {
+	.beepboxEditor .navigator-pane-host > .cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 }
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvHeader,
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvHeaderStats {
