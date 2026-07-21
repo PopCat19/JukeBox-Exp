@@ -11,10 +11,10 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import type { SongDocument } from "../song-document";
-import { createInput, selectField } from "../ui";
+import { createInput, rangeSlider, Slider, selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, select, option, optgroup, input, span } = HTML;
+const { div, h2, select, option, optgroup, label } = HTML;
 
 export class ThemePrompt extends BasePrompt {
 	private readonly _themeSelect: HTMLSelectElement = select(
@@ -102,45 +102,19 @@ export class ThemePrompt extends BasePrompt {
 		),
 	);
 
-	private readonly _pmdHueInput: HTMLInputElement = input({
-		//
-		type: "range",
-		min: "0",
-		max: "360",
-		value: String(ColorConfig.pmdHue),
-		oninput: () => {
-			this._onPMDChange();
-		},
-	});
-
-	private readonly _pmdHueLabel: HTMLSpanElement = span(
-		{ class: "pmdHueLabel" },
-		`Hue: ${ColorConfig.pmdHue}°`,
-	);
+	private _pmdHueInput!: HTMLInputElement;
+	private _pmdHueSlider!: Slider;
 
 	private readonly _pmdHueNum: HTMLInputElement = createInput("number", "", {
+		class: "pmdHueNum",
 		min: "0",
 		max: "360",
 		value: String(ColorConfig.pmdHue),
 	});
 
-	private readonly _pmdControls: HTMLDivElement = div(
-		{ class: "pmdControls" },
-		div(
-			{ class: "pmdControlGroup" },
-			div({ class: "pmdHueRow" }, this._pmdHueLabel, this._pmdHueNum),
-			this._pmdHueInput,
-		),
-	);
+	private _pmdControls!: HTMLDivElement;
 
-	public readonly container: HTMLDivElement = div(
-		{ class: "prompt themePrompt noSelection" },
-		h2("Set Theme"),
-		selectField("Theme:", this._themeSelect),
-		this._pmdControls,
-		this._getOkayRow(),
-		this._cancelButton,
-	);
+	public readonly container: HTMLDivElement;
 	private readonly lastTheme: string | null = window.localStorage.getItem("colorTheme");
 	private readonly lastHue: number = ColorConfig.pmdHue;
 	private readonly lastDark: boolean = ColorConfig.pmdDark;
@@ -148,6 +122,32 @@ export class ThemePrompt extends BasePrompt {
 
 	constructor(doc: SongDocument) {
 		super(doc);
+		const hueSlider = rangeSlider(doc, null, 0, 360, ColorConfig.pmdHue, { undo: false });
+		this._pmdHueSlider = hueSlider;
+		this._pmdHueInput = hueSlider.input;
+		hueSlider.container.tabIndex = 0;
+		hueSlider.container.setAttribute("role", "slider");
+		hueSlider.container.setAttribute("aria-label", "Hue");
+		hueSlider.container.setAttribute("aria-valuemin", "0");
+		hueSlider.container.setAttribute("aria-valuemax", "360");
+		hueSlider.container.setAttribute("aria-valuenow", String(ColorConfig.pmdHue));
+		hueSlider.container.addEventListener("keydown", this._onPMDHueKeyDown);
+		this._pmdControls = div(
+			{ class: "pmdControls" },
+			div(
+				{ class: "pmdControlGroup" },
+				label({ class: "pmdHueRow" }, "Hue", this._pmdHueNum),
+				hueSlider.container,
+			),
+		);
+		this.container = div(
+			{ class: "prompt themePrompt noSelection" },
+			h2("Set Theme"),
+			selectField("Theme:", this._themeSelect),
+			this._pmdControls,
+			this._getOkayRow(),
+			this._cancelButton,
+		);
 		this.buildTitlebar();
 		if (this.lastTheme != null) {
 			this._themeSelect.value = this.lastTheme;
@@ -156,18 +156,19 @@ export class ThemePrompt extends BasePrompt {
 			this._updatePMDVisibility();
 			this._previewTheme();
 		});
+		this._pmdHueInput.addEventListener("input", this._onPMDChange);
 		this._updatePMDVisibility();
 
 		this._pmdHueNum.addEventListener("input", () => {
 			const v = Math.max(0, Math.min(360, parseInt(this._pmdHueNum.value, 10) || 0));
 			this._pmdHueNum.value = String(v);
-			this._pmdHueInput.value = String(v);
+			this._pmdHueSlider.updateValue(v);
 			this._onPMDChange();
 		});
 		this._pmdHueNum.addEventListener("change", () => {
 			const v = Math.max(0, Math.min(360, parseInt(this._pmdHueNum.value, 10) || 0));
 			this._pmdHueNum.value = String(v);
-			this._pmdHueInput.value = String(v);
+			this._pmdHueSlider.updateValue(v);
 			this._onPMDChange();
 		});
 	}
@@ -177,13 +178,26 @@ export class ThemePrompt extends BasePrompt {
 		this._pmdControls.style.display = isPMD ? "flex" : "none";
 	}
 
-	private _onPMDChange(): void {
-		const hue = parseInt(this._pmdHueInput.value, 10);
-		this._pmdHueLabel.textContent = `Hue: ${hue}°`;
+	private _onPMDChange = (): void => {
+		const hue = Math.max(0, Math.min(360, parseInt(this._pmdHueInput.value, 10) || 0));
+		this._pmdHueInput.value = String(hue);
 		this._pmdHueNum.value = String(hue);
+		this._pmdHueSlider.container.setAttribute("aria-valuenow", String(hue));
 		ColorConfig.setPMD(hue, true);
 		this._doc.notifier.changed();
-	}
+	};
+
+	private _onPMDHueKeyDown = (event: KeyboardEvent): void => {
+		let hue = parseInt(this._pmdHueInput.value, 10) || 0;
+		if (event.key === "ArrowLeft" || event.key === "ArrowDown") hue--;
+		else if (event.key === "ArrowRight" || event.key === "ArrowUp") hue++;
+		else if (event.key === "Home") hue = 0;
+		else if (event.key === "End") hue = 360;
+		else return;
+		event.preventDefault();
+		this._pmdHueSlider.updateValue(Math.max(0, Math.min(360, hue)));
+		this._onPMDChange();
+	};
 
 	protected override _close = (): void => {
 		this.discard();

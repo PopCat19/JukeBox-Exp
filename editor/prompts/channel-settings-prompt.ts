@@ -17,7 +17,7 @@ import { checkboxInput, labelRow, stepperInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
 
-const { div, br, h2 } = HTML;
+const { div, h2 } = HTML;
 
 export class ChannelSettingsPrompt extends BasePrompt {
 	private readonly _patternsStepper: HTMLInputElement = stepperInput(
@@ -46,12 +46,15 @@ export class ChannelSettingsPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt channelSettingsPrompt noSelection" },
 		h2("Channel Settings"),
-		labelRow("Pitch channels:", this._pitchChannelStepper),
-		labelRow("Drum channels:", this._drumChannelStepper),
-		labelRow("Mod channels:", this._modChannelStepper),
-		labelRow("Available patterns per channel:", this._patternsStepper),
-		labelRow("Simultaneous instruments", br(), "per channel:", this._layeredInstrumentsBox),
-		labelRow("Different instruments", br(), "per pattern:", this._patternInstrumentsBox),
+		div(
+			{ class: "channelSettingsForm" },
+			labelRow("Pitch channels:", this._pitchChannelStepper),
+			labelRow("Drum channels:", this._drumChannelStepper),
+			labelRow("Mod channels:", this._modChannelStepper),
+			labelRow("Patterns per channel:", this._patternsStepper),
+			labelRow("Layered instruments:", this._layeredInstrumentsBox),
+			labelRow("Pattern instruments:", this._patternInstrumentsBox),
+		),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

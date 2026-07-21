@@ -18,6 +18,7 @@ function visualDoc(): SongDocument {
 		colorTheme: "forest",
 		notifier: { changed: () => {} },
 		prefs: { colorTheme: "forest", save: () => {} },
+		lastChangeWas: () => false,
 	} as unknown as SongDocument;
 }
 
@@ -28,14 +29,19 @@ describe("visual prompt dirty rollback", () => {
 		ColorConfig.setPMD(42, false);
 		const prompt = new ThemePrompt(visualDoc());
 		const hue = prompt.container.querySelector<HTMLInputElement>("input[type='range']")!;
+		const visualHue = prompt.container.querySelector<HTMLElement>("[role='slider']")!;
+		expect(visualHue.getAttribute("aria-valuenow")).toBe("42");
 		hue.value = "210";
 		hue.dispatchEvent(new Event("input"));
+		expect(visualHue.getAttribute("aria-valuenow")).toBe("210");
+		visualHue.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
+		expect(ColorConfig.pmdHue).toBe(211);
 		let allowDiscard = false;
 		const oldConfirm = window.confirm;
 		window.confirm = () => allowDiscard;
 		try {
 			expect(prompt.requestPaneLeave()).toBeFalse();
-			expect(ColorConfig.pmdHue).toBe(210);
+			expect(ColorConfig.pmdHue).toBe(211);
 			allowDiscard = true;
 			expect(prompt.requestPaneClose()).toBeTrue();
 			prompt.discard();
@@ -87,7 +93,8 @@ describe("visual prompt dirty rollback", () => {
 		const editor = document.createElement("div");
 		const doc = visualDoc();
 		const prompt = new CustomThemePrompt(doc, { _svg: patternSvg } as never, track, editor);
-		const raw = prompt.container.querySelector<HTMLInputElement>("input[type='text']")!;
+		const raw = prompt.container.querySelector<HTMLTextAreaElement>("textarea.ctCssEditor")!;
+		expect(raw.value).toBe("before");
 		raw.value = "after";
 		raw.dispatchEvent(new Event("change"));
 		localStorage.setItem("customTheme", "after-image");

@@ -20,20 +20,21 @@ import {
 	promptLabel,
 	promptRowBetween,
 	promptValue,
-	selectField,
+	stepperInput,
 } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { ExportPrompt } from "./export-prompt";
 import { validate, validateKey, validateNumber } from "./input-helpers";
 
-const { div, h2, input, select, option } = HTML;
+const { div, h2, select, option } = HTML;
 
 export class BeatsPerBarPrompt extends BasePrompt {
 	private readonly _computedSamplesLabel = promptValue("0:00");
-	private readonly _beatsStepper: HTMLInputElement = input({
-		type: "number",
-		step: "1",
-	});
+	private readonly _beatsStepper: HTMLInputElement = stepperInput(
+		Config.beatsPerBarMin,
+		Config.beatsPerBarMax,
+		Config.beatsPerBarMin,
+	);
 	private readonly _conversionStrategySelect: HTMLSelectElement = select(
 		{},
 		option({ value: "splice" }, "Splice beats at end of bars."),
@@ -44,10 +45,21 @@ export class BeatsPerBarPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt beatsPerBarPrompt noSelection" },
 		h2("Beats Per Bar"),
-		promptRowBetween(promptLabel("Length:"), this._computedSamplesLabel),
-		promptRowBetween(promptLabel("Beats per bar:"), this._beatsStepper),
-		div({ class: "promptHintRow" }, promptHint("(Multiples of 3 or 4 are normal and boring)")),
-		selectField("Conversion:", this._conversionStrategySelect),
+		div(
+			{ class: "beatsPerBarForm" },
+			promptRowBetween(promptLabel("Resulting length"), this._computedSamplesLabel),
+			div(
+				{ class: "beatsPerBarField" },
+				promptLabel("Beats per bar"),
+				this._beatsStepper,
+				div({ class: "promptHintRow" }, promptHint("Multiples of 3 or 4 are common.")),
+			),
+			div(
+				{ class: "beatsPerBarField" },
+				promptLabel("Preserve notes by"),
+				this._conversionStrategySelect,
+			),
+		),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

@@ -25,11 +25,11 @@ import {
 import { ChangeGroup } from "../core/change";
 import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
-import { addWheelSupport, s, w } from "../ui";
+import { addWheelSupport, checkboxInput, stepperInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { VisualLoopControlsHandle } from "./visual-loop-controls-handle";
 
-const { div, input, button, h2, select, option, canvas } = HTML;
+const { div, input, button, h2, select, option, canvas, label } = HTML;
 
 export class VisualLoopControlsPrompt extends BasePrompt {
 	private readonly _waveformCanvasWidth: number = 500;
@@ -200,24 +200,22 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	private _waveformCanvas: HTMLCanvasElement = canvas({
 		width: this._waveformCanvasWidth,
 		height: this._waveformCanvasHeight,
-		style: s("cursor:default;position:static;", w("100%")),
+		class: "loopControlsCanvas",
 	});
 	private _waveformContext: CanvasRenderingContext2D | null = null;
 	private _overlayCanvas: HTMLCanvasElement = canvas({
 		width: this._waveformCanvasWidth,
 		height: this._waveformCanvasHeight,
-		style: s("cursor:default;position:absolute;top:0;left:0;", w("100%")),
+		class: "loopControlsOverlay",
 	});
 	private _overlayContext: CanvasRenderingContext2D | null = null;
 	private _waveformContainer: HTMLDivElement = div(
-		{
-			style: `position: relative; margin-bottom: 0.5em; margin-left: auto; margin-right: auto; width: 100%; outline: 1px solid ${ColorConfig.uiWidgetBackground};`,
-		},
+		{ class: "loopControlsWaveform" },
 		this._waveformCanvas,
 		this._overlayCanvas,
 	);
 	private _viewportOffsetSlider: HTMLInputElement = input({
-		style: "width: 100%; flex-grow: 1; margin: 0;",
+		class: "loopControlsViewportSlider",
 		type: "range",
 		min: "0",
 		max: "1",
@@ -295,135 +293,56 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		"100%",
 	);
 	private readonly _loopModeSelect: HTMLSelectElement = select(
-		{ style: "width: 100%; flex-grow: 1; margin-left: 0.5em;" },
+		{ class: "loopControlsModeSelect" },
 		option({ value: 0 }, "Loop"),
 		option({ value: 1 }, "Ping-Pong"),
 		option({ value: 2 }, "Play Once"),
 		option({ value: 3 }, "Play Loop Once"),
 	);
-	private _startOffsetStepper: HTMLInputElement = input({
-		style: "flex-grow: 1; margin-left: 1em; width: 100%;",
-		type: "number",
-		value: this._chipWaveStartOffset,
-		min: "0",
-		step: "1",
+	private _startOffsetStepper: HTMLInputElement = stepperInput(0, Number.MAX_SAFE_INTEGER, 0);
+	private _loopStartStepper: HTMLInputElement = stepperInput(0, Number.MAX_SAFE_INTEGER, 0);
+	private _loopEndStepper: HTMLInputElement = stepperInput(0, Number.MAX_SAFE_INTEGER, 0);
+	private _playBackwardsBox: HTMLInputElement = checkboxInput();
+	private _playSongButton: HTMLButtonElement = button({
+		class: "loopControlsPlay",
+		type: "button",
 	});
-	private _loopStartStepper: HTMLInputElement = input({
-		style: "flex-grow: 1; margin-left: 1em; width: 100%;",
-		type: "number",
-		value: this._chipWaveLoopStart,
-		min: "0",
-		step: "1",
-	});
-	private _loopEndStepper: HTMLInputElement = input({
-		style: "flex-grow: 1; margin-left: 1em; width: 100%;",
-		type: "number",
-		value: this._chipWaveLoopEnd,
-		min: "0",
-		step: "1",
-	});
-	private _playBackwardsBox: HTMLInputElement = input({
-		type: "checkbox",
-		style: "padding:0;",
-	});
-	private _playSongButton: HTMLButtonElement = button({ style: w("55%"), type: "button" });
 	private _sampleIsLoadingMessage: HTMLDivElement = div(
 		{ style: "margin-bottom: 0.5em; display: none;" },
 		"Sample is loading",
 	);
 	private _loopControlsContainer: HTMLDivElement = div(
-		div(
-			{
-				style: "display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5em;",
-			},
-			div(
-				{
-					style: `width: 100%; margin-bottom: 0.5em; text-align: center; color: ${ColorConfig.secondaryText};`,
-				},
-				"You can also zoom by dragging horizontally on the waveform.",
-			),
-		),
+		{ class: "loopControlsBody" },
+		div({ class: "loopControlsHint" }, "Drag horizontally on the waveform to zoom."),
 		this._startOffsetHandle.canvas,
 		this._waveformContainer,
 		this._loopStartHandle.canvas,
 		this._loopEndHandle.canvas,
 		div(
-			{
-				style: "display: flex; flex-direction: row; align-items: center; justify-content: center; margin-bottom: 0.5em;",
-			},
+			{ class: "loopControlsZoom" },
 			this._viewportOffsetSlider,
 			this._zoomInButton,
 			this._zoomOutButton,
 			this._zoom100Button,
 		),
 		div(
-			{
-				style: "display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5em;",
-			},
-			div(
-				{ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" },
-				div(
-					{
-						style: `flex-shrink: 0; text-align: right: color: ${ColorConfig.primaryText}; align-self: center;`,
-					},
-					"Loop Mode",
-				),
-				this._loopModeSelect,
-			),
-			div(
-				{ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" },
-				div(
-					{
-						style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;`,
-					},
-					"Offset",
-				),
-				this._startOffsetStepper,
-			),
-			div(
-				{ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" },
-				div(
-					{
-						style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;`,
-					},
-					"Loop Start",
-				),
-				this._loopStartStepper,
-			),
-			div(
-				{ style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em;" },
-				div(
-					{
-						style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText}; align-self: center;`,
-					},
-					"Loop End",
-				),
-				this._loopEndStepper,
-			),
-			div(
-				{
-					style: "width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 0.5em;",
-				},
-				div(
-					{
-						style: `flex-shrink: 0; text-align: right; color: ${ColorConfig.primaryText};`,
-					},
-					"Backwards",
-				),
+			{ class: "loopControlsFields" },
+			label({ class: "loopControlsField" }, "Loop mode", this._loopModeSelect),
+			label({ class: "loopControlsField" }, "Offset", this._startOffsetStepper),
+			label({ class: "loopControlsField" }, "Loop start", this._loopStartStepper),
+			label({ class: "loopControlsField" }, "Loop end", this._loopEndStepper),
+			label(
+				{ class: "loopControlsField loopControlsToggle" },
+				"Backwards",
 				this._playBackwardsBox,
 			),
-			div(
-				{
-					style: "width: 100%; display: flex; flex-direction: row; margin-bottom: 0.5em; justify-content: center;",
-				},
-				this._playSongButton,
-			),
 		),
+		div({ class: "loopControlsPlayRow" }, this._playSongButton),
 	);
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: w("500px") },
+		{ class: "prompt noSelection visualLoopControlsPrompt" },
 		div(
-			h2({ style: "margin-bottom: 0.5em;" }, "Loop Controls"),
+			h2("Loop Controls"),
 			this._sampleIsLoadingMessage,
 			this._loopControlsContainer,
 			this._getOkayRow(),
@@ -551,9 +470,9 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._loopEndStepper.removeEventListener("change", this._whenLoopEndStepperChanges);
 		this._playBackwardsBox.removeEventListener("input", this._whenPlayBackwardsBoxChanges);
 		this._playSongButton.removeEventListener("click", this._togglePlaySong);
-		this._overlayCanvas.removeEventListener("mousemove", this._whenOverlayMouseMoves);
+		window.removeEventListener("mousemove", this._whenOverlayMouseMoves);
 		this._overlayCanvas.removeEventListener("mousedown", this._whenOverlayMouseIsDown);
-		this._overlayCanvas.removeEventListener("mouseup", this._whenOverlayMouseIsUp);
+		window.removeEventListener("mouseup", this._whenOverlayMouseIsUp);
 		this._overlayCanvas.removeEventListener("touchstart", this._whenOverlayTouchIsDown);
 		this._overlayCanvas.removeEventListener("touchmove", this._whenOverlayTouchMoves);
 		this._overlayCanvas.removeEventListener("touchend", this._whenOverlayTouchIsUp);

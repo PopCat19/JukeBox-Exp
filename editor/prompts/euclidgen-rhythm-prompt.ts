@@ -12,7 +12,7 @@ import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
-import { fieldLabel, flexRowCenter, labelRow, stepperInput, w } from "../ui";
+import { checkboxInput, fieldLabel, flexRowCenter, labelRow, stepperInput } from "../ui";
 import { BasePrompt } from "./base-prompt";
 import { generateEuclideanRhythm, type Sequence } from "./euclidgen-algorithm";
 import { generateAndApplyEuclideanNotes } from "./euclidgen-note-generator";
@@ -22,7 +22,7 @@ import {
 	renderSequenceButtons,
 } from "./euclidgen-renderer";
 
-const { button, div, h2, input } = HTML;
+const { button, div, h2, label } = HTML;
 
 export class EuclidgenRhythmPrompt extends BasePrompt {
 	private readonly _minSteps: number = 2;
@@ -185,22 +185,14 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 		"1",
 	);
 	private readonly _extendUntilLoopButton: HTMLButtonElement = button(
-		{
-			style: "height: auto; min-height: var(--button-size); margin-left: 1em;",
-		},
+		{ class: "euclidExtendButton" },
 		"Extend until loop",
 	);
-	private readonly _generateFadingNotesBox: HTMLInputElement = input({
-		type: "checkbox",
-		style: "width: 1em; padding: 0; margin-left: 1em;",
-	});
-	private readonly _invertBox: HTMLInputElement = input({
-		type: "checkbox",
-		style: "width: 1em; padding: 0; margin-left: 1em;",
-	});
+	private readonly _generateFadingNotesBox: HTMLInputElement = checkboxInput();
+	private readonly _invertBox: HTMLInputElement = checkboxInput();
 
 	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection", style: w("600px") },
+		{ class: "prompt noSelection euclidgenRhythmPrompt" },
 		h2("Generate Euclidean Rhythm"),
 		div(
 			{ style: "display: flex; flex-direction: row; align-items: center;" },
@@ -304,31 +296,13 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 			),
 		),
 		div(
-			{
-				style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;",
-			},
-			div(
-				{ style: `text-align: right; color: ${ColorConfig.primaryText};` },
-				"Generate fading notes",
-			),
-			this._generateFadingNotesBox,
-			div(
-				{
-					style: `text-align: right; color: ${ColorConfig.primaryText}; margin-left: 1em;`,
-				},
-				"Invert",
-			),
-			this._invertBox,
+			{ class: "euclidOptions" },
+			label({ class: "euclidToggle" }, "Generate fading notes", this._generateFadingNotesBox),
+			label({ class: "euclidToggle" }, "Invert", this._invertBox),
 		),
 		div(
-			{
-				style: "display: flex; flex-direction: row; align-items: center; justify-content: flex-end;",
-			},
-			div(
-				{ style: `text-align: right; color: ${ColorConfig.primaryText};` },
-				"Length (in bars)",
-			),
-			this._barAmountStepper,
+			{ class: "euclidLengthRow" },
+			label({ class: "euclidLengthField" }, "Length in bars", this._barAmountStepper),
 			this._extendUntilLoopButton,
 		),
 		this._getOkayRow(),
@@ -398,11 +372,21 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 				});
 			}
 		} else {
-			const savedData: any = JSON.parse(
-				String(window.localStorage.getItem(this._localStorageKey)),
-			);
+			let savedData: { sequences?: Array<Partial<Sequence>>; barAmount?: number } | null =
+				null;
+			const savedJson = window.localStorage.getItem(this._localStorageKey);
+			if (savedJson != null) {
+				try {
+					savedData = JSON.parse(savedJson) as {
+						sequences?: Array<Partial<Sequence>>;
+						barAmount?: number;
+					};
+				} catch {
+					savedData = null;
+				}
+			}
 			if (savedData != null) {
-				const rawSequences: any = savedData.sequences;
+				const rawSequences = savedData.sequences;
 				if (rawSequences != null && Array.isArray(rawSequences)) {
 					const parsedSequences: Sequence[] = [];
 					for (const rawSequence of rawSequences) {
@@ -427,7 +411,13 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 								1,
 								Math.min(Config.partsPerBeat, rawSequence.stepSizeDenominator ?? 4),
 							),
-							channel: Math.max(0, Math.min(this._maxChannel, rawSequence.channel)),
+							channel: Math.max(
+								0,
+								Math.min(
+									this._maxChannel,
+									rawSequence.channel ?? this._doc.channel,
+								),
+							),
 							pitch: rawSequence.pitch ?? 0,
 							invert: rawSequence.invert ?? false,
 							generateFadingNotes: rawSequence.generateFadingNotes ?? false,
@@ -617,7 +607,7 @@ export class EuclidgenRhythmPrompt extends BasePrompt {
 			this._reconfigurePitchStepper();
 			this._render();
 		} else {
-			const index: number = this._sequenceButtons.indexOf(<any>event.target);
+			const index: number = this._sequenceButtons.indexOf(event.target as HTMLButtonElement);
 			if (index !== -1) {
 				this._sequenceIndex = index;
 				this._refreshSequenceWidgets();

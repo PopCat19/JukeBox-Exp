@@ -112,7 +112,9 @@ export function buildPromptMiscCSS(): string {
 
 /* ── Theme Prompt ── */
 .beepboxEditor .prompt.themePrompt {
-	width: 260px;
+	box-sizing: border-box;
+	width: min(100%, 420px);
+	max-width: 100%;
 }
 
 .beepboxEditor .prompt.themePrompt select {
@@ -123,34 +125,52 @@ export function buildPromptMiscCSS(): string {
 	display: none;
 	flex-direction: column;
 	gap: 8px;
-	margin-top: 4px;
+	margin-top: 8px;
 }
 
 .beepboxEditor .prompt.themePrompt .pmdControlGroup {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: center;
+	gap: 8px 12px;
 }
 
 .beepboxEditor .prompt.themePrompt .pmdHueRow {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	gap: 8px;
-}
-
-.beepboxEditor .prompt.themePrompt .pmdHueLabel {
-	font-size: 12px;
 	color: var(--secondary-text);
+	font-size: 12px;
 }
 
 .beepboxEditor .prompt.themePrompt .pmdHueNum {
-	width: 3.5em;
+	box-sizing: border-box;
+	width: 4.5em;
+	min-height: var(--button-size);
+	padding: 4px 8px;
 	font-size: 12px;
+}
+
+.beepboxEditor .prompt.themePrompt .pmdControlGroup > span {
+	position: static !important;
+	width: 100% !important;
+	min-width: 0;
+	padding: 4px 0;
+	border-radius: var(--border-radius-medium);
+}
+
+.beepboxEditor .prompt.themePrompt .pmdControlGroup > span:focus-visible {
+	outline: 2px solid var(--indicator-primary);
+	outline-offset: 2px;
 }
 
 /* ── Custom Theme Prompt ── */
 .beepboxEditor .prompt.customThemePrompt {
-	width: 300px;
+	box-sizing: border-box;
+	width: min(100%, 620px);
+	max-width: 100%;
+	min-height: 0;
 }
 
 .beepboxEditor .prompt.customThemePrompt .ctResetButton {
@@ -158,32 +178,74 @@ export function buildPromptMiscCSS(): string {
 	min-height: var(--button-size);
 }
 
-.beepboxEditor .prompt.customThemePrompt .ctNote {
+.beepboxEditor .prompt.customThemePrompt .ctNote,
+.beepboxEditor .prompt.customThemePrompt .ctNoteTop {
+	margin: 0 0 8px;
 	text-align: left;
-	margin-bottom: 0.5em;
 }
 
 .beepboxEditor .prompt.customThemePrompt .ctNoteTop {
-	text-align: left;
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
+	color: var(--secondary-text);
 }
 
-.beepboxEditor .prompt.customThemePrompt .ctFileRow {
-	text-align: left;
+.beepboxEditor .prompt.customThemePrompt .ctImageFields {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px 12px;
+	margin-bottom: 10px;
+}
+
+.beepboxEditor .prompt.customThemePrompt .ctFileRow,
+.beepboxEditor .prompt.customThemePrompt .ctEditorLabel {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	min-width: 0;
 	margin: 0;
+	color: var(--secondary-text);
+	text-align: left;
 }
 
-.beepboxEditor .prompt.customThemePrompt .ctFileRow2 {
-	text-align: left;
-	margin: 0.5em 0;
+.beepboxEditor .prompt.customThemePrompt input[type="file"] {
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 0;
+	padding: 5px 8px;
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	color: var(--primary-text);
+}
+
+.beepboxEditor .prompt.customThemePrompt .ctCssEditor {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 220px;
+	max-height: 48vh;
+	padding: 10px 12px;
+	resize: vertical;
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+	background: transparent;
+	color: var(--primary-text);
+	font: 12px/1.4 monospace;
+	tab-size: 2;
+}
+
+.beepboxEditor .prompt.customThemePrompt .ctCssEditor:focus {
+	outline: none;
+	border-color: var(--indicator-primary);
 }
 
 .beepboxEditor .prompt.customThemePrompt .ctButtonRow {
 	display: flex;
-	flex-direction: row;
 	justify-content: flex-end;
 	gap: var(--gap-md);
+	margin-top: 8px;
+}
+
+@media (max-width: 639px) {
+	.beepboxEditor .prompt.customThemePrompt .ctImageFields { grid-template-columns: 1fr; }
+	.beepboxEditor .prompt.customThemePrompt .ctCssEditor { min-height: 180px; }
 }
 
 /* ── Recording Setup Prompt ── */

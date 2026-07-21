@@ -865,6 +865,7 @@ export class PromptManager {
 	private _attachWheelLock(prompt: Prompt): void {
 		const container = prompt.container;
 		const onWheel = (e: WheelEvent): void => {
+			const navigatorWorkspace = container.closest(".navigator-workspace");
 			let el = e.target as HTMLElement | null;
 			while (el && el !== container) {
 				const sty = getComputedStyle(el);
@@ -877,14 +878,13 @@ export class PromptManager {
 					const atTop = delta < 0 && el.scrollTop <= 0;
 					const atBottom =
 						delta > 0 && el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
-					if (atTop || atBottom) e.preventDefault();
+					if ((atTop || atBottom) && navigatorWorkspace == null) e.preventDefault();
 					return;
 				}
 				el = el.parentElement;
 			}
-			// No scrollable ancestor inside the prompt: keep wheel events
-			// from scrolling the page underneath the prompt.
-			e.preventDefault();
+			// Attached Navigator panes delegate wheel scrolling to the workspace.
+			if (navigatorWorkspace == null) e.preventDefault();
 		};
 		container.addEventListener("wheel", onWheel, { passive: false });
 	}

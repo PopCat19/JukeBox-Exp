@@ -17,7 +17,9 @@ import { isSerializableValue, validateRetainedState } from "../editor/navigator/
 import { LegacyPromptPaneFactory } from "../editor/navigator/navigator-route-host";
 import { buildNavigatorPanesCSS } from "../editor/rendering/styles/navigator-panes";
 import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
+import { buildPromptMiscCSS } from "../editor/rendering/styles/prompt-misc";
 import { buildPromptShellCSS } from "../editor/rendering/styles/prompt-shell";
+import { buildPromptSmallCSS } from "../editor/rendering/styles/prompt-small";
 import { getExportPaneAuthority } from "../editor/prompts/export-prompt";
 import type { Prompt } from "../editor/prompts/prompt";
 import { ThemePrompt } from "../editor/prompts/theme-prompt";
@@ -963,10 +965,12 @@ describe("navigator shell", () => {
 		expect(promptCSS).toMatch(/\.prompt:hover \{[^}]*outline: 2px solid/s);
 		expect(promptCSS).toMatch(/\.promptContainer\.navigatorVisible \{[^}]*display: flex !important/s);
 		expect(css).toContain("grid-template-columns: 224px minmax(0, 1fr)");
-		expect(css).toMatch(/\.navigator-sidebar,[^{]*\.navigator-workspace \{[^}]*border: 2px solid var\(--ui-widget-background\)[^}]*border-radius: var\(--border-radius-medium\)/s);
+		expect(css).toMatch(/\.navigator-workspace \{[^}]*border: 2px solid var\(--ui-widget-background\)[^}]*border-radius: var\(--border-radius-medium\)/s);
+		expect(css).toMatch(/\.navigator-route-list \{[^}]*padding: 12px[^}]*border: 2px solid var\(--ui-widget-background\)[^}]*border-radius: var\(--border-radius-medium\)/s);
+		expect(css).not.toMatch(/\.navigator-sidebar \{[^}]*border:/s);
 		expect(css).toContain("grid-template-rows: minmax(0, 1fr)");
-		expect(css).toMatch(/\.navigator-workspace \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
-		expect(css).toMatch(/\.navigator-pane-host \{[^}]*display: flex[^}]*flex: 1 1 0[^}]*flex-direction: column[^}]*overflow: auto/s);
+		expect(css).toMatch(/\.navigator-workspace \{[^}]*flex: 1 1 auto[^}]*overflow: auto[^}]*overscroll-behavior: contain/s);
+		expect(css).toMatch(/\.navigator-pane-host \{[^}]*display: flex[^}]*flex: 1 1 0[^}]*flex-direction: column[^}]*overflow: visible/s);
 		expect(css).not.toContain(".navigator-route.active");
 		const sharedCSS = buildSharedUICSS();
 		expect(sharedCSS).toMatch(/\.selectableRow \{[^}]*padding: var\(--padding-6\) var\(--padding-12\)[^}]*outline: 2px solid transparent[^}]*outline-offset: -2px[^}]*box-shadow: none[^}]*background: var\(--prompt-list-item-bg\)[^}]*font-size: 12px/s);
@@ -986,7 +990,44 @@ describe("navigator shell", () => {
 		expect(css).toMatch(/\.navigator-pane-host > \.sampleBrowserPrompt \.sbpRightPane \{[^}]*flex: 1 1 55%[^}]*overflow-y: auto/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-pane-host > \.keyboardShortcutsPrompt \.shortcutDescText,[^{]*\.shortcutDetail \{[^}]*overflow: visible[^}]*white-space: normal[^}]*overflow-wrap: anywhere/);
 		expect(css).not.toMatch(/box-shadow|linear-gradient|radial-gradient/);
-		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: auto/s);
+		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: visible/s);
+	});
+
+	test("route forms use compact PMD controls and one workspace scroll owner", async () => {
+		const navigatorCSS = buildNavigatorCSS();
+		const smallCSS = buildPromptSmallCSS();
+		const miscCSS = buildPromptMiscCSS();
+		const [samples, euclid, theme, rawTheme, loop] = await Promise.all([
+			Bun.file("editor/prompts/add-samples-prompt.ts").text(),
+			Bun.file("editor/prompts/euclidgen-rhythm-prompt.ts").text(),
+			Bun.file("editor/prompts/theme-prompt.ts").text(),
+			Bun.file("editor/prompts/custom-theme-prompt.ts").text(),
+			Bun.file("editor/prompts/visual-loop-controls-prompt.ts").text(),
+		]);
+		expect(navigatorCSS).toContain(".navigator-pane-host > .sampleBrowserPrompt > h2 { display: none; }");
+		expect(navigatorCSS).not.toContain(".navigator-active-title");
+		expect(navigatorCSS).toMatch(/\.navigator-pane-host \{[^}]*padding: 12px[^}]*overflow: visible/s);
+		expect(navigatorCSS).toMatch(/\.navigator-workspace \{[^}]*overflow: auto/s);
+		expect(navigatorCSS).toMatch(/\.navigator-pane-host \{[^}]*overflow: visible/s);
+		expect(samples).toContain('h2({}, "Add Samples")');
+		expect(euclid).toContain("checkboxInput()");
+		expect(euclid).not.toContain('type: "checkbox"');
+		expect(theme).toContain("rangeSlider(doc, null, 0, 360");
+		expect(theme).toContain('class: "pmdHueNum"');
+		expect(theme).not.toContain("Hue: ${");
+		expect(rawTheme).toContain('class: "ctCssEditor"');
+		expect(rawTheme).toContain("HTMLTextAreaElement");
+		expect(loop).toContain("checkboxInput()");
+		expect(loop).toContain('class: "prompt noSelection visualLoopControlsPrompt"');
+		expect(loop).toContain('window.removeEventListener("mousemove"');
+		expect(loop).toContain('window.removeEventListener("mouseup"');
+		const manager = await Bun.file("editor/core/prompt-manager.ts").text();
+		expect(manager).toContain('container.closest(".navigator-workspace")');
+		expect(manager).toContain("if (navigatorWorkspace == null) e.preventDefault();");
+		expect(smallCSS).toContain(".loopControlsFields");
+		expect(smallCSS).toContain(".euclidOptions");
+		expect(miscCSS).toContain(".ctCssEditor");
+		expect(miscCSS).toContain("padding: 4px 8px");
 	});
 
 	test("backdrop preference uses direct PMD 8x and updates the open shell", () => {
@@ -1082,7 +1123,7 @@ describe("navigator shell", () => {
 		const pane = document.createElement("article");
 		pane.dataset.navigatorScope = "addExternal";
 		shell.attach({ element: pane });
-		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Add Samples");
+		expect(shell.container.querySelector(".prompt-titlebar > h2")?.textContent).toBe("Add Samples");
 		expect(route?.getAttribute("aria-current")).toBe("page");
 		expect(route?.classList.contains("selectableRow")).toBeTrue();
 		expect(route?.classList.contains("pmd-hover")).toBeTrue();
@@ -1202,7 +1243,7 @@ describe("navigator shell", () => {
 		const pane = document.createElement("article");
 		pane.dataset.navigatorScope = "addExternal";
 		shell.attach({ element: pane });
-		expect(shell.container.querySelector(".navigator-active-title")?.textContent).toBe("Add Samples");
+		expect(shell.container.querySelector(".prompt-titlebar > h2")?.textContent).toBe("Add Samples");
 		expect(shell.container.querySelectorAll("[role='tablist']").length).toBe(0);
 		expect(shell.container.querySelector("[data-route-id='addExternal']")?.getAttribute("aria-current")).toBe("page");
 	});
@@ -1923,7 +1964,8 @@ describe("flattened Navigator routes", () => {
 	test("content directly follows heading without aggregate spacing", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		const shell = new NavigatorShell();
-		expect(shell.container.querySelector(".navigator-active-title")?.nextElementSibling?.classList.contains("navigator-pane-host")).toBeTrue();
+		expect(shell.container.querySelector(".navigator-workspace > .navigator-pane-host")).not.toBeNull();
+		expect(shell.container.querySelector(".navigator-active-title")).toBeNull();
 		const css = buildNavigatorPanesCSS();
 		expect(css).not.toContain(".navigator-project-data");
 		expect(css).not.toContain(".navigator-file-tabs");

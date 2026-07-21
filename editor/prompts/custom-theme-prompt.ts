@@ -11,7 +11,7 @@ import type { PatternEditor } from "../components/pattern-editor";
 import type { SongDocument } from "../song-document";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, input, p, a, button } = HTML;
+const { div, h2, input, textarea, p, a, button, label } = HTML;
 
 const STORAGE_KEYS = ["colorTheme", "customTheme", "customTheme2", "customColors"] as const;
 
@@ -26,10 +26,9 @@ export class CustomThemePrompt extends BasePrompt {
 		accept: "image/*",
 		text: "choose website background image",
 	});
-	private readonly _colorInput: HTMLInputElement = input({
-		type: "text",
-		value:
-			localStorage.getItem("customColors") ||
+	private readonly _colorInput: HTMLTextAreaElement = textarea(
+		{ class: "ctCssEditor", spellcheck: "false" },
+		localStorage.getItem("customColors") ||
 			`:root {
 	--page-margin: black;
 	--editor-background: black;
@@ -147,7 +146,7 @@ export class CustomThemePrompt extends BasePrompt {
 	--mod-label-primary-text:   black;
 	--disabled-note-primary:    #999;
 	--disabled-note-secondary:  #666; }`,
-	});
+	);
 	private readonly _resetButton: HTMLButtonElement = button(
 		{ class: "ctResetButton" },
 		"Reset to defaults",
@@ -181,10 +180,12 @@ export class CustomThemePrompt extends BasePrompt {
 				"custom theme sheet.",
 			),
 		),
-		p({ class: "ctFileRow" }, "Editor Background Image:", this._fileInput),
-		p({ class: "ctFileRow2" }, "Website Background Image:", this._fileInput2),
-		p({ class: "ctFileRow" }, "Replace the text below with your custom theme data to load it:"),
-		this._colorInput,
+		div(
+			{ class: "ctImageFields" },
+			label({ class: "ctFileRow" }, "Editor background image", this._fileInput),
+			label({ class: "ctFileRow" }, "Website background image", this._fileInput2),
+		),
+		label({ class: "ctEditorLabel" }, "Custom theme CSS", this._colorInput),
 		div({ class: "ctButtonRow" }, this._resetButton),
 		this._getOkayRow(),
 		this._cancelButton,

@@ -26,7 +26,7 @@ export class NavigatorShell implements PaneHost {
 	private readonly body: HTMLDivElement;
 	private readonly routeList: HTMLDivElement;
 	private readonly routeSearch: HTMLInputElement;
-	private readonly activeTitle: HTMLHeadingElement;
+	private readonly titleHeading: HTMLHeadingElement;
 	private readonly workspace: HTMLElement;
 	private readonly detachButton: HTMLButtonElement | null;
 	private readonly routes: readonly NavigatorRoute[];
@@ -75,6 +75,10 @@ export class NavigatorShell implements PaneHost {
 		buildPromptTitlebar(this.container);
 		const titlebar = this.container.querySelector<HTMLElement>(".prompt-titlebar");
 		if (titlebar === null) throw new Error("Navigator titlebar was not built");
+		const titleHeading = titlebar.querySelector<HTMLHeadingElement>("h2");
+		if (titleHeading === null) throw new Error("Navigator titlebar heading was not built");
+		this.titleHeading = titleHeading;
+		this.titleHeading.id = "navigator-active-title";
 		if (this.detachButton !== null) {
 			const cancel = titlebar.querySelector(".cancelButton");
 			titlebar.insertBefore(this.detachButton, cancel);
@@ -94,11 +98,7 @@ export class NavigatorShell implements PaneHost {
 		sidebar.append(inputRow({}, this.routeSearch), this.routeList);
 		this.workspace = document.createElement("section");
 		this.workspace.className = "navigator-workspace";
-		this.activeTitle = document.createElement("h3");
-		this.activeTitle.className = "navigator-active-title";
-		this.activeTitle.id = "navigator-active-title";
-		this.workspace.setAttribute("aria-labelledby", this.activeTitle.id);
-		this.workspace.append(this.activeTitle);
+		this.workspace.setAttribute("aria-labelledby", this.titleHeading.id);
 		this.body = document.createElement("div");
 		this.body.className = "navigator-pane-host";
 		this.workspace.append(this.body);
@@ -153,7 +153,7 @@ export class NavigatorShell implements PaneHost {
 		this.activeRouteId = routeId;
 		const route = this.routes.find((entry) => entry.id === routeId);
 		if (route !== undefined) {
-			this.activeTitle.textContent = route.title;
+			this.titleHeading.textContent = route.title;
 			const routeButtons =
 				this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
 			for (let index = 0; index < routeButtons.length; index++) {
