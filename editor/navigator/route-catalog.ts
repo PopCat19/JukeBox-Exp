@@ -1,15 +1,34 @@
-// Purpose: Defines authoritative Navigator dashboard groups and route composition metadata.
+// Purpose: Defines authoritative Navigator groups, route labels, and focused-instrument guards.
 
+import type { Instrument } from "../../synth";
+import { getInstrumentCapabilities } from "../../synth/socket/capability-lookup";
 import { commandRegistry } from "./command-registry";
+import type { PaneRoute } from "./contracts";
+
+export type NavigatorRouteCapability =
+	| "hasCustomWaveEditor"
+	| "hasHarmonics"
+	| "hasSpectrum"
+	| "hasNoteFilter"
+	| "hasLoopControls"
+	| "hasStringSustain"
+	| "isDrumset";
 
 export interface NavigatorCatalogRoute {
 	readonly id: string;
 	readonly title: string;
+	readonly category?: string;
+	readonly capability?: NavigatorRouteCapability;
+	readonly availability?: (instrument: Instrument) => boolean;
 }
 
 export type NavigatorCatalogItem =
 	| { readonly kind: "route"; readonly route: NavigatorCatalogRoute }
-	| { readonly kind: "tabs"; readonly routes: readonly NavigatorCatalogRoute[] }
+	| {
+			readonly kind: "tabs";
+			readonly title: string;
+			readonly routes: readonly NavigatorCatalogRoute[];
+	  }
 	| { readonly kind: "split"; readonly slots: readonly NavigatorCatalogItem[] };
 
 export interface NavigatorCatalogGroup {
@@ -17,30 +36,55 @@ export interface NavigatorCatalogGroup {
 	readonly items: readonly NavigatorCatalogItem[];
 }
 
-const route = (id: string, title: string): NavigatorCatalogRoute => ({ id, title });
-const routeItem = (id: string, title: string): NavigatorCatalogItem => ({
-	kind: "route",
-	route: route(id, title),
+const route = (
+	id: string,
+	title: string,
+	capability?: NavigatorRouteCapability,
+	availability?: (instrument: Instrument) => boolean,
+): NavigatorCatalogRoute => ({
+	id,
+	title,
+	...(capability === undefined ? {} : { capability }),
+	...(availability === undefined ? {} : { availability }),
 });
+const routeItem = (
+	id: string,
+	title: string,
+	capability?: NavigatorRouteCapability,
+	availability?: (instrument: Instrument) => boolean,
+): NavigatorCatalogItem => ({ kind: "route", route: route(id, title, capability, availability) });
+const tabs = (title: string, ...routes: NavigatorCatalogRoute[]): NavigatorCatalogItem => ({
+	kind: "tabs",
+	title,
+	routes,
+});
+const capability =
+	(name: NavigatorRouteCapability) =>
+	(instrument: Instrument): boolean =>
+		getInstrumentCapabilities(instrument)[name];
+const drumset = (instrument: Instrument): boolean => {
+	const caps = getInstrumentCapabilities(instrument);
+	return caps.hasSpectrum && caps.isDrumset;
+};
+
 export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.freeze([
 	{
 		title: "Project Data",
 		items: [
-			routeItem("import", "Import"),
-			routeItem("export", "Export"),
+			tabs("Import/Export Song", route("import", "Import"), route("export", "Export")),
 			routeItem("songRecovery", "Recover Song"),
-		],
-	},
-	{
-		title: "File Config",
-		items: [
 			routeItem("addExternal", "Add Samples"),
 			routeItem("configureShortener", "Shortener Config"),
 		],
 	},
 	{
 		title: "Song Config",
-		items: [routeItem("customSongEQFilterSettings", "Custom Song EQ Filter")],
+		items: [
+			routeItem("customSongEQFilterSettings", "Custom Song EQ Filter"),
+			routeItem("limiterSettings", "Limiter settings"),
+			routeItem("barCount", "Project settings"),
+			routeItem("channelSettings", "Channel Settings"),
+		],
 	},
 	{
 		title: "Pattern Config",
@@ -48,47 +92,82 @@ export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.fr
 			routeItem("beatsPerBar", "Beats Per Bar"),
 			routeItem("customScale", "Custom Scale"),
 			routeItem("generateEuclideanRhythm", "Generate Euclidean Rhythm"),
-		],
-	},
-	{
-		title: "Track Config",
-		items: [
-			routeItem("barCount", "Bar Count"),
-			routeItem("channelSettings", "Channel Settings"),
 			routeItem("cleanLsdj", "Clean LSDJ"),
+			routeItem("moveNotesSideways", "Move notes sideways"),
+			routeItem("octaves", "Octaves"),
 		],
 	},
 	{
-		title: "Visual Config",
+		title: "Focused Instrument Config",
 		items: [
-			routeItem("channelVolumeVisualizer", "Channel Visualizer"),
+			routeItem("instrumentBrowser", "Instrument Browser"),
+			tabs(
+				"Import/Export Instrument",
+				route("importInstrument", "Import"),
+				route("exportInstrument", "Export"),
+			),
+			routeItem(
+				"customChipSettings",
+				"Custom Chip Settings",
+				"hasCustomWaveEditor",
+				capability("hasCustomWaveEditor"),
+			),
+			routeItem(
+				"harmonicsSettings",
+				"Harmonics Settings",
+				"hasHarmonics",
+				capability("hasHarmonics"),
+			),
+			routeItem(
+				"spectrumSettings",
+				"Spectrum Settings",
+				"hasSpectrum",
+				capability("hasSpectrum"),
+			),
+			routeItem(
+				"customEQFilterSettings",
+				"Custom EQ Filter Settings",
+				"hasNoteFilter",
+				capability("hasNoteFilter"),
+			),
+			routeItem(
+				"customNoteFilterSettings",
+				"Custom note filter settings",
+				"hasNoteFilter",
+				capability("hasNoteFilter"),
+			),
+			routeItem(
+				"visualLoopControls",
+				"Visual Loop Controls",
+				"hasLoopControls",
+				capability("hasLoopControls"),
+			),
+			routeItem(
+				"stringSustain",
+				"String sustain",
+				"hasStringSustain",
+				capability("hasStringSustain"),
+			),
+			routeItem("drumsetSettings", "Drumset settings", "isDrumset", drumset),
+		],
+	},
+	{
+		title: "Preferences",
+		items: [
 			routeItem("layout", "Layout"),
 			routeItem("theme", "Theme"),
 			routeItem("customTheme", "Custom Theme"),
 			routeItem("customThemeRaw", "Custom Theme Raw"),
-		],
-	},
-	{
-		title: "Instrument Data",
-		items: [
-			routeItem("importInstrument", "Import Instrument"),
-			routeItem("exportInstrument", "Export Instrument"),
-		],
-	},
-	{
-		title: "Focused Instr. Config",
-		items: [
-			routeItem("instrumentBrowser", "Instrument Browser"),
-			routeItem("customChipSettings", "Custom Chip Settings"),
-			routeItem("harmonicsSettings", "Harmonics Settings"),
-			routeItem("spectrumSettings", "Spectrum Settings"),
-			routeItem("customEQFilterSettings", "Custom EQ Filter Settings"),
-			routeItem("visualLoopControls", "Visual Loop Controls"),
+			routeItem("recordingSetup", "Recording setup"),
+			routeItem("channelVolumeVisualizer", "Channel Visualizer"),
 		],
 	},
 	{
 		title: "Help",
-		items: [routeItem("tipPromptScope", "Help")],
+		items: [
+			routeItem("tipPromptScope", "Help"),
+			routeItem("keyboardShortcuts", "Keyboard shortcuts"),
+		],
 	},
 ]);
 
@@ -103,25 +182,50 @@ export function catalogItemRoutes(item: NavigatorCatalogItem): readonly Navigato
 	}
 }
 
+export function findNavigatorRoute(id: string): NavigatorCatalogRoute | undefined {
+	return (
+		navigatorRouteCatalog
+			.flatMap((group) => group.items.flatMap(catalogItemRoutes))
+			.find((item) => item.id === id) ??
+		(id === "instrumentTags" ? findNavigatorRoute("instrumentBrowser") : undefined)
+	);
+}
+
+export function getNavigatorRouteAvailability(
+	routeId: string,
+	instrument: Instrument | null | undefined,
+): { readonly available: boolean; readonly error?: string } {
+	const metadata = findNavigatorRoute(routeId);
+	if (metadata?.availability === undefined || instrument === null || instrument === undefined)
+		return { available: true };
+	if (metadata.availability(instrument)) return { available: true };
+	return {
+		available: false,
+		error: `${metadata.title} is unavailable for the focused instrument.`,
+	};
+}
+
 const visibleRouteIds = new Set(
 	navigatorRouteCatalog.flatMap((group) =>
 		group.items.flatMap(catalogItemRoutes).map((entry) => entry.id),
 	),
 );
 
-function humanize(value: string): string {
-	const words = value.replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLocaleLowerCase();
-	return words.charAt(0).toLocaleUpperCase() + words.slice(1);
-}
-
 export const navigatorOtherRoutes: readonly NavigatorCatalogRoute[] = commandRegistry.flatMap(
 	(command) =>
 		command.presentation === "navigator" &&
 		command.scope !== undefined &&
 		command.scope !== "instrumentTags" &&
-		command.scope !== "stringSustain" &&
-		command.scope !== "tipPromptScope" &&
+		command.scope !== "sampleLoadingStatus" &&
 		!visibleRouteIds.has(command.scope)
-			? [route(command.scope, humanize(command.label))]
+			? [route(command.scope, command.label)]
 			: [],
 );
+
+export function guardNavigatorRoute(
+	route: PaneRoute,
+	instrument: Instrument | null | undefined,
+): void {
+	const result = getNavigatorRouteAvailability(route.paneId, instrument);
+	if (!result.available) throw new Error(result.error);
+}

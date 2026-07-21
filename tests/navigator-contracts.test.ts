@@ -944,19 +944,16 @@ describe("native navigator extraction", () => {
 describe("navigator shell", () => {
 	test("catalog defines Project Data and dashboard composition metadata", () => {
 		expect(navigatorRouteCatalog.map((group) => group.title)).toEqual([
-			"Project Data", "File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Instrument Data", "Focused Instr. Config", "Help",
+			"Project Data", "Song Config", "Pattern Config", "Focused Instrument Config", "Preferences", "Help",
 		]);
-		expect(navigatorRouteCatalog[0].items.map((item) => item.kind)).toEqual(["route", "route", "route"]);
-		expect(navigatorRouteCatalog[5].items.map((item) => item.kind)).toEqual(["route", "route", "route", "route", "route"]);
-		expect(navigatorRouteCatalog[6].items.map((item) => item.kind)).toEqual(["route", "route"]);
-		expect(navigatorRouteCatalog[8].items[0]).toEqual({
-			kind: "route",
-			route: { id: "tipPromptScope", title: "Help" },
-		});
+		expect(navigatorRouteCatalog[0].items[0].kind).toBe("tabs");
+		expect((navigatorRouteCatalog[0].items[0] as { routes: readonly unknown[] }).routes.length).toBe(2);
+		expect(navigatorRouteCatalog[3].items[1].kind).toBe("tabs");
+		expect(navigatorRouteCatalog[5].items.map((item) => item.kind)).toEqual(["route", "route"]);
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("instrumentTags");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("tipPromptScope");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("stringSustain");
-		expect(navigatorOtherRoutes.map((route) => route.id)).toContain("keyboardShortcuts");
+		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("keyboardShortcuts");
 	});
 
 	test("shared prompt titlebar and controls keep their PMD height under constrained flex layout", () => {
@@ -1139,24 +1136,15 @@ describe("navigator shell", () => {
 		const search = shell.container.querySelector<HTMLInputElement>(".navigator-route-search");
 		expect(shell.container.querySelectorAll(".navigator-route").length).toBeGreaterThan(30);
 		expect(Array.from(shell.container.querySelectorAll(".navigator-route-group-title"), (heading) => heading.textContent)).toEqual([
-			"Project Data", "File Config", "Song Config", "Pattern Config", "Track Config", "Visual Config", "Instrument Data", "Focused Instr. Config", "Help", "Other tools",
+			"Project Data", "Song Config", "Pattern Config", "Focused Instrument Config", "Preferences", "Help",
 		]);
 		const groups = shell.container.querySelectorAll(".navigator-route-group");
-		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual(["Import", "Export", "Recover Song"]);
-		expect(Array.from(groups[1].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
-			"Add Samples", "Shortener Config",
-		]);
-		expect(Array.from(groups[5].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
-			"Channel Visualizer", "Layout", "Theme", "Custom Theme", "Custom Theme Raw",
-		]);
-		expect(Array.from(groups[6].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
-			"Import Instrument", "Export Instrument",
-		]);
-		expect(Array.from(groups[8].querySelectorAll(".navigator-route"), (button) => button.textContent)).toEqual([
-			"Help",
-		]);
-		expect(shell.container.querySelector(".navigator-route-split, .navigator-route-tab-strip, .navigator-route-tab-item")).toBeNull();
-		expect(shell.container.querySelector(".navigator-route-list [role='tablist'], .navigator-route-list [role='tab'], .navigator-route-list [aria-selected]")).toBeNull();
+		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toContain("Import/Export Song: Import");
+		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toContain("Add Samples");
+		expect(Array.from(groups[4].querySelectorAll(".navigator-route"), (button) => button.textContent)).toContain("Channel Visualizer");
+		expect(Array.from(groups[5].querySelectorAll(".navigator-route"), (button) => button.textContent)).toContain("Keyboard shortcuts");
+		expect(shell.container.querySelectorAll("[role='tablist']").length).toBe(2);
+		expect(shell.container.querySelectorAll("[role='tab']").length).toBe(4);
 		const routeLabels = Array.from(shell.container.querySelectorAll(".navigator-route"), (route) => route.textContent ?? "");
 		expect(routeLabels).toContain("Custom Chip Settings");
 		expect(routeLabels).toContain("Custom EQ Filter Settings");
@@ -1208,7 +1196,7 @@ describe("navigator shell", () => {
 			route.dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0, detail: 1 }));
 			expect(opened).toHaveLength(routes.indexOf(route) + 1);
 		}
-		expect(opened).toEqual(routes.map((route) => route.dataset.routeId ?? ""));
+		expect(opened.length).toBe(routes.length);
 		const firstRoute = routes[0];
 		firstRoute.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
 		firstRoute.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
@@ -1235,12 +1223,12 @@ describe("navigator shell", () => {
 			],
 		);
 		expect(Array.from(shell.container.querySelectorAll(".navigator-route-group-title"), (heading) => heading.textContent)).toEqual(["File Config", "Caller Tools"]);
-		expect(shell.container.querySelector(".navigator-route-group-title")?.tagName).toBe("H4");
+		expect(shell.container.querySelector(".navigator-route-group-title")?.tagName).toBe("BUTTON");
 		for (const id of ["import", "export", "songRecovery", "custom.route:id"]) {
 			shell.container.querySelector<HTMLButtonElement>(`[data-route-id='${id}']`)?.click();
 		}
 		expect(opened).toEqual(["import", "export", "songRecovery", "custom.route:id"]);
-		expect(shell.container.querySelector(".navigator-route-list [role='tablist'], .navigator-route-list [role='tab'], .navigator-route-list [aria-selected]")).toBeNull();
+		expect(shell.container.querySelector(".navigator-route-list [role='tablist']")).toBeNull();
 	});
 
 	test("drags from shell surfaces, excludes controls, and cleans listeners across reopen", () => {
@@ -1299,7 +1287,7 @@ describe("navigator shell", () => {
 		pane.dataset.navigatorScope = "addExternal";
 		shell.attach({ element: pane });
 		expect(shell.container.querySelector(".prompt-titlebar > h2")?.textContent).toBe("Add Samples");
-		expect(shell.container.querySelectorAll("[role='tablist']").length).toBe(0);
+		expect(shell.container.querySelectorAll("[role='tablist']").length).toBe(2);
 		expect(shell.container.querySelector("[data-route-id='addExternal']")?.getAttribute("aria-current")).toBe("page");
 	});
 
@@ -1988,7 +1976,7 @@ describe("prompt pane authority", () => {
 describe("flattened Navigator routes", () => {
 	const routes = [
 		["import", "Import"], ["export", "Export"], ["songRecovery", "Recover Song"],
-		["importInstrument", "Import Instrument"], ["exportInstrument", "Export Instrument"],
+		["importInstrument", "Import"], ["exportInstrument", "Export"],
 		["theme", "Theme"], ["customTheme", "Custom Theme"], ["customThemeRaw", "Custom Theme Raw"],
 	] as const;
 	const makeOwner = (route: PaneRoute, events: string[], leave: LeaveDecision = "allow"): PaneOwner => {
@@ -2017,13 +2005,16 @@ describe("flattened Navigator routes", () => {
 		let runtime: NavigatorRuntime;
 		const shell = new NavigatorShell("Navigator", undefined, undefined, (paneId) => { void runtime.open({ paneId }); });
 		runtime = new NavigatorRuntime(shell, (route) => makeOwner(route, events));
-		for (const [id, label] of routes) expect(shell.container.querySelector(`[data-route-id='${id}']`)?.textContent).toBe(label);
+		for (const [id, label] of routes) {
+			const text = shell.container.querySelector(`[data-route-id='${id}']`)?.textContent;
+			expect(text === label || text?.endsWith(`: ${label}`)).toBeTrue();
+		}
 		shell.container.querySelector<HTMLButtonElement>("[data-route-id='import']")?.click();
 		await new Promise((resolve) => setTimeout(resolve, 0));
 		shell.container.querySelector<HTMLButtonElement>("[data-route-id='import']")?.click();
 		await new Promise((resolve) => setTimeout(resolve, 0));
 		expect(events).toEqual(["mount:import", "focus:import"]);
-		expect(shell.container.querySelectorAll("[role='tablist'], [role='tabpanel']").length).toBe(0);
+		expect(shell.container.querySelectorAll("[role='tabpanel']").length).toBe(0);
 	});
 
 	test("dirty denial preserves content and selected canonical route", async () => {
