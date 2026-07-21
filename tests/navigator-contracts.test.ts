@@ -1014,6 +1014,7 @@ describe("navigator shell", () => {
 		expect(navigatorCSS).toMatch(/\.navigator-workspace \{[^}]*overflow: hidden/s);
 		expect(navigatorCSS).toMatch(/\.navigator-route-list \{[^}]*overflow: auto/s);
 		expect(navigatorPanesCSS).toMatch(/\.navigator-pane-host > \.customFilterPrompt\.navigator-native-pane,[^{]*\.cvvPrompt\.navigator-native-pane \{[^}]*overflow-x: hidden[^}]*overflow-y: auto[^}]*overscroll-behavior: contain/s);
+		expect(navigatorPanesCSS).toMatch(/\.navigator-pane-host > \.cvvPrompt \.cvvContentGrid \{[^}]*grid-template-columns: repeat\(6, minmax\(0, 1fr\)\)[^}]*min-height: 0[^}]*overflow-y: auto/s);
 		expect(navigatorPanesCSS).not.toMatch(/\.navigator-detached-content > \.customFilterPrompt\.navigator-native-pane[^}]*overflow-y: auto/s);
 		expect(samples).toContain('h2({}, "Add Samples")');
 		expect(euclid).toContain("checkboxInput()");

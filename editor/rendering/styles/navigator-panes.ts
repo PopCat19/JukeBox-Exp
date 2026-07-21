@@ -79,8 +79,10 @@ export function buildNavigatorPanesCSS(): string {
 	-webkit-backdrop-filter: none !important;
 }
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvContentGrid {
-	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	grid-template-columns: repeat(6, minmax(0, 1fr));
 	min-width: 0;
+	min-height: 0;
+	overflow-y: auto;
 }
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvHeader,
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvHeaderStats {
