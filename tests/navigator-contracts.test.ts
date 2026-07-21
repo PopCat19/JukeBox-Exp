@@ -1092,6 +1092,37 @@ describe("navigator shell", () => {
 		expect(closed).toBeTrue();
 	});
 
+	test("activates every route once on primary release and keeps click-only input", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const opened: string[] = [];
+		const shell = new NavigatorShell(
+			"Navigator",
+			undefined,
+			undefined,
+			(id) => opened.push(id),
+		);
+		const routes = Array.from(
+			shell.container.querySelectorAll<HTMLButtonElement>(".navigator-route"),
+		);
+		for (const route of routes) {
+			route.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+			expect(opened).toHaveLength(routes.indexOf(route));
+			route.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
+			expect(opened).toHaveLength(routes.indexOf(route) + 1);
+			route.dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0, detail: 1 }));
+			expect(opened).toHaveLength(routes.indexOf(route) + 1);
+		}
+		expect(opened).toEqual(routes.map((route) => route.dataset.routeId ?? ""));
+		const firstRoute = routes[0];
+		firstRoute.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+		firstRoute.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+		firstRoute.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
+		expect(opened).toHaveLength(routes.length);
+		firstRoute.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 0 }));
+		expect(opened).toHaveLength(routes.length + 1);
+		expect(opened[opened.length - 1]).toBe(firstRoute.dataset.routeId ?? "");
+	});
+
 	test("preserves custom categories and unchanged composed route ids", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		const opened: string[] = [];

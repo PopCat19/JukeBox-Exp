@@ -258,7 +258,28 @@ export class NavigatorShell implements PaneHost {
 					: route.id === this.activeRouteId;
 		selectableRow(button, active);
 		button.setAttribute("aria-current", active ? "page" : "false");
-		button.addEventListener("click", () => this.onRoute?.(route.id));
+		let primaryPress = false;
+		let suppressClick = false;
+		button.addEventListener("mousedown", (event) => {
+			primaryPress = event.button === 0;
+			suppressClick = false;
+		});
+		button.addEventListener("mouseleave", () => {
+			primaryPress = false;
+		});
+		button.addEventListener("mouseup", (event) => {
+			if (!primaryPress || event.button !== 0) return;
+			primaryPress = false;
+			suppressClick = true;
+			this.onRoute?.(route.id);
+		});
+		button.addEventListener("click", (event) => {
+			if (suppressClick && event.detail > 0) {
+				suppressClick = false;
+				return;
+			}
+			this.onRoute?.(route.id);
+		});
 		return button;
 	}
 

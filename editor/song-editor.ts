@@ -2245,13 +2245,13 @@ export class SongEditor
 	private readonly _promptManager: PromptManager = new PromptManager(this, this);
 	private readonly _legacyPromptPanes: LegacyPromptPaneFactory = new LegacyPromptPaneFactory(
 		this._promptManager,
-		() => this._navigatorRuntime.closeNavigator(),
+		() => this._closeNavigatorMode(),
 		(scope) => this._applicationRouter.routePrompt(scope),
 	);
 	private readonly _nativePanes = new NativePaneFactory(
 		this.doc,
 		this,
-		() => this._navigatorRuntime.closeNavigator(),
+		() => this._closeNavigatorMode(),
 		(scope) => this._applicationRouter.routePrompt(scope),
 	);
 	private readonly _navigatorRuntime: NavigatorRuntime = new NavigatorRuntime(
@@ -2265,6 +2265,10 @@ export class SongEditor
 		openGlobal: () => undefined,
 		navigator: {
 			open: (route) => this._navigatorRuntime.open(route),
+			onOpened: (route) => {
+				this._lastPrompt = route.paneId;
+				this.doc.prompt = route.paneId;
+			},
 			focus: () => {
 				this._navigatorShell.focus();
 			},
@@ -3933,8 +3937,13 @@ export class SongEditor
 		}
 	}
 
-	private _closeNavigatorMode(): Promise<boolean> {
-		return this._navigatorRuntime.closeNavigator();
+	private async _closeNavigatorMode(): Promise<boolean> {
+		const closed = await this._navigatorRuntime.closeNavigator();
+		if (closed) {
+			this._lastPrompt = null;
+			this.doc.prompt = null;
+		}
+		return closed;
 	}
 
 	private _openPrompt(promptName: string): void {

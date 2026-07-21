@@ -68,6 +68,28 @@ describe("application router", () => {
 		expect(Object.isFrozen(opened[0])).toBeTrue();
 	});
 
+	test("commits navigator route state after replacement cleanup", async () => {
+		let promptState: string | null = "export";
+		const committed: PaneRoute[] = [];
+		const router = new ApplicationRouter({
+			openGlobal: () => {},
+			navigator: {
+				open: () => {
+					promptState = null;
+					return Promise.resolve(true);
+				},
+				onOpened: (route) => {
+					promptState = route.paneId;
+					committed.push(route);
+				},
+				focus: () => {},
+			},
+		});
+		await router.routePrompt("instrumentBrowser");
+		expect(promptState).toBe("instrumentBrowser");
+		expect(committed).toEqual([{ paneId: "instrumentBrowser" }]);
+	});
+
 	test("routes every legacy PromptManager scope and default tip through Navigator", async () => {
 		const opened: PaneRoute[] = [];
 		const globals: GlobalApplicationRoute[] = [];
@@ -132,6 +154,7 @@ describe("application router", () => {
 		expect(songEditor).toContain("new NavigatorRuntime(");
 		expect(songEditor).toContain("this._promptContainer.append(this._navigatorShell.container);");
 		expect(songEditor).toContain("open: (route) => this._navigatorRuntime.open(route)");
+		expect(songEditor).toContain("this.doc.prompt = route.paneId;");
 		expect(songEditor).toContain('await this._navigatorRuntime.openThen({ paneId: "import" }, () => {\n\t\t\tthis._legacyPromptPanes.deliverImportFile(file, rafWin);\n\t\t});');
 		expect(songEditor).toContain("await this.handleImportFile(file);");
 		expect(adapter).toContain("interface ImportFileTransientSink");
