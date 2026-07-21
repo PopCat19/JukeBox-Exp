@@ -148,37 +148,38 @@ describe("application router", () => {
 		expect(events).toContain('host.openPrompt("channelVolumeVisualizer")');
 	});
 
-	test("production wiring awaits import pane before transient file delivery", () => {
+	test("production wiring imports files without replacing the active Navigator route", () => {
 		const songEditor = readFileSync("editor/song-editor.ts", "utf8");
 		const adapter = readFileSync("editor/navigator/navigator-route-host.ts", "utf8");
+		const manager = readFileSync("editor/core/prompt-manager.ts", "utf8");
 		expect(songEditor).toContain("new NavigatorRuntime(");
 		expect(songEditor).toContain("this._promptContainer.append(this._navigatorShell.container);");
 		expect(songEditor).toContain("open: (route) => this._navigatorRuntime.open(route)");
 		expect(songEditor).toContain("this.doc.prompt = route.paneId;");
-		expect(songEditor).toContain('await this._navigatorRuntime.openThen({ paneId: "import" }, () => {\n\t\t\tthis._legacyPromptPanes.deliverImportFile(file, rafWin);\n\t\t});');
-		expect(songEditor).toContain("await this.handleImportFile(file);");
-		expect(adapter).toContain("interface ImportFileTransientSink");
-		expect(adapter).toContain("this.importPrompt.handleExternalFile(file, rafWin);");
-		expect(adapter).not.toContain("document.createElement(\"h3\")");
+		expect(songEditor).toContain("this._promptManager.handleImportFile(file, rafWin);");
+		expect(songEditor).not.toContain('_navigatorRuntime.openThen({ paneId: "import" }');
+		expect(manager).toContain("const prompt = new ImportPrompt(this._host.doc);");
+		expect(manager).toContain("prompt.handleExternalFile(file, rafWin, finish, isCurrent, finish);");
+		expect(adapter).not.toContain("ImportFileTransientSink");
+		expect(adapter).not.toContain("deliverImportFile");
 		expect(songEditor).not.toContain("new ImportPrompt");
 		expect(songEditor).not.toContain("context: { file");
 	});
 
-	test("denied public import returns without file delivery", async () => {
+	test("public file import bypasses Navigator routing", async () => {
 		const ownsDom = typeof document === "undefined";
 		if (ownsDom) GlobalRegistrator.register();
 		try {
 			const { SongEditor } = await import("../editor/song-editor");
 			let deliveries = 0;
 			const host = {
-				_navigatorRuntime: { openThen: () => Promise.resolve(false) },
-				_legacyPromptPanes: { deliverImportFile: () => { deliveries++; } },
+				_promptManager: { handleImportFile: () => { deliveries++; } },
 			};
-			await SongEditor.prototype.handleImportFile.call(
+			SongEditor.prototype.handleImportFile.call(
 				host as never,
 				new File(["song"], "song.json"),
 			);
-			expect(deliveries).toBe(0);
+			expect(deliveries).toBe(1);
 		} finally {
 			if (ownsDom) GlobalRegistrator.unregister();
 		}

@@ -157,6 +157,8 @@ export class PromptManager {
 	private readonly _dock: PromptDock;
 	private readonly _popout: PromptPopout;
 	private readonly _rootOwnership = new PromptRootOwnership();
+	private _transientImport: ImportPrompt | null = null;
+	private _transientImportGeneration = 0;
 	private _backdropPreference: boolean | null = null;
 
 	constructor(
@@ -245,6 +247,21 @@ export class PromptManager {
 
 	public claimNavigatorOwnership(prompt: Prompt): () => void {
 		return this._rootOwnership.claim(prompt);
+	}
+
+	public handleImportFile(file: File, rafWin?: Window): void {
+		this._transientImport?.cleanUp();
+		const prompt = new ImportPrompt(this._host.doc);
+		const generation = ++this._transientImportGeneration;
+		this._transientImport = prompt;
+		const isCurrent = (): boolean =>
+			this._transientImport === prompt && this._transientImportGeneration === generation;
+		const finish = (): void => {
+			if (!isCurrent()) return;
+			this._transientImport = null;
+			prompt.cleanUp();
+		};
+		prompt.handleExternalFile(file, rafWin, finish, isCurrent, finish);
 	}
 
 	public openForNavigator(promptName: string, context?: unknown): void {

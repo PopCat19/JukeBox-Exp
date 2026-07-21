@@ -52,14 +52,20 @@ describe("ImportPrompt behavior", () => {
 		prompt.cleanUp();
 	});
 
-	test("picker unsupported file restores initial UI", () => {
+	test("unsupported external file reports failure and restores initial UI", () => {
 		const doc = new SongDocument();
 		const prompt = new ImportPrompt(doc);
 		let completed = 0;
-		prompt.handleExternalFile(new File(["bad"], "song.txt"), undefined, () => {
-			completed++;
-		});
+		let failed = 0;
+		prompt.handleExternalFile(
+			new File(["bad"], "song.txt"),
+			undefined,
+			() => { completed++; },
+			() => true,
+			() => { failed++; },
+		);
 		expect(completed).toBe(0);
+		expect(failed).toBe(1);
 		expect(prompt.container.querySelector("h2")?.textContent).toBe("Import");
 		prompt.cleanUp();
 	});
@@ -102,6 +108,39 @@ describe("ImportPrompt behavior", () => {
 		frames[0](0);
 		await new Promise((resolve) => setTimeout(resolve, 0));
 		expect(completions).toEqual(["second"]);
+		prompt.cleanUp();
+	});
+
+	test("transport restoration failure releases a headless import", async () => {
+		const doc = new SongDocument();
+		const prompt = new ImportPrompt(doc);
+		const frames: FrameRequestCallback[] = [];
+		const rafWin = {
+			requestAnimationFrame: (cb: FrameRequestCallback) => {
+				frames.push(cb);
+				return frames.length;
+			},
+		} as Window;
+		doc.synth.isPlayingSong = true;
+		doc.performance.play = () => Promise.reject(new Error("play failed"));
+		let completed = 0;
+		let failed = 0;
+		prompt.handleExternalFile(
+			new File([JSON.stringify(doc.song.toJsonObject())], "song.json"),
+			rafWin,
+			() => { completed++; },
+			() => true,
+			() => { failed++; },
+		);
+		for (let attempt = 0; attempt < 20 && frames.length === 0; attempt++) {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		}
+		frames[0](0);
+		for (let attempt = 0; attempt < 20 && failed === 0; attempt++) {
+			await new Promise((resolve) => setTimeout(resolve, 0));
+		}
+		expect(completed).toBe(0);
+		expect(failed).toBe(1);
 		prompt.cleanUp();
 	});
 

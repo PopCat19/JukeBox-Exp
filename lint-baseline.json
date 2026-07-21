@@ -1,8 +1,8 @@
 {
 	"version": 1,
 	"counts": {
-		"eslint": 4899,
-		"biome": 299
+		"eslint": 4882,
+		"biome": 296
 	},
 	"groups": [
 		{
@@ -88,7 +88,7 @@
 		{
 			"key": "biome:editor/prompts/channel-volume-visualizer-prompt.ts",
 			"count": 4,
-			"hash": "47f2ec69dcf36deaad6c4c5d28119972984739de5923b63c1c4f604c3208827e"
+			"hash": "159053b5604049659951da2406324795d31b10de5896245b0a588199464a73cb"
 		},
 		{
 			"key": "biome:editor/prompts/custom-filter-prompt.ts",
@@ -96,14 +96,9 @@
 			"hash": "72bcea09d2c73a72c232b0f30fd505615bcaab6168c2390ad1b4f270eef3dd3c"
 		},
 		{
-			"key": "biome:editor/prompts/euclidgen-rhythm-prompt.ts",
-			"count": 3,
-			"hash": "7ab1c47f9fb52c4cf147846566c628fe2f4602ae505dc21a33db44031165bbcc"
-		},
-		{
 			"key": "biome:editor/prompts/export-prompt.ts",
 			"count": 20,
-			"hash": "35856c36b88c075f391e8c4f18119200167fb904ac438c5d28c75e2dc790fda5"
+			"hash": "b0130bde51986a8bfcf317cea0c93c18194657069a7ad60432668e459f63578c"
 		},
 		{
 			"key": "biome:editor/prompts/instrument-browser-prompt.ts",
@@ -163,7 +158,7 @@
 		{
 			"key": "biome:editor/song-editor.ts",
 			"count": 1,
-			"hash": "c61cb4449116e8d7bcf2930278330265ed050ddf27cee679b02b3f41250509c9"
+			"hash": "c82eebf9432890eeb4ade8a5622d0180a507723fa13d3b4a14835f244ae76423"
 		},
 		{
 			"key": "biome:editor/ui/array-buffer-writer.ts",
@@ -722,8 +717,8 @@
 		},
 		{
 			"key": "eslint:editor/core/prompt-manager.ts",
-			"count": 21,
-			"hash": "b2544a7d87ffae661bcc8d53e7718de6d3c5f195ee9c53788898cb1c357e0b43"
+			"count": 23,
+			"hash": "821cd80331241e3c446364368caa8c9e18ee5a8b709c8e2e3a1d8452360d487b"
 		},
 		{
 			"key": "eslint:editor/core/selection.ts",
@@ -802,18 +797,18 @@
 		},
 		{
 			"key": "eslint:editor/prompts/beats-per-bar-prompt.ts",
-			"count": 10,
-			"hash": "83c4b17aaa44a683025214e18bb77bda3672073687f540c0ec2d7c097f3d1ecc"
+			"count": 9,
+			"hash": "cd93c8277104a44ade5e17ebf46a8b943a92de908b51e45a144d67de54a5ca59"
 		},
 		{
 			"key": "eslint:editor/prompts/channel-settings-prompt.ts",
-			"count": 21,
-			"hash": "0fef8e9b511948da2194191755c0d24dfd3ae8f1ad97e477bab622eddf881dc9"
+			"count": 20,
+			"hash": "2dab295d9cae6717bbed394a0ef26e7cdf6dd3ad19443d460601493b1fbf6098"
 		},
 		{
 			"key": "eslint:editor/prompts/channel-volume-visualizer-prompt.ts",
-			"count": 68,
-			"hash": "8e52732ab05522dea3a2624bd88a9960c63dcc3f3752ca0c4db64229f13e0b55"
+			"count": 67,
+			"hash": "fa41b20fca56a7bffbdc36c5eb7ab057df7fd1a083913c54b21969f5031cacd5"
 		},
 		{
 			"key": "eslint:editor/prompts/clean-channel-prompt.ts",
@@ -833,12 +828,12 @@
 		{
 			"key": "eslint:editor/prompts/custom-scale-prompt.ts",
 			"count": 5,
-			"hash": "2719c9eda532d521ff6eb4249f5a881bdc960f30d6fa38ed5301823b683d23f3"
+			"hash": "ba94a3785ec4b9fa43d49cc936d4855fdcd2756670379c133d2de85d740b0cf7"
 		},
 		{
 			"key": "eslint:editor/prompts/custom-theme-prompt.ts",
-			"count": 14,
-			"hash": "7e545088a4f4acf41e84644b9776bbb1f7aae2511b338086990ad263ac0513a4"
+			"count": 16,
+			"hash": "cdeb737db264b6ef42533e6694c2a787b005fc794a3fac92dd9841ca6f5d77e8"
 		},
 		{
 			"key": "eslint:editor/prompts/euclidgen-algorithm.ts",
@@ -857,8 +852,8 @@
 		},
 		{
 			"key": "eslint:editor/prompts/euclidgen-rhythm-prompt.ts",
-			"count": 69,
-			"hash": "66ac93babc10994d115f874e6d35b8256e8c1d21a3b913c8e78ae5b681ae627b"
+			"count": 46,
+			"hash": "afa4fd2b3e4be5a73892fd51fc0502d4d6c2875fad16f6d0c7b2dc02446818fb"
 		},
 		{
 			"key": "eslint:editor/prompts/export-midi.ts",
@@ -867,13 +862,13 @@
 		},
 		{
 			"key": "eslint:editor/prompts/export-prompt.ts",
-			"count": 133,
-			"hash": "0f79710d35ad0d502a876ca2069f28fe08e856963f360335a22b38d606ce9516"
+			"count": 140,
+			"hash": "42b81e7030ffaf0f3f5a17dfe3868bc95b77030e79517c581abac371e926ae1b"
 		},
 		{
 			"key": "eslint:editor/prompts/import-prompt.ts",
 			"count": 8,
-			"hash": "be37eafbe8a843e6a7eb5102c8f62562346bf3c8cec244f2ac4e21e23916ce95"
+			"hash": "acd9a3024109e87da0070a14631cb8771fab34f6230419b4756bff7c98a92229"
 		},
 		{
 			"key": "eslint:editor/prompts/input-helpers.ts",
@@ -953,7 +948,7 @@
 		{
 			"key": "eslint:editor/prompts/song-recovery-prompt.ts",
 			"count": 12,
-			"hash": "bb8fbe44e111716ae97f46bb40edf8b0c14214a7a7a22450e95d53aa1bd56e4b"
+			"hash": "e418e656ae92f80aa3f585f46dc05f53c11fbbfda0c1b307ab43abc7a3485ac7"
 		},
 		{
 			"key": "eslint:editor/prompts/sustain-prompt.ts",
@@ -962,8 +957,8 @@
 		},
 		{
 			"key": "eslint:editor/prompts/theme-prompt.ts",
-			"count": 11,
-			"hash": "7bbf05ab66bd7738028f06be35065ad2889b5c7d9ebacf8117f77d5051e3b76f"
+			"count": 8,
+			"hash": "459fb90153f40509bf1e51b2e3746bc96b92d7b788aec8919685205010557702"
 		},
 		{
 			"key": "eslint:editor/prompts/tip-prompt.ts",
@@ -977,8 +972,8 @@
 		},
 		{
 			"key": "eslint:editor/prompts/visual-loop-controls-prompt.ts",
-			"count": 66,
-			"hash": "7bfc99c768e851024cabc08855e72a40ebf31bffbe1728233f97580c6d665920"
+			"count": 67,
+			"hash": "1cb9a4568ed5b6dd587378a10eddf7f9087640b5d1a5780042e69391d2a89e3b"
 		},
 		{
 			"key": "eslint:editor/renderers/instrument-visibility.ts",
@@ -1033,7 +1028,7 @@
 		{
 			"key": "eslint:editor/song-editor.ts",
 			"count": 51,
-			"hash": "741006d0ee2d6aa25532871ec5511af34c790a0d581dbeef56bda671ff45a648"
+			"hash": "5e552355a3666c9dce8c7358daf68b575304485cec21c4c86c1a521d4a4f17a5"
 		},
 		{
 			"key": "eslint:editor/ui/array-buffer-reader.ts",

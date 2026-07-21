@@ -174,7 +174,8 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	});
 	private readonly _channelsPane: HTMLDivElement = div(
 		{
-			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 0; position: relative; z-index: 1;",
+			class: "cvvChannelsPane",
+			style: "flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 0; position: relative; z-index: 1; overflow-y: auto; overscroll-behavior: contain;",
 		},
 		this._contentContainer,
 	);
@@ -217,7 +218,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	// (which would force layout reflows interleaved with style writes).
 	private readonly _canvasSizes: Map<number, { w: number; h: number }> = new Map();
 	private _resizeObserver: ResizeObserver | null = null;
-	private _dockClassObserver: MutationObserver | null = null;
 	// Per-channel post-limiter peak (0..1), populated each frame from the
 	// isolated ring. Read by the metering code (one frame of latency) so metering
 	// needs no second FFT.
@@ -454,6 +454,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 	);
 	private readonly _channelsWrapper: HTMLDivElement = div(
 		{
+			class: "cvvChannelsWrapper",
 			style: "position: relative; flex: 1 1 auto; display: flex; min-height: 0; overflow: hidden;",
 		},
 		this._playerOverlay,
@@ -494,10 +495,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			class: "prompt noSelection fill-y cvvPrompt",
 			tabindex: "0",
 		},
-		h2(
-			{ style: "margin: 0; text-align: center;" },
-			"Channel Volume Visualizer",
-		),
+		h2({ style: "margin: 0; text-align: center;" }, "Channel Volume Visualizer"),
 		// Top bar — play/pause, volume meter, stats
 		div(
 			{
@@ -652,18 +650,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		};
 		this.container.addEventListener("mousedown", _onBodyMouseDown);
 		this.container.addEventListener("click", _onBodyClick);
-
-		// Re-apply the channels pane scroll state when the dock toggles, since
-		// docking happens after the last render and the pane style would
-		// otherwise stay stale until the next doc change.
-		this._dockClassObserver = new MutationObserver(() => {
-			if (!this._paneActive || this._disposed) return;
-			this._applyChannelsPaneScroll(this._channelDivs.size);
-		});
-		this._dockClassObserver.observe(this.container, {
-			attributes: true,
-			attributeFilter: ["class"],
-		});
 	}
 
 	private _onThemeChange!: (name: string) => void;
@@ -872,10 +858,6 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		if (this._resizeObserver != null) {
 			this._resizeObserver.disconnect();
 			this._resizeObserver = null;
-		}
-		if (this._dockClassObserver != null) {
-			this._dockClassObserver.disconnect();
-			this._dockClassObserver = null;
 		}
 		if (this._popoutObserver != null) {
 			this._popoutObserver.disconnect();
@@ -2047,7 +2029,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 								inPattern || isPlaying ? "1" : "0.5"
 							};`,
 						},
-						compactInstrumentLabels ? `I${j + 1}` : instrName,
+						compactInstrumentLabels ? String(j + 1) : instrName,
 					);
 					const instrKey = `${i}-${j}`;
 					this._instrumentSpans.set(instrKey, instrSpan);
@@ -2066,46 +2048,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			this._contentContainer.appendChild(channelDiv);
 		}
 
-		if (channelCount > 28) {
-			this._applyChannelsPaneScroll(channelCount);
-		}
-
 		// Observe the grid container so per-channel canvas backing-store sizes are
 		// refreshed on layout changes without any per-frame clientWidth reads.
 		this._setupResizeObserver();
 	};
-
-	private _applyChannelsPaneScroll(channelCount: number): void {
-		// In popout mode, always enable scrolling regardless of channel count
-		// so the pane fills the bounded popout panel height. When docked, rely
-		// on the flex slot height; otherwise cap at 600px for the main-window
-		// modal (past 28 channels the grid overflows the viewport).
-		const isPopout = this.container.hasAttribute("data-popout");
-		if (isPopout) {
-			this._channelsPane.style.display = "flex";
-			this._channelsPane.style.flex = "1";
-			this._channelsPane.style.overflowY = "auto";
-			this._channelsPane.style.minHeight = "0";
-			this._channelsPane.style.height = "100%";
-			this._channelsPane.style.maxHeight = "";
-		} else if (channelCount > 28) {
-			this._channelsPane.style.display = "flex";
-			this._channelsPane.style.flex = "1";
-			this._channelsPane.style.overflowY = "auto";
-			this._channelsPane.style.maxHeight = this.container.classList.contains("docked")
-				? ""
-				: "600px";
-			this._channelsPane.style.minHeight = "";
-			this._channelsPane.style.height = "";
-		} else {
-			this._channelsPane.style.display = "flex";
-			this._channelsPane.style.flex = "1";
-			this._channelsPane.style.maxHeight = "";
-			this._channelsPane.style.overflowY = "";
-			this._channelsPane.style.minHeight = "";
-			this._channelsPane.style.height = "";
-		}
-	}
 
 	private _setupResizeObserver(): void {
 		if (this._resizeObserver != null) {

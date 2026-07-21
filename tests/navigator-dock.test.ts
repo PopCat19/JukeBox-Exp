@@ -153,7 +153,7 @@ describe("navigator dock contract", () => {
 		}
 	});
 
-	test("Navigator drag snaps, hides shade and detach, then reopens floating", () => {
+	test("Navigator drag snaps and preserves docking across route replacement", async () => {
 		const { dock, editor } = setup();
 		const promptContainer = document.createElement("div");
 		promptContainer.className = "promptContainer";
@@ -177,10 +177,10 @@ describe("navigator dock contract", () => {
 		expect(shell.container.classList.contains("shaded")).toBeFalse();
 		expect(shell.container.querySelector<HTMLButtonElement>(".navigator-detach-button")?.hidden).toBeTrue();
 		shell.detach(first);
-		expect(dock.isDocked(shell)).toBeFalse();
 		const second = root("instrumentBrowser");
 		shell.attach(second);
-		expect(dock.isDocked(shell)).toBeFalse();
-		expect(shell.container.querySelector<HTMLButtonElement>(".navigator-detach-button")?.hidden).toBeFalse();
+		await Promise.resolve();
+		expect(dock.getSide(shell)).toBe("left");
+		expect(shell.container.querySelector<HTMLButtonElement>(".navigator-detach-button")?.hidden).toBeTrue();
 	});
 });

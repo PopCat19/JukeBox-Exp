@@ -352,11 +352,78 @@ export function buildPromptMiscCSS(): string {
 	max-height: 80vh;
 }
 
+.beepboxEditor .prompt.cvvPrompt {
+	container-type: inline-size;
+	min-width: 0;
+}
 .beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
 	display: grid;
-	grid-template-columns: repeat(6, 1fr);
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 	gap: 4px;
 	align-content: start;
+	min-width: 0;
+}
+.beepboxEditor .prompt.cvvPrompt .cvvChannelTile {
+	box-sizing: border-box;
+	aspect-ratio: 1;
+	min-height: 0;
+}
+.beepboxEditor .prompt.cvvPrompt .cvvChannelsWrapper {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.beepboxEditor .prompt.cvvPrompt .cvvChannelsPane {
+	min-width: 0;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	overscroll-behavior: contain;
+}
+@container (min-width: 360px) {
+	.beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+	}
+}
+@container (min-width: 720px) {
+	.beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(8, minmax(0, 1fr));
+	}
+}
+@container (min-width: 900px) {
+	.beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(10, minmax(0, 1fr));
+	}
+}
+@container (min-width: 1080px) {
+	.beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+	}
+}
+@container (min-width: 1260px) {
+	.beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(14, minmax(0, 1fr));
+	}
+}
+@container (min-width: 1440px) {
+	.beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(16, minmax(0, 1fr));
+	}
+}
+@container (min-width: 1620px) {
+	.beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(18, minmax(0, 1fr));
+	}
+}
+@container (min-width: 1800px) {
+	.beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(20, minmax(0, 1fr));
+	}
+}
+@container (max-width: 220px) {
+	.beepboxEditor .prompt.cvvPrompt .cvvContentGrid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 }
 @media (max-width: 639px) {
 	.beepboxEditor .prompt.songRecoveryPrompt .recoveryPlayer { height: 90px; }

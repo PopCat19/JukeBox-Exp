@@ -34,6 +34,7 @@ export class NavigatorShell implements PaneHost {
 	private readonly routes: readonly NavigatorRoute[];
 	private readonly onRoute: ((id: string) => void) | undefined;
 	private activeRouteId: string | undefined;
+	private visibilityGeneration = 0;
 	private dragDispose: (() => void) | null = null;
 	private backdropPreference: boolean | null = null;
 	private dock: PromptDock | null = null;
@@ -167,6 +168,7 @@ export class NavigatorShell implements PaneHost {
 	}
 
 	attach(root: PaneRoot): void {
+		this.visibilityGeneration++;
 		this.container.classList.remove("shaded");
 		this.container.hidden = false;
 		this.body.hidden = false;
@@ -191,8 +193,15 @@ export class NavigatorShell implements PaneHost {
 	detach(root: PaneRoot): void {
 		if (root.element.parentNode === this.body) root.element.remove();
 		if (this.body.childElementCount === 0) {
-			this.container.hidden = true;
-			this.updateVisibility(false);
+			this.dragDispose?.();
+			this.dragDispose = null;
+			const generation = ++this.visibilityGeneration;
+			queueMicrotask(() => {
+				if (generation !== this.visibilityGeneration || this.body.childElementCount !== 0)
+					return;
+				this.container.hidden = true;
+				this.updateVisibility(false);
+			});
 		}
 	}
 	private updateVisibility(visible: boolean): void {

@@ -3282,7 +3282,7 @@ export class SongEditor
 				e.preventDefault();
 			}
 		};
-		const _onDrop = async (e: DragEvent) => {
+		const _onDrop = (e: DragEvent) => {
 			if (!e.dataTransfer) return;
 			const files: FileList = e.dataTransfer.files;
 			if (files.length === 0) return;
@@ -3290,7 +3290,7 @@ export class SongEditor
 			const name: string = file.name.toLowerCase();
 			if (name.endsWith(".mid") || name.endsWith(".midi") || name.endsWith(".json")) {
 				e.preventDefault();
-				await this.handleImportFile(file);
+				this.handleImportFile(file);
 			}
 		};
 		window.addEventListener("dragover", _onDragOver);
@@ -4617,10 +4617,8 @@ export class SongEditor
 		this.doc.notifier.notifyWatchers();
 	}
 
-	public async handleImportFile(file: File, rafWin?: Window): Promise<void> {
-		await this._navigatorRuntime.openThen({ paneId: "import" }, () => {
-			this._legacyPromptPanes.deliverImportFile(file, rafWin);
-		});
+	public handleImportFile(file: File, rafWin?: Window): void {
+		this._promptManager.handleImportFile(file, rafWin);
 	}
 
 	public get _animate(): () => void {

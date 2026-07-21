@@ -84,19 +84,6 @@ export function buildNavigatorPanesCSS(): string {
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
 }
-.beepboxEditor .navigator-pane-host > .cvvPrompt {
-	container-type: inline-size;
-}
-.beepboxEditor .navigator-pane-host > .cvvPrompt .cvvContentGrid {
-	grid-template-columns: repeat(6, minmax(0, 1fr));
-	gap: 4px;
-	min-width: 0;
-	min-height: 0;
-	overflow-y: auto;
-}
-.beepboxEditor .navigator-sidebar-collapsed .navigator-pane-host > .cvvPrompt .cvvContentGrid {
-	grid-template-columns: repeat(8, minmax(0, 1fr));
-}
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvChannelTile {
 	aspect-ratio: 1;
 	min-height: 0;
@@ -104,16 +91,6 @@ export function buildNavigatorPanesCSS(): string {
 }
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvInstrumentList > span {
 	flex: 0 1 auto;
-}
-@container (max-width: 540px) {
-	.beepboxEditor .navigator-pane-host > .cvvPrompt .cvvContentGrid {
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-	}
-}
-@container (max-width: 300px) {
-	.beepboxEditor .navigator-pane-host > .cvvPrompt .cvvContentGrid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
 }
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvHeader,
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvHeaderStats {

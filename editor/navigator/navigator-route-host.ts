@@ -1,15 +1,10 @@
 // Purpose: Adapts legacy Prompt domains to Navigator pane ownership during migration.
 
-import { ImportPrompt } from "../prompts/import-prompt";
 import type { Prompt } from "../prompts/prompt";
 import type { PaneLifecycle, PaneRoute, SerializableValue } from "./contracts";
 import type { PaneOwner } from "./ownership";
 import { flattenPromptRootForNavigator } from "./prompt-pane-owner";
 import { canonicalRouteIdentity } from "./route-identity";
-
-export interface ImportFileTransientSink {
-	deliverImportFile(file: File, rafWin?: Window): void;
-}
 
 interface LegacyPromptManager {
 	readonly prompt: Prompt | null;
@@ -18,9 +13,7 @@ interface LegacyPromptManager {
 	claimNavigatorOwnership(prompt: Prompt): () => void;
 }
 
-export class LegacyPromptPaneFactory implements ImportFileTransientSink {
-	private importPrompt: ImportPrompt | null = null;
-
+export class LegacyPromptPaneFactory {
 	constructor(
 		private readonly prompts: LegacyPromptManager,
 		private readonly closePane: () => Promise<boolean>,
@@ -42,11 +35,6 @@ export class LegacyPromptPaneFactory implements ImportFileTransientSink {
 		return this.createOwner(route, prompt);
 	};
 
-	deliverImportFile(file: File, rafWin?: Window): void {
-		if (this.importPrompt === null) throw new Error("import pane is not mounted");
-		this.importPrompt.handleExternalFile(file, rafWin);
-	}
-
 	private createOwner(route: PaneRoute, prompt: Prompt): PaneOwner {
 		const element = prompt.container;
 		flattenPromptRootForNavigator(prompt, route.paneId);
@@ -62,7 +50,6 @@ export class LegacyPromptPaneFactory implements ImportFileTransientSink {
 				host = nextHost;
 				nextHost.attach(root);
 				element.addEventListener("keydown", onKeyDown);
-				if (prompt instanceof ImportPrompt) this.importPrompt = prompt;
 			},
 			suspend: () => undefined,
 			resume: () => undefined,
@@ -70,12 +57,10 @@ export class LegacyPromptPaneFactory implements ImportFileTransientSink {
 				element.removeEventListener("keydown", onKeyDown);
 				host?.detach(root);
 				host = null;
-				if (this.importPrompt === prompt) this.importPrompt = null;
 			},
 			dispose: () => {
 				releaseOwnership();
 				this.prompts.disposeNavigatorPrompt(prompt);
-				if (this.importPrompt === prompt) this.importPrompt = null;
 			},
 			requestLeave: () => (prompt.requestPaneLeave?.() === false ? "deny" : "allow"),
 			requestClose: () => (prompt.requestPaneClose?.() === false ? "keep-open" : "close"),

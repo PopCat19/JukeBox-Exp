@@ -1036,14 +1036,15 @@ describe("navigator shell", () => {
 		expect(navigatorCSS).toMatch(/\.navigator-workspace \{[^}]*overflow: hidden/s);
 		expect(navigatorCSS).toMatch(/\.navigator-route-list \{[^}]*overflow: auto/s);
 		expect(navigatorPanesCSS).toMatch(/\.navigator-pane-host > \.customFilterPrompt\.navigator-native-pane,[^{]*\.cvvPrompt\.navigator-native-pane \{[^}]*overflow-x: hidden[^}]*overflow-y: auto[^}]*overscroll-behavior: contain/s);
-		expect(navigatorPanesCSS).toMatch(/\.navigator-pane-host > \.cvvPrompt \{[^}]*container-type: inline-size/s);
-		expect(navigatorPanesCSS).toMatch(/\.navigator-pane-host > \.cvvPrompt \.cvvContentGrid \{[^}]*grid-template-columns: repeat\(6, minmax\(0, 1fr\)\)[^}]*min-height: 0[^}]*overflow-y: auto/s);
-		expect(navigatorPanesCSS).toMatch(/\.navigator-sidebar-collapsed \.navigator-pane-host > \.cvvPrompt \.cvvContentGrid \{[^}]*repeat\(8, minmax\(0, 1fr\)\)/s);
-		expect(navigatorPanesCSS).toMatch(/\.cvvChannelTile \{[^}]*aspect-ratio: 1/);
-		expect(navigatorPanesCSS).toContain("@container (max-width: 540px)");
-		expect(navigatorPanesCSS).toContain("grid-template-columns: repeat(4, minmax(0, 1fr))");
-		expect(navigatorPanesCSS).toContain("@container (max-width: 300px)");
-		expect(navigatorPanesCSS).toContain("grid-template-columns: repeat(2, minmax(0, 1fr))");
+		expect(miscCSS).toMatch(/\.prompt\.cvvPrompt \{[^}]*container-type: inline-size[^}]*min-width: 0/s);
+		expect(miscCSS).toMatch(/\.prompt\.cvvPrompt \.cvvChannelTile \{[^}]*aspect-ratio: 1[^}]*min-height: 0/s);
+		expect(miscCSS).toMatch(/\.prompt\.cvvPrompt \.cvvChannelsPane \{[^}]*min-height: 0[^}]*overflow-y: auto[^}]*overflow-x: hidden/s);
+		for (const width of [360, 720, 900, 1080, 1260, 1440, 1620, 1800]) {
+			expect(miscCSS).toContain(`@container (min-width: ${width}px)`);
+		}
+		for (const columns of [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]) {
+			expect(miscCSS).toContain(`grid-template-columns: repeat(${columns}, minmax(0, 1fr))`);
+		}
 		expect(navigatorPanesCSS).not.toMatch(/\.navigator-detached-content > \.customFilterPrompt\.navigator-native-pane[^}]*overflow-y: auto/s);
 		expect(samples).toContain('h2({}, "Add Samples")');
 		expect(euclid).toContain("checkboxInput()");
@@ -1062,13 +1063,14 @@ describe("navigator shell", () => {
 		expect(loop).toContain('window.removeEventListener("mouseup"');
 		expect(visualizer).toContain('class: "cvvChannelTile"');
 		expect(visualizer).toContain('class: "cvvInstrumentList"');
-		expect(navigatorPanesCSS).toContain("gap: 4px;");
+		expect(miscCSS).toContain("gap: 4px;");
 		expect(visualizer).toContain('padding: 0; position: relative; z-index: 1;');
 		expect(visualizer).toContain('height: 12px; display: block; margin: 0;');
 		expect(visualizer).toContain('height: 20px; display: block; margin: 0;');
 		expect(visualizer).toContain('border-top: 2px solid var(--ui-widget-background); margin: 0;');
 		expect(visualizer).toContain("flex-wrap: nowrap");
-		expect(visualizer).toContain("compactInstrumentLabels ? `I${j + 1}` : instrName");
+		expect(visualizer).toContain("compactInstrumentLabels ? String(j + 1) : instrName");
+		expect(visualizer).not.toContain("compactInstrumentLabels ? `I${j + 1}` : instrName");
 		expect(visualizer).toContain("title: instrName");
 		expect(visualizer).not.toContain('"aria-label": instrName');
 		const manager = await Bun.file("editor/core/prompt-manager.ts").text();
@@ -1301,7 +1303,7 @@ describe("navigator shell", () => {
 		expect(shell.container.querySelector("[data-route-id='addExternal']")?.getAttribute("aria-current")).toBe("page");
 	});
 
-	test("hidden shell stays out of flex layout until a pane mounts", () => {
+	test("hidden shell stays out of flex layout until a pane mounts", async () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		const style = document.createElement("style");
 		style.textContent = buildNavigatorCSS();
@@ -1314,7 +1316,24 @@ describe("navigator shell", () => {
 		shell.attach(pane);
 		expect(getComputedStyle(shell.container).display).toBe("flex");
 		shell.detach(pane);
+		await Promise.resolve();
 		expect(getComputedStyle(shell.container).display).toBe("none");
+	});
+
+	test("same-turn route replacement preserves Navigator visibility", async () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const parent = document.createElement("div");
+		parent.className = "promptContainer";
+		const shell = new NavigatorShell();
+		parent.append(shell.container);
+		const first = { element: document.createElement("article") };
+		const second = { element: document.createElement("article") };
+		shell.attach(first);
+		shell.detach(first);
+		shell.attach(second);
+		await Promise.resolve();
+		expect(shell.container.hidden).toBeFalse();
+		expect(parent.classList.contains("navigatorVisible")).toBeTrue();
 	});
 
 	test("explicit Navigator claim blocks legacy focus reparenting", () => {

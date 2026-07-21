@@ -136,29 +136,6 @@ export class PromptPopout {
 		c.dataset.popout = "true";
 		doc.body.appendChild(c);
 
-		// Reflow the per-channel grid so it scales to the window: cards are at
-		// least 110px wide and share the remaining space equally (1fr), so a wide
-		// popout shows more columns of larger cards and a narrow one drops to fewer.
-		// The grid is the unique element with an inline grid-template-columns; safe
-		// because popout is only enabled for the channel volume visualizer.
-		const grid = c.querySelector<HTMLElement>("[style*=grid-template-columns]");
-		if (grid) grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(110px, 1fr))";
-
-		// Force the channels pane to scroll inside the bounded panel regardless of
-		// channel count. The prompt's own _applyChannelsPaneScroll only enables
-		// overflowY:auto past 28 channels; below that it overflows visibly and, with
-		// a bounded panel, would clip. Forcing overflowY:auto here makes the pane's
-		// scroll area reach the full panel height at any channel count. The pane is
-		// the grid's parent (flex:1; min-height:0), so it bounds to the remaining
-		// panel height. Explicit height:100% is set as a fallback in case the flex
-		// basis doesn't resolve (e.g. if the container's calc height is invalid).
-		if (grid?.parentElement) {
-			const pane = grid.parentElement;
-			pane.style.overflowY = "auto";
-			pane.style.minHeight = "0";
-			pane.style.height = "100%";
-		}
-
 		// Route popout keydown to the prompt's handler. The main window's
 		// PromptFocusController never receives events from another window, so
 		// without this Space-to-toggle-play would be dead in the popout.

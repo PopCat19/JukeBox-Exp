@@ -115,6 +115,7 @@ export class ImportPrompt extends BasePrompt {
 		closeOnFailure: boolean,
 		externalPlaybackSnapshot?: boolean,
 		isCurrent: () => boolean = () => true,
+		onFailure: ImportCompletion = () => undefined,
 	): void {
 		const operation = this._beginOperation();
 		const fileName: string = file.name;
@@ -125,7 +126,10 @@ export class ImportPrompt extends BasePrompt {
 			const reader = new FileReader();
 			this._activeReader = reader;
 			reader.addEventListener("error", () => {
-				if (this._isCurrent(operation, isCurrent)) this._failImport(closeOnFailure);
+				if (this._isCurrent(operation, isCurrent)) {
+					this._failImport(closeOnFailure);
+					void onFailure();
+				}
 			});
 			reader.addEventListener("load", (): void => {
 				if (!this._isCurrent(operation, isCurrent)) return;
@@ -158,10 +162,14 @@ export class ImportPrompt extends BasePrompt {
 							isCurrent,
 							externalPlaybackSnapshot,
 							onSuccess,
+							onFailure,
 						);
 					} catch (error) {
 						console.error("Failed to import song JSON.", error);
-						if (this._isCurrent(operation, isCurrent)) this._failImport(closeOnFailure);
+						if (this._isCurrent(operation, isCurrent)) {
+							this._failImport(closeOnFailure);
+							void onFailure();
+						}
 					}
 				});
 			});
@@ -170,7 +178,10 @@ export class ImportPrompt extends BasePrompt {
 			const reader = new FileReader();
 			this._activeReader = reader;
 			reader.addEventListener("error", () => {
-				if (this._isCurrent(operation, isCurrent)) this._failImport(closeOnFailure);
+				if (this._isCurrent(operation, isCurrent)) {
+					this._failImport(closeOnFailure);
+					void onFailure();
+				}
 			});
 			reader.addEventListener("load", (): void => {
 				if (!this._isCurrent(operation, isCurrent)) return;
@@ -181,13 +192,18 @@ export class ImportPrompt extends BasePrompt {
 						isCurrent,
 						externalPlaybackSnapshot,
 						onSuccess,
+						onFailure,
 					);
-				} else this._failImport(closeOnFailure);
+				} else {
+					this._failImport(closeOnFailure);
+					void onFailure();
+				}
 			});
 			reader.readAsArrayBuffer(file);
 		} else {
 			console.error("Unrecognized file extension.");
 			this._failImport(closeOnFailure);
+			void onFailure();
 		}
 	}
 
@@ -196,8 +212,17 @@ export class ImportPrompt extends BasePrompt {
 		rafWin?: Window,
 		onSuccess: ImportCompletion = this._close as unknown as ImportCompletion,
 		isCurrent: () => boolean = () => true,
+		onFailure: ImportCompletion = () => undefined,
 	): void {
-		this._handleFile(file, rafWin, onSuccess, false, this._doc.synth.playing, isCurrent);
+		this._handleFile(
+			file,
+			rafWin,
+			onSuccess,
+			false,
+			this._doc.synth.playing,
+			isCurrent,
+			onFailure,
+		);
 	}
 
 	private async _completeImport(
@@ -205,6 +230,7 @@ export class ImportPrompt extends BasePrompt {
 		isCurrent: () => boolean,
 		externalPlaybackSnapshot: boolean | undefined,
 		onSuccess: ImportCompletion,
+		onFailure: ImportCompletion,
 	): Promise<void> {
 		try {
 			if (!this._isCurrent(operation, isCurrent)) return;
@@ -220,7 +246,10 @@ export class ImportPrompt extends BasePrompt {
 			}
 		} catch (error) {
 			console.error("Failed to restore transport after song import.", error);
-			if (this._isCurrent(operation, isCurrent)) this._restoreInitialUi();
+			if (this._isCurrent(operation, isCurrent)) {
+				this._restoreInitialUi();
+				void onFailure();
+			}
 		}
 	}
 

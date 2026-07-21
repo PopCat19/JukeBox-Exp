@@ -385,17 +385,8 @@ describe("Navigator stress pane lifecycle", () => {
 			expect(timers.pending.size).toBeGreaterThan(0);
 			expect(sourceFrames.pending.size).toBe(1);
 			const stale = sourceFrames.take();
-			const internal = prompt as unknown as {
-				_applyChannelsPaneScroll(channelCount: number): void;
-			};
-			const applyScroll = internal._applyChannelsPaneScroll.bind(prompt);
-			let scrollMutations = 0;
-			internal._applyChannelsPaneScroll = (channelCount) => {
-				scrollMutations++;
-				applyScroll(channelCount);
-			};
-			const dockObserver = observers.mutations[1];
-			if (dockObserver === undefined) throw new Error("dock observer missing");
+			const channelsPane = prompt.container.querySelector<HTMLElement>(".cvvChannelsPane");
+			expect(channelsPane?.style.overflowY).toBe("auto");
 			const scrub = prompt.container.querySelector<HTMLElement>("[style*='touch-action: none']");
 			if (scrub === null) throw new Error("scrub missing");
 			scrub.dispatchEvent(new PointerEvent("pointerdown", { clientX: 1, bubbles: true }));
@@ -403,16 +394,12 @@ describe("Navigator stress pane lifecycle", () => {
 			prompt.suspendPane();
 			expect(sourceFrames.pending.size).toBe(0);
 			expect(pointerListeners.size).toBe(0);
-			dockObserver.callback();
-			expect(scrollMutations).toBe(0);
 			const focusBeforeTimer = document.activeElement;
 			timers.flush();
 			expect(document.activeElement).toBe(focusBeforeTimer);
 			transfer(prompt.container, destination);
 			prompt.resumePane();
 			expect(destinationFrames.pending.size).toBe(1);
-			dockObserver.callback();
-			expect(scrollMutations).toBe(1);
 			const popoutObserver = observers.mutations[0];
 			if (popoutObserver === undefined) throw new Error("popout observer missing");
 			popoutObserver.callback();
