@@ -95,7 +95,7 @@ export abstract class BasePrompt implements Prompt {
 	private static _nextId: number = 0;
 	public readonly id: number = BasePrompt._nextId++;
 	public abstract readonly container: HTMLElement;
-	public closeCallback: ((prompt: Prompt) => void) | undefined = undefined;
+	public closeCallback: ((prompt: Prompt) => unknown) | undefined = undefined;
 	public openAlongsideCallback: ((promptName: string) => void) | undefined = undefined;
 	protected readonly _cancelButton: HTMLButtonElement = iconButton("cancelButton");
 	protected readonly _okayButton: HTMLButtonElement = actionButton("Commit");
@@ -113,12 +113,12 @@ export abstract class BasePrompt implements Prompt {
 		this._close();
 	};
 
-	protected _close = (): void => {
+	protected _close = (): unknown => {
 		if (this.closeCallback) {
-			this.closeCallback(<Prompt>(<unknown>this));
-		} else {
-			this._doc.prompt = null;
+			return this.closeCallback(<Prompt>(<unknown>this));
 		}
+		this._doc.prompt = null;
+		return undefined;
 	};
 
 	public discard(): void {}

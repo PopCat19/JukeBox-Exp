@@ -2216,6 +2216,70 @@ describe("native import and export pane", () => {
 		}
 	});
 
+	test("song import restores denied UI before an accepted aggregate close", async () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const doc = new SongDocument();
+		const importPrompt = new ImportPrompt(doc, { surface: "navigator" });
+		const exportPrompt = new ExportPrompt(doc, { surface: "navigator", autofocus: false });
+		let owner!: PaneOwner;
+		let closeAttempts = 0;
+		owner = createImportExportPaneOwner(
+			{ paneId: "importExportSong" },
+			importPrompt,
+			exportPrompt,
+			() => Promise.resolve(false),
+			() => Promise.resolve(),
+		);
+		owner.bindCloseAuthority?.(() => {
+			closeAttempts++;
+			if (owner.lifecycle.requestClose() === "keep-open") return Promise.resolve(false);
+			owner.lifecycle.unmount();
+			owner.lifecycle.dispose();
+			return Promise.resolve(true);
+		});
+		const hostElement = document.createElement("div");
+		document.body.append(hostElement);
+		owner.lifecycle.mount({
+			attach: (root) => { hostElement.append(root.element); },
+			detach: (root) => { root.element.remove(); },
+		});
+		const frames: FrameRequestCallback[] = [];
+		const rafWin = {
+			requestAnimationFrame: (callback: FrameRequestCallback) => {
+				frames.push(callback);
+				return frames.length;
+			},
+		} as unknown as Parameters<ImportPrompt["handleExternalFile"]>[1];
+		const songFile = new File([JSON.stringify(doc.song.toJsonObject())], "song.json");
+		const completeImport = async (): Promise<void> => {
+			const priorAttempts = closeAttempts;
+			importPrompt.handleExternalFile(songFile, rafWin);
+			for (let attempt = 0; attempt < 20 && frames.length === 0; attempt++) {
+				await new Promise((resolve) => setTimeout(resolve, 0));
+			}
+			expect(frames).toHaveLength(1);
+			frames.shift()?.(0);
+			for (let attempt = 0; attempt < 20 && closeAttempts === priorAttempts; attempt++) {
+				await new Promise((resolve) => setTimeout(resolve, 0));
+			}
+			expect(closeAttempts).toBe(priorAttempts + 1);
+		};
+		const keepOpen = exportPrompt.container.querySelectorAll<HTMLInputElement>(
+			"input[type='checkbox']",
+		)[3];
+		keepOpen.checked = true;
+		await completeImport();
+		expect(owner.lifecycle.requestClose()).toBe("keep-open");
+		expect(importPrompt.container.querySelector("h3")?.textContent).toBe("Import");
+		expect(owner.lifecycle.root.element.isConnected).toBeTrue();
+		expect((importPrompt as unknown as { _disposed: boolean })._disposed).toBeFalse();
+		keepOpen.checked = false;
+		await completeImport();
+		expect(owner.lifecycle.root.element.isConnected).toBeFalse();
+		expect((importPrompt as unknown as { _disposed: boolean })._disposed).toBeTrue();
+		hostElement.remove();
+	});
+
 	test("standalone prompt roots and geometry contracts remain unchanged", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		const prompts = [new ImportPrompt(new SongDocument()), new ExportPrompt(new SongDocument(), { autofocus: false }), new InstrumentImportPrompt(new SongDocument()), new InstrumentExportPrompt(new SongDocument())];

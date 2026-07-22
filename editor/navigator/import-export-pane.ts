@@ -20,7 +20,7 @@ export function createImportExportPaneOwner(
 	let closeAuthority = closePane;
 	let disposed = false;
 	for (const prompt of [importPrompt, exportPrompt]) {
-		prompt.closeCallback = () => void closeAuthority();
+		prompt.closeCallback = () => closeAuthority();
 		prompt.openAlongsideCallback = (scope) => void openPane(scope);
 	}
 	const element = document.createElement("article");

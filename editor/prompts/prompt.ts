@@ -18,7 +18,7 @@ export interface Prompt {
 	whenKeyPressed?: ((event: KeyboardEvent) => void) | undefined;
 	gotMouseUp?: boolean | undefined;
 	closeWithoutUndo?: (() => void) | undefined;
-	closeCallback?: ((prompt: Prompt) => void) | undefined;
+	closeCallback?: ((prompt: Prompt) => unknown) | undefined;
 	openAlongsideCallback?: ((promptName: string) => void) | undefined;
 	animateExit?: ((callback: () => void) => void) | undefined;
 	requestPaneLeave?: (() => boolean) | undefined;

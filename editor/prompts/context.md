@@ -2,7 +2,7 @@
 
 - `index.ts`, Barrel re-export of all editor prompt classes
 - `prompt.ts`, Defines the Prompt interface for modal dialog components
-- `base-prompt.ts`, Abstract base class for all editor prompt dialogs
+- `base-prompt.ts`, Abstract prompt lifecycle plus standalone and Navigator native-surface factories
 - `input-helpers.ts`, Shared validation and layout helpers for prompt dialogs
 - `add-samples-prompt.ts`, Provides dialog for importing and loading audio sample files
 - `add-samples-url-parser.ts`, Parses and generates URL data for custom sample entries
