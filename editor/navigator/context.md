@@ -8,6 +8,7 @@ Purpose: Defines navigator contracts, persistent shell, runtime, and identity ow
 - `channel-volume-visualizer-pane.ts` - Standalone visualizer pane wrapper with hidden-work suspension
 - `command-registry.ts` - Shared typed command metadata, ranking, argument validation, and executors
 - `instrument-browser-pane.ts` - Standalone instrument browser pane wrapper
+- `import-export-pane.ts` - Stacked song and instrument import/export pane ownership
 - `contracts.ts` - Pane lifecycle, decisions, commands, and retained-state contracts
 - `route-identity.ts` - Canonical finite-JSON pane route identity
 - `route-catalog.ts` - Authoritative dashboard groups, route labels, composition metadata, and Other tools derivation

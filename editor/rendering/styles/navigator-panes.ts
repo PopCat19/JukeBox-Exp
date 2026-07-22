@@ -97,10 +97,12 @@ export function buildNavigatorPanesCSS(): string {
 	flex-wrap: wrap !important;
 	min-width: 0;
 }
+.beepboxEditor .navigator-import-export-child { box-shadow: none !important; }
 .beepboxEditor .navigator-native-pane > .prompt-titlebar,
 .beepboxEditor .navigator-native-pane > .cancelButton,
 .beepboxEditor .navigator-native-pane > .prompt-button-row > .cancelButton,
-.beepboxEditor .navigator-native-pane > .exportPromptContent > .exportPromptFooter > .cancelButton {
+.beepboxEditor .navigator-native-pane > .exportPromptContent > .exportPromptFooter > .cancelButton,
+.beepboxEditor .navigator-import-export-child .cancelButton {
 	display: none !important;
 }
 `;

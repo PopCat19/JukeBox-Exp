@@ -82,9 +82,13 @@ export function buildNavigatorCSS(): string {
 	background: transparent;
 	border: 0;
 	border-bottom: 1px solid var(--ui-widget-background);
-	border-radius: 0;
+	border-radius: 4px;
 	cursor: pointer;
 }
+.beepboxEditor .navigator-route-group-title:hover,
+.beepboxEditor .navigator-route-group-title:focus-visible,
+.beepboxEditor .navigator-route-group-title.pmd-hover,
+.beepboxEditor .navigator-route-group-title.pmd-focus { border-radius: 4px; }
 .beepboxEditor .navigator-route-group-title::before { display: inline-block; width: 1.25em; content: "▸"; }
 .beepboxEditor .navigator-route-group-title[aria-expanded="true"]::before { content: "▾"; }
 .beepboxEditor .navigator-route-group-content { display: flex; flex-direction: column; gap: 4px; }
@@ -112,24 +116,6 @@ export function buildNavigatorCSS(): string {
 	min-height: 0;
 	overflow: hidden;
 }
-.beepboxEditor .navigator-workspace-tabs {
-	display: flex;
-	gap: 4px;
-	padding: 8px 12px 0;
-	border-bottom: 2px solid var(--ui-widget-background);
-}
-.beepboxEditor .navigator-workspace-tabs[hidden] { display: none; }
-.beepboxEditor .navigator-workspace-tab {
-	padding: 6px 12px;
-	color: var(--secondary-text);
-	background: var(--ui-widget-background);
-	border: 0;
-	border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
-}
-.beepboxEditor .navigator-workspace-tab[aria-selected="true"] {
-	color: var(--cta-fg);
-	background: var(--cta-bg);
-}
 .beepboxEditor .navigator-pane-host {
 	display: flex;
 	flex: 1 1 0;
@@ -141,6 +127,37 @@ export function buildNavigatorCSS(): string {
 	color: var(--secondary-text);
 }
 .beepboxEditor .navigator-pane-host > .sampleBrowserPrompt > h2 { display: none; }
+.beepboxEditor .navigator-import-export-pane {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.beepboxEditor .navigator-import-export-section {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+	padding-bottom: 6px;
+	border-bottom: 1px solid var(--ui-widget-background);
+}
+.beepboxEditor .navigator-import-export-section:last-child {
+	padding-bottom: 0;
+	border-bottom: 0;
+}
+.beepboxEditor .navigator-import-export-section > h3 {
+	margin: 0;
+	color: var(--primary-text);
+	font-size: 14px;
+}
+.beepboxEditor .navigator-import-export-child {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: none;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+}
 @media (max-width: 639px) {
 	.beepboxEditor .navigator-content { display: flex; flex-direction: column; box-sizing: border-box; max-width: 100%; gap: 8px; overflow-x: hidden; }
 	.beepboxEditor .navigator-sidebar { flex: 0 0 auto; box-sizing: border-box; width: 100%; max-width: 100%; overflow: hidden; }

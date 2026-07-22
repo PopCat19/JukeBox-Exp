@@ -50,10 +50,26 @@ function normalize(value: unknown, ancestors: Set<object>): SerializableValue {
 	}
 }
 
+export function canonicalPaneId(paneId: string): string {
+	switch (paneId) {
+		case "import":
+		case "export":
+		case "importExportSong":
+			return "importExportSong";
+		case "importInstrument":
+		case "exportInstrument":
+		case "importExportInstrument":
+			return "importExportInstrument";
+		case "instrumentTags":
+			return "instrumentBrowser";
+		default:
+			return paneId;
+	}
+}
+
 export function canonicalRouteIdentity(route: PaneRoute): PaneIdentity {
 	if (typeof route.paneId !== "string" || route.paneId.length === 0)
 		throw new TypeError("paneId must be a non-empty string");
-	const paneId = route.paneId === "instrumentTags" ? "instrumentBrowser" : route.paneId;
 	const context = Object.hasOwn(route, "context") ? normalize(route.context, new Set()) : null;
-	return JSON.stringify([paneId, context]) as PaneIdentity;
+	return JSON.stringify([canonicalPaneId(route.paneId), context]) as PaneIdentity;
 }

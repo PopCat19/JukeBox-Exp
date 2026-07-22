@@ -4,6 +4,7 @@ export * from "./add-samples-pane";
 export * from "./channel-volume-visualizer-pane";
 export * from "./command-registry";
 export * from "./contracts";
+export * from "./import-export-pane";
 export * from "./instrument-browser-pane";
 export * from "./native-panes";
 export * from "./navigator-detached-host";

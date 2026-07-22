@@ -10,6 +10,7 @@ import {
 	type GlobalApplicationRoute,
 } from "../editor/core/application-router";
 import type { PaneRoute } from "../editor/navigator/contracts";
+import { canonicalRouteIdentity } from "../editor/navigator/route-identity";
 
 function mutableContext(): { channel: number; filters: number[] } {
 	return { channel: 2, filters: [1, 3] };
@@ -116,6 +117,21 @@ describe("application router", () => {
 		expect(manager).not.toContain('case "addExternal":');
 		expect(manager).not.toContain('case "channelVolumeVisualizer":');
 		expect(manager).toContain('case "export":');
+	});
+
+	test("legacy import and export actions converge while standalone prompt cases remain", () => {
+		const songIdentity = canonicalRouteIdentity({ paneId: "importExportSong" });
+		for (const scope of ["import", "export"]) {
+			expect(canonicalRouteIdentity({ paneId: scope })).toBe(songIdentity);
+		}
+		const instrumentIdentity = canonicalRouteIdentity({ paneId: "importExportInstrument" });
+		for (const scope of ["importInstrument", "exportInstrument"]) {
+			expect(canonicalRouteIdentity({ paneId: scope })).toBe(instrumentIdentity);
+		}
+		const manager = readFileSync("editor/core/prompt-manager.ts", "utf8");
+		for (const scope of ["import", "export", "importInstrument", "exportInstrument"]) {
+			expect(manager).toContain(`case "${scope}":`);
+		}
 	});
 
 	test("routes named editor tips through the canonical Help pane", async () => {

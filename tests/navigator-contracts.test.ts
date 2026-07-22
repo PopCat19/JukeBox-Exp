@@ -38,8 +38,13 @@ import {
 import { buildNavigatorCSS } from "../editor/rendering/styles/prompt-navigator";
 import { buildSharedUICSS } from "../editor/rendering/styles/shared-ui";
 import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
+import { createImportExportPaneOwner } from "../editor/navigator/import-export-pane";
 import { createPromptPaneOwner } from "../editor/navigator/prompt-pane-owner";
-import { canonicalRouteIdentity, type PaneIdentity } from "../editor/navigator/route-identity";
+import {
+	canonicalPaneId,
+	canonicalRouteIdentity,
+	type PaneIdentity,
+} from "../editor/navigator/route-identity";
 import { events } from "../shared/events";
 import { InstrumentType } from "../synth/config/instrument-registry";
 import type { Instrument } from "../synth/instruments/instrument";
@@ -217,6 +222,21 @@ describe("navigator route identity", () => {
 	});
 
 	test("uses null for missing context", () => { expect(canonicalRouteIdentity({ paneId: "song" })).toBe('["song",null]' as PaneIdentity); });
+
+	test("converges legacy import and export scopes on explicit aggregate identities", () => {
+		for (const id of ["import", "export", "importExportSong"]) {
+			expect(canonicalPaneId(id)).toBe("importExportSong");
+			expect(canonicalRouteIdentity({ paneId: id })).toBe(
+				canonicalRouteIdentity({ paneId: "importExportSong" }),
+			);
+		}
+		for (const id of ["importInstrument", "exportInstrument", "importExportInstrument"]) {
+			expect(canonicalPaneId(id)).toBe("importExportInstrument");
+			expect(canonicalRouteIdentity({ paneId: id })).toBe(
+				canonicalRouteIdentity({ paneId: "importExportInstrument" }),
+			);
+		}
+	});
 
 	test("rejects invalid JSON graphs", () => {
 		const cycle: Record<string, unknown> = {}; cycle.self = cycle;
@@ -738,7 +758,7 @@ describe("navigator runtime", () => {
 		expect(effects).toEqual(["mount:first", "focus:first"]);
 	});
 
-	test("openThen delivers transient data before a queued route replacement", async () => {
+	test("openThen delivers transient data before a queued aggregate alias focus", async () => {
 		resetDocument();
 		const effects: string[] = [];
 		const runtime = new NavigatorRuntime(new NavigatorShell(), (route) => runtimeOwner(route, effects));
@@ -748,13 +768,7 @@ describe("navigator runtime", () => {
 		const exportOpen = runtime.open({ paneId: "export" });
 		expect(await importOpen).toBeTrue();
 		expect(await exportOpen).toBeTrue();
-		expect(effects).toEqual([
-			"mount:import",
-			"deliver:import",
-			"unmount:import",
-			"dispose:import",
-			"mount:export",
-		]);
+		expect(effects).toEqual(["mount:import", "deliver:import", "focus:import"]);
 	});
 
 	test("denied replacement has zero destination factory side effects", async () => {
@@ -954,9 +968,15 @@ describe("navigator shell", () => {
 		expect(navigatorRouteCatalog.map((group) => group.title)).toEqual([
 			"Project Data", "Song Config", "Pattern Config", "Focused Instrument Config", "Preferences", "Help",
 		]);
-		expect(navigatorRouteCatalog[0].items[0].kind).toBe("tabs");
-		expect((navigatorRouteCatalog[0].items[0] as { routes: readonly unknown[] }).routes.length).toBe(2);
-		expect(navigatorRouteCatalog[3].items[1].kind).toBe("tabs");
+		expect(navigatorRouteCatalog[0].items[0]).toEqual({
+			kind: "route",
+			route: { id: "importExportSong", title: "Import/Export Song" },
+		});
+		expect(navigatorRouteCatalog[3].items[1]).toEqual({
+			kind: "route",
+			route: { id: "importExportInstrument", title: "Import/Export Instrument" },
+		});
+		expect(navigatorRouteCatalog.flatMap((group) => group.items).map((item) => item.kind)).not.toContain("tabs");
 		expect(navigatorRouteCatalog[5].items.map((item) => item.kind)).toEqual(["route", "route"]);
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("instrumentTags");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("tipPromptScope");
@@ -1022,6 +1042,10 @@ describe("navigator shell", () => {
 		expect(css).toContain("@media (max-width: 639px)");
 		expect(css).not.toContain("navigator-route-split");
 		expect(css).not.toContain("navigator-route-tab");
+		expect(css).not.toContain("navigator-workspace-tab");
+		expect(css).toMatch(/\.navigator-route-group-title \{[^}]*border-radius: 4px/s);
+		expect(css).toMatch(/\.navigator-route-group-title:hover,[\s\S]*\.navigator-route-group-title:focus-visible,[\s\S]*border-radius: 4px/);
+		expect(css).toMatch(/\.navigator-import-export-pane \{[^}]*flex-direction: column[^}]*gap: 8px/s);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-content \{[^}]*max-width: 100%[^}]*overflow-x: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-sidebar \{[^}]*box-sizing: border-box[^}]*max-width: 100%[^}]*overflow: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*max-width: 100%[^}]*flex-direction: row[^}]*overflow-x: auto/);
@@ -1272,7 +1296,7 @@ describe("navigator shell", () => {
 				shell.container.querySelectorAll<HTMLButtonElement>(".navigator-route"),
 				(button) => button.dataset.routeId,
 			),
-		).toEqual(["importInstrument"]);
+		).toEqual(["importExportInstrument"]);
 		search.value = "sample";
 		search.dispatchEvent(new Event("input"));
 		const route = shell.container.querySelector<HTMLButtonElement>(".navigator-route");
@@ -1287,20 +1311,15 @@ describe("navigator shell", () => {
 		search.value = "";
 		search.dispatchEvent(new Event("input"));
 		const songFamily = shell.container.querySelector<HTMLButtonElement>(
-			".navigator-route[data-route-id='import']",
+			".navigator-route[data-route-id='importExportSong']",
 		);
 		songFamily?.click();
-		expect(opened).toBe("import");
+		expect(opened).toBe("importExportSong");
 		const importPane = document.createElement("article");
-		importPane.dataset.navigatorScope = "import";
+		importPane.dataset.navigatorScope = "importExportSong";
 		shell.attach({ element: importPane });
-		const workspaceTabs = shell.container.querySelectorAll<HTMLButtonElement>(
-			".navigator-workspace-tabs [role='tab']",
-		);
-		expect(workspaceTabs).toHaveLength(2);
-		expect(Array.from(workspaceTabs, (tab) => tab.dataset.routeId)).toEqual(["import", "export"]);
-		workspaceTabs[1].click();
-		expect(opened).toBe("export");
+		expect(shell.container.querySelectorAll("[role='tablist']")).toHaveLength(0);
+		expect(shell.container.querySelectorAll("[role='tab']")).toHaveLength(0);
 		expect(route?.classList.contains("selectableRow")).toBeTrue();
 		expect(route?.classList.contains("pmd-hover")).toBeTrue();
 		expect(route?.classList.contains("pmd-focus")).toBeTrue();
@@ -2106,10 +2125,99 @@ describe("prompt pane authority", () => {
 });
 
 
+describe("stacked import and export pane", () => {
+	function compositePrompt(
+		label: string,
+		state: { leave: boolean; close: boolean },
+		effects: string[],
+	): Prompt {
+		const container = document.createElement("div");
+		const button = document.createElement("button");
+		button.textContent = label;
+		container.append(button);
+		return {
+			id: label === "import" ? 1 : 2,
+			container,
+			discard: () => undefined,
+			cleanUp: () => effects.push(`cleanup:${label}`),
+			requestPaneLeave: () => state.leave,
+			requestPaneClose: () => state.close,
+			whenKeyPressed: () => effects.push(`key:${label}`),
+		};
+	}
+
+	test("renders semantic sections in import then export order without tab DOM", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const owner = createImportExportPaneOwner(
+			{ paneId: "importExportSong" },
+			compositePrompt("import", { leave: true, close: true }, []),
+			compositePrompt("export", { leave: true, close: true }, []),
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
+		);
+		const sections = owner.lifecycle.root.element.querySelectorAll(":scope > section");
+		expect(Array.from(sections, (section) => section.querySelector("h3")?.textContent)).toEqual([
+			"Import",
+			"Export",
+		]);
+		expect(Array.from(sections, (section) => (section as HTMLElement).dataset.sectionKind)).toEqual([
+			"import",
+			"export",
+		]);
+		expect(owner.lifecycle.root.element.querySelectorAll("[role='tablist'], [role='tab']")).toHaveLength(0);
+	});
+
+	test("aggregates both child authorities, keys, close binding, and disposal once", async () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const effects: string[] = [];
+		const importState = { leave: true, close: true };
+		const exportState = { leave: true, close: true };
+		const importPrompt = compositePrompt("import", importState, effects);
+		const exportPrompt = compositePrompt("export", exportState, effects);
+		const owner = createImportExportPaneOwner(
+			{ paneId: "importExportSong" },
+			importPrompt,
+			exportPrompt,
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
+		);
+		exportState.leave = false;
+		expect(owner.lifecycle.requestLeave()).toBe("deny");
+		exportState.leave = true;
+		importState.close = false;
+		expect(owner.lifecycle.requestClose()).toBe("keep-open");
+		importState.close = true;
+		expect(owner.lifecycle.requestLeave()).toBe("allow");
+		expect(owner.lifecycle.requestClose()).toBe("close");
+		const hostElement = document.createElement("div");
+		owner.lifecycle.mount({ attach: (root) => { hostElement.append(root.element); }, detach: (root) => { root.element.remove(); } });
+		owner.lifecycle.root.element.querySelector<HTMLButtonElement>("[data-navigator-scope='import'] button")?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true }));
+		expect(effects).toEqual(["key:import"]);
+		let closes = 0;
+		owner.bindCloseAuthority?.(() => { closes++; return Promise.resolve(true); });
+		importPrompt.closeCallback?.(importPrompt);
+		await Promise.resolve();
+		expect(closes).toBe(1);
+		owner.lifecycle.unmount();
+		owner.lifecycle.dispose();
+		owner.lifecycle.dispose();
+		expect(effects).toEqual(["key:import", "cleanup:import", "cleanup:export"]);
+	});
+
+	test("keeps aggregate roots free of inner scroll CSS", () => {
+		const css = buildNavigatorCSS();
+		const aggregateRule = css.match(/\.navigator-import-export-pane \{([^}]*)\}/)?.[1] ?? "";
+		expect(aggregateRule).not.toMatch(/overflow(?:-y)?:\s*(?:auto|scroll)/);
+		const sectionRule = css.match(/\.navigator-import-export-section \{([^}]*)\}/)?.[1] ?? "";
+		expect(sectionRule).not.toMatch(/overflow(?:-y)?:\s*(?:auto|scroll)/);
+	});
+});
+
 describe("flattened Navigator routes", () => {
 	const routes = [
-		["import", "Import"], ["export", "Export"], ["songRecovery", "Recover Song"],
-		["importInstrument", "Import"], ["exportInstrument", "Export"],
+		["importExportSong", "Import/Export Song"],
+		["songRecovery", "Recover Song"],
+		["importExportInstrument", "Import/Export Instrument"],
 		["theme", "Theme"], ["customTheme", "Custom Theme"], ["customThemeRaw", "Custom Theme Raw"],
 	] as const;
 	const makeOwner = (route: PaneRoute, events: string[], leave: LeaveDecision = "allow"): PaneOwner => {
@@ -2139,16 +2247,14 @@ describe("flattened Navigator routes", () => {
 		const shell = new NavigatorShell("Navigator", undefined, undefined, (paneId) => { void runtime.open({ paneId }); });
 		runtime = new NavigatorRuntime(shell, (route) => makeOwner(route, events));
 		for (const [id, label] of routes) {
-			const direct = shell.container.querySelector(`[data-route-id='${id}']`)?.textContent;
-			const family = shell.container.querySelector(`[data-route-ids~='${id}']`)?.textContent;
-			expect(direct === label || family === "Import/Export Song" || family === "Import/Export Instrument").toBeTrue();
+			expect(shell.container.querySelector(`[data-route-id='${id}']`)?.textContent).toBe(label);
 		}
-		shell.container.querySelector<HTMLButtonElement>("[data-route-id='import']")?.click();
+		shell.container.querySelector<HTMLButtonElement>("[data-route-id='importExportSong']")?.click();
 		await new Promise((resolve) => setTimeout(resolve, 0));
-		shell.container.querySelector<HTMLButtonElement>("[data-route-id='import']")?.click();
+		shell.container.querySelector<HTMLButtonElement>("[data-route-id='importExportSong']")?.click();
 		await new Promise((resolve) => setTimeout(resolve, 0));
-		expect(events).toEqual(["mount:import", "focus:import"]);
-		expect(shell.container.querySelectorAll("[role='tabpanel']").length).toBe(0);
+		expect(events).toEqual(["mount:importExportSong", "focus:importExportSong"]);
+		expect(shell.container.querySelectorAll("[role='tablist'], [role='tab'], [role='tabpanel']")).toHaveLength(0);
 	});
 
 	test("dirty denial preserves content and selected canonical route", async () => {

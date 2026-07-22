@@ -5,9 +5,11 @@ import type { SongDocument } from "../song-document";
 import { createAddSamplesPane } from "./add-samples-pane";
 import { createChannelVolumeVisualizerPane } from "./channel-volume-visualizer-pane";
 import type { PaneRoute } from "./contracts";
+import { createInstrumentImportExportPane, createSongImportExportPane } from "./import-export-pane";
 import { createInstrumentBrowserPane } from "./instrument-browser-pane";
 import type { PaneOwner } from "./ownership";
 import { guardNavigatorRoute } from "./route-catalog";
+import { canonicalPaneId } from "./route-identity";
 
 export class NativePaneFactory {
 	constructor(
@@ -18,27 +20,47 @@ export class NativePaneFactory {
 	) {}
 
 	supports(route: PaneRoute): boolean {
-		return (
-			route.paneId === "instrumentBrowser" ||
-			route.paneId === "instrumentTags" ||
-			route.paneId === "addExternal" ||
-			route.paneId === "channelVolumeVisualizer"
-		);
+		return [
+			"instrumentBrowser",
+			"importExportSong",
+			"importExportInstrument",
+			"addExternal",
+			"channelVolumeVisualizer",
+		].includes(canonicalPaneId(route.paneId));
 	}
 
 	create = (route: PaneRoute): PaneOwner => {
 		guardNavigatorRoute(route, this.doc.getCurrentInstrumentObj());
-		switch (route.paneId) {
+		const normalizedRoute = { ...route, paneId: canonicalPaneId(route.paneId) };
+		switch (normalizedRoute.paneId) {
 			case "instrumentBrowser":
-			case "instrumentTags":
 				return createInstrumentBrowserPane(this.doc, route, this.closePane, this.openPane);
+			case "importExportSong":
+				return createSongImportExportPane(
+					this.doc,
+					normalizedRoute,
+					this.closePane,
+					this.openPane,
+				);
+			case "importExportInstrument":
+				return createInstrumentImportExportPane(
+					this.doc,
+					normalizedRoute,
+					this.closePane,
+					this.openPane,
+				);
 			case "addExternal":
-				return createAddSamplesPane(this.doc, route, this.closePane, this.openPane);
+				return createAddSamplesPane(
+					this.doc,
+					normalizedRoute,
+					this.closePane,
+					this.openPane,
+				);
 			case "channelVolumeVisualizer":
 				return createChannelVolumeVisualizerPane(
 					this.doc,
 					this.refs,
-					route,
+					normalizedRoute,
 					this.closePane,
 					this.openPane,
 				);

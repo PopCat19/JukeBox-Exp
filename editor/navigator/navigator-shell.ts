@@ -12,26 +12,17 @@ import {
 	navigatorOtherRoutes,
 	navigatorRouteCatalog,
 } from "./route-catalog";
+import { canonicalPaneId } from "./route-identity";
 
 export interface NavigatorRoute {
 	readonly id: string;
 	readonly title: string;
 	readonly category: string;
-	readonly tabs?: readonly { readonly id: string; readonly title: string }[];
 }
 
 const DEFAULT_ROUTES: readonly NavigatorRoute[] = navigatorRouteCatalog
 	.flatMap((group) =>
 		group.items.map((item) => {
-			if (item.kind === "tabs") {
-				const first = item.routes[0];
-				return {
-					id: first.id,
-					title: item.title,
-					category: group.title,
-					tabs: item.routes.map(({ id, title }) => ({ id, title })),
-				};
-			}
 			const [route] = catalogItemRoutes(item);
 			return { ...route, category: group.title };
 		}),
@@ -47,7 +38,6 @@ export class NavigatorShell implements PaneHost {
 	private readonly sidebar: HTMLElement;
 	private readonly sidebarToggleButton: HTMLButtonElement;
 	private readonly workspace: HTMLElement;
-	private readonly workspaceTabs: HTMLDivElement;
 	private readonly detachButton: HTMLButtonElement | null;
 	private readonly routes: readonly NavigatorRoute[];
 	private readonly onRoute: ((id: string) => void) | undefined;
@@ -140,12 +130,9 @@ export class NavigatorShell implements PaneHost {
 		this.workspace = document.createElement("section");
 		this.workspace.className = "navigator-workspace";
 		this.workspace.setAttribute("aria-labelledby", this.titleHeading.id);
-		this.workspaceTabs = document.createElement("div");
-		this.workspaceTabs.className = "navigator-workspace-tabs";
-		this.workspaceTabs.hidden = true;
 		this.body = document.createElement("div");
 		this.body.className = "navigator-pane-host";
-		this.workspace.append(this.workspaceTabs, this.body);
+		this.workspace.append(this.body);
 		content.append(this.sidebar, this.workspace);
 		this.container.append(content);
 		this.renderRoutes(routes);
@@ -207,26 +194,20 @@ export class NavigatorShell implements PaneHost {
 		this.container.hidden = false;
 		this.body.hidden = false;
 		this.updateDetachAvailability();
-		const routeId = root.element.dataset.navigatorScope ?? "";
+		const routeId = canonicalPaneId(root.element.dataset.navigatorScope ?? "");
 		this.activeRouteId = routeId;
-		const route = this.routes.find(
-			(entry) => entry.id === routeId || entry.tabs?.some((tab) => tab.id === routeId),
-		);
+		const route = this.routes.find((entry) => canonicalPaneId(entry.id) === routeId);
 		if (route !== undefined) {
 			this.titleHeading.textContent = route.title;
 			const routeButtons =
 				this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
 			for (let index = 0; index < routeButtons.length; index++) {
 				const button = routeButtons[index];
-				const routeIds = button.dataset.routeIds?.split(" ") ?? [
-					button.dataset.routeId ?? "",
-				];
-				const active = routeIds.includes(routeId);
+				const active = canonicalPaneId(button.dataset.routeId ?? "") === routeId;
 				setSelectableRowActive(button, active);
 				button.setAttribute("aria-current", active ? "page" : "false");
 			}
 		}
-		this.renderWorkspaceTabs(route, routeId);
 		this.updateVisibility(true);
 		this.body.append(root.element);
 	}
@@ -285,8 +266,7 @@ export class NavigatorShell implements PaneHost {
 			const matches = routes.filter((route) => {
 				if (route.category !== category) return false;
 				if (query === "") return true;
-				const familyMembers = route.tabs?.flatMap((tab) => [tab.title, tab.id]) ?? [];
-				return [route.title, route.id, route.category, ...familyMembers]
+				return [route.title, route.id, route.category]
 					.join(" ")
 					.toLocaleLowerCase()
 					.includes(query);
@@ -335,40 +315,11 @@ export class NavigatorShell implements PaneHost {
 	}
 
 	private createRouteButton(route: NavigatorRoute): HTMLButtonElement {
-		const memberIds = route.tabs?.map((tab) => tab.id) ?? [route.id];
 		const button = this.createNavigationButton(route.id, route.title, "navigator-route");
-		button.dataset.routeIds = memberIds.join(" ");
-		selectableRow(button, memberIds.includes(this.activeRouteId ?? ""));
-		button.setAttribute(
-			"aria-current",
-			memberIds.includes(this.activeRouteId ?? "") ? "page" : "false",
-		);
+		const active = canonicalPaneId(route.id) === this.activeRouteId;
+		selectableRow(button, active);
+		button.setAttribute("aria-current", active ? "page" : "false");
 		return button;
-	}
-
-	private renderWorkspaceTabs(route: NavigatorRoute | undefined, routeId: string): void {
-		this.workspaceTabs.replaceChildren();
-		if (route?.tabs === undefined) {
-			this.workspaceTabs.hidden = true;
-			this.workspaceTabs.removeAttribute("role");
-			this.workspaceTabs.removeAttribute("aria-label");
-			return;
-		}
-		this.workspaceTabs.hidden = false;
-		this.workspaceTabs.setAttribute("role", "tablist");
-		this.workspaceTabs.setAttribute("aria-label", route.title);
-		for (const tab of route.tabs) {
-			const button = this.createNavigationButton(
-				tab.id,
-				tab.title,
-				"navigator-workspace-tab",
-			);
-			const active = tab.id === routeId;
-			button.setAttribute("role", "tab");
-			button.setAttribute("aria-selected", String(active));
-			button.tabIndex = active ? 0 : -1;
-			this.workspaceTabs.append(button);
-		}
 	}
 
 	private createNavigationButton(

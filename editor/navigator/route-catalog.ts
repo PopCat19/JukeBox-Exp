@@ -5,6 +5,7 @@ import { getInstrumentCapabilities } from "../../synth/socket/capability-lookup"
 import type { InstrumentCapabilities } from "../../synth/socket/capability-schema";
 import { commandRegistry } from "./command-registry";
 import type { PaneRoute } from "./contracts";
+import { canonicalPaneId } from "./route-identity";
 
 export type NavigatorRouteCapability = keyof InstrumentCapabilities;
 
@@ -18,11 +19,6 @@ export interface NavigatorCatalogRoute {
 
 export type NavigatorCatalogItem =
 	| { readonly kind: "route"; readonly route: NavigatorCatalogRoute }
-	| {
-			readonly kind: "tabs";
-			readonly title: string;
-			readonly routes: readonly NavigatorCatalogRoute[];
-	  }
 	| { readonly kind: "split"; readonly slots: readonly NavigatorCatalogItem[] };
 
 export interface NavigatorCatalogGroup {
@@ -47,11 +43,6 @@ const routeItem = (
 	capability?: NavigatorRouteCapability,
 	availability?: (instrument: Instrument) => boolean,
 ): NavigatorCatalogItem => ({ kind: "route", route: route(id, title, capability, availability) });
-const tabs = (title: string, ...routes: NavigatorCatalogRoute[]): NavigatorCatalogItem => ({
-	kind: "tabs",
-	title,
-	routes,
-});
 const capability =
 	(name: NavigatorRouteCapability) =>
 	(instrument: Instrument): boolean =>
@@ -60,7 +51,7 @@ export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.fr
 	{
 		title: "Project Data",
 		items: [
-			tabs("Import/Export Song", route("import", "Import"), route("export", "Export")),
+			routeItem("importExportSong", "Import/Export Song"),
 			routeItem("songRecovery", "Recover Song"),
 			routeItem("addExternal", "Add Samples"),
 			routeItem("configureShortener", "Shortener Config"),
@@ -90,11 +81,7 @@ export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.fr
 		title: "Focused Instrument Config",
 		items: [
 			routeItem("instrumentBrowser", "Instrument Browser"),
-			tabs(
-				"Import/Export Instrument",
-				route("importInstrument", "Import"),
-				route("exportInstrument", "Export"),
-			),
+			routeItem("importExportInstrument", "Import/Export Instrument"),
 			routeItem(
 				"customChipSettings",
 				"Custom Chip Settings",
@@ -158,20 +145,16 @@ export function catalogItemRoutes(item: NavigatorCatalogItem): readonly Navigato
 	switch (item.kind) {
 		case "route":
 			return [item.route];
-		case "tabs":
-			return item.routes;
 		case "split":
 			return item.slots.flatMap(catalogItemRoutes);
 	}
 }
 
 export function findNavigatorRoute(id: string): NavigatorCatalogRoute | undefined {
-	return (
-		navigatorRouteCatalog
-			.flatMap((group) => group.items.flatMap(catalogItemRoutes))
-			.find((item) => item.id === id) ??
-		(id === "instrumentTags" ? findNavigatorRoute("instrumentBrowser") : undefined)
-	);
+	const canonicalId = canonicalPaneId(id);
+	return navigatorRouteCatalog
+		.flatMap((group) => group.items.flatMap(catalogItemRoutes))
+		.find((item) => item.id === canonicalId);
 }
 
 export function getNavigatorRouteAvailability(
@@ -200,7 +183,7 @@ export const navigatorOtherRoutes: readonly NavigatorCatalogRoute[] = commandReg
 		command.scope !== undefined &&
 		command.scope !== "instrumentTags" &&
 		command.scope !== "sampleLoadingStatus" &&
-		!visibleRouteIds.has(command.scope)
+		!visibleRouteIds.has(canonicalPaneId(command.scope))
 			? [route(command.scope, command.label)]
 			: [],
 );

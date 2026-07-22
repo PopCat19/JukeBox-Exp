@@ -206,7 +206,7 @@ export class ExportPrompt extends BasePrompt {
 		),
 	);
 
-	constructor(doc: SongDocument) {
+	constructor(doc: SongDocument, options: { readonly autofocus?: boolean } = {}) {
 		super(doc);
 		this.buildTitlebar();
 		this._okayButton.classList.add("exportButton");
@@ -232,10 +232,12 @@ export class ExportPrompt extends BasePrompt {
 
 		this._updateWarnings();
 
-		this._fileName.select();
-		setTimeout(() => {
-			this._fileName.focus();
-		});
+		if (options.autofocus !== false) {
+			this._fileName.select();
+			setTimeout(() => {
+				this._fileName.focus();
+			});
+		}
 
 		this._fileName.addEventListener("input", ExportPrompt._validateFileName);
 		this._loopStartInput.addEventListener("change", this._whenLoopStartChanged);

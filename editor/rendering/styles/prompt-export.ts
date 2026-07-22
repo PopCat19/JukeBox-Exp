@@ -137,6 +137,22 @@ export function buildPromptExportCSS(): string {
 	max-width: none;
 }
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt .prompt-button-row { outline: none; }
+.beepboxEditor .navigator-import-export-pane .exportPrompt {
+	align-items: flex-start;
+	width: 100%;
+	max-width: none;
+}
+.beepboxEditor .navigator-import-export-pane .exportPromptContent,
+.beepboxEditor .navigator-import-export-pane .exportPromptBody { gap: 6px; }
+.beepboxEditor .navigator-import-export-pane .exportSection { gap: 4px; }
+.beepboxEditor .navigator-import-export-pane .exportPromptContent {
+	align-self: stretch;
+	width: 100%;
+	max-width: none;
+}
+.beepboxEditor .navigator-import-export-pane .exportPromptFooter > .prompt-button-row {
+	margin: 0;
+}
 .beepboxEditor .navigator-pane-host > .navigator-native-pane.exportPrompt button:focus-visible {
 	outline: 2px solid var(--hout, var(--primary-text));
 	outline-offset: 1px;
