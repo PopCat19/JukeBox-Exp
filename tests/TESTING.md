@@ -115,6 +115,7 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/ui/buttons/action-button.ts` | `tests/action-button.test.ts` | Optional canonical PMD surfaces, role metadata, interaction hooks, idempotent decoration, and generic caller preservation |
 | `editor/ui/surfaces.ts` | `tests/ui-states.test.ts` | primarySurface/secondarySurface/ghostSurface role outputs |
 | `editor/ui/interactions.ts` | `tests/interactions-behavior.test.ts` | Behavioral: classList adds, style custom props, dataset writes, native disabled property writes, tagged style injection dedupe |
+| `editor/ui/base/input.ts` | `tests/input-wheel-support.test.ts` | Numeric wheel preference, finite deltas/values, bounds, passive registration, exact events, and page-scroll isolation |
 | `editor/ui/interactions.ts` (source-grep) | `tests/ui-states.test.ts` | CSS rule content (incl. pmd-disabled), helper exports, DisableableElement union coverage |
 | `editor/ui/rows/selectable-row.ts`, `editor/rendering/styles/shared-ui.ts` | `tests/navigator-contracts.test.ts` | Shared search and selectable-row structure, PMD outline feedback, and active state reuse |
 | `editor/components/mute-editor.ts` | `tests/ui-states.test.ts` | Source-grep: single-branch loop enter handler, leave reuses _updateLoopButton |

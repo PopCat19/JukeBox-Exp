@@ -161,38 +161,26 @@ export function buildPromptMiscCSS(): string {
 }
 
 .beepboxEditor .prompt.themePrompt .pmdControlGroup {
-	display: grid;
-	grid-template-columns: auto minmax(0, 1fr);
-	align-items: center;
-	gap: 8px 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
 }
 
-.beepboxEditor .prompt.themePrompt .pmdHueRow {
+.beepboxEditor .prompt.themePrompt .pmdDarkRow {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 8px;
 	color: var(--secondary-text);
 	font-size: 12px;
 }
 
-.beepboxEditor .prompt.themePrompt .pmdHueNum {
-	box-sizing: border-box;
-	width: 4.5em;
-	min-height: var(--button-size);
-	padding: 4px 8px;
-	font-size: 12px;
-}
-
-.beepboxEditor .prompt.themePrompt .pmdControlGroup > span {
-	position: static !important;
-	width: 100% !important;
+.beepboxEditor .prompt.themePrompt .pmdControlGroup > .selectRow {
+	width: 100%;
 	min-width: 0;
-	padding: 4px 0;
-	border-radius: var(--border-radius-medium);
 }
 
-.beepboxEditor .prompt.themePrompt .pmdControlGroup > span:focus-visible {
+.beepboxEditor .prompt.themePrompt [role="slider"]:focus-visible {
 	outline: 2px solid var(--indicator-primary);
 	outline-offset: 2px;
 }

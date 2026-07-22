@@ -11,10 +11,18 @@
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
 import type { SongDocument } from "../song-document";
-import { createInput, rangeSlider, Slider, selectField } from "../ui";
+import { checkboxInput, SliderNumWidget, selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
 const { div, h2, select, option, optgroup, label } = HTML;
+
+function readPersistedPMDHue(): number {
+	const stored = window.localStorage.getItem("pmdHue");
+	const hue = Number(stored ?? "345");
+	if (hue === 360) return 0;
+	if (!Number.isInteger(hue) || hue < 0 || hue > 359) return 345;
+	return hue;
+}
 
 export class ThemePrompt extends BasePrompt {
 	private readonly _themeSelect: HTMLSelectElement = select(
@@ -102,43 +110,54 @@ export class ThemePrompt extends BasePrompt {
 		),
 	);
 
-	private _pmdHueInput!: HTMLInputElement;
-	private _pmdHueSlider!: Slider;
-
-	private readonly _pmdHueNum: HTMLInputElement = createInput("number", "", {
-		class: "pmdHueNum",
-		min: "0",
-		max: "360",
-		value: String(ColorConfig.pmdHue),
-	});
-
+	private _pmdHueWidget!: SliderNumWidget;
+	private readonly _pmdDarkInput: HTMLInputElement = checkboxInput();
 	private _pmdControls!: HTMLDivElement;
 	private _pmdLayoutFrame: number | null = null;
+	private _pmdResizeObserver: ResizeObserver | null = null;
 
 	public readonly container: HTMLDivElement;
-	private readonly lastTheme: string | null = window.localStorage.getItem("colorTheme");
-	private readonly lastHue: number = ColorConfig.pmdHue;
-	private readonly lastDark: boolean = ColorConfig.pmdDark;
+	private readonly lastTheme: string | null;
+	private readonly lastHue: number;
+	private readonly lastDark: boolean;
 	private committed = false;
+	private discarded = false;
 
 	constructor(doc: SongDocument) {
 		super(doc);
-		const hueSlider = rangeSlider(doc, null, 0, 360, ColorConfig.pmdHue, { undo: false });
-		this._pmdHueSlider = hueSlider;
-		this._pmdHueInput = hueSlider.input;
+		const normalizedHue = readPersistedPMDHue();
+		if (ColorConfig.pmdHue !== normalizedHue) ColorConfig.pmdHue = normalizedHue;
+		if (window.localStorage.getItem("pmdHue") !== String(normalizedHue)) {
+			window.localStorage.setItem("pmdHue", String(normalizedHue));
+		}
+		this.lastTheme = window.localStorage.getItem("colorTheme");
+		this.lastHue = normalizedHue;
+		this.lastDark = ColorConfig.pmdDark;
+		this._pmdHueWidget = new SliderNumWidget(
+			doc,
+			null,
+			0,
+			359,
+			ColorConfig.pmdHue,
+			"Hue",
+			() => {},
+			{ undo: false, inputStep: "1" },
+		);
+		const hueSlider = this._pmdHueWidget.slider;
 		hueSlider.container.tabIndex = 0;
 		hueSlider.container.setAttribute("role", "slider");
 		hueSlider.container.setAttribute("aria-label", "Hue");
 		hueSlider.container.setAttribute("aria-valuemin", "0");
-		hueSlider.container.setAttribute("aria-valuemax", "360");
+		hueSlider.container.setAttribute("aria-valuemax", "359");
 		hueSlider.container.setAttribute("aria-valuenow", String(ColorConfig.pmdHue));
 		hueSlider.container.addEventListener("keydown", this._onPMDHueKeyDown);
+		this._pmdDarkInput.checked = ColorConfig.pmdDark;
 		this._pmdControls = div(
 			{ class: "pmdControls" },
 			div(
 				{ class: "pmdControlGroup" },
-				label({ class: "pmdHueRow" }, "Hue", this._pmdHueNum),
-				hueSlider.container,
+				label({ class: "pmdDarkRow" }, "Dark", this._pmdDarkInput),
+				this._pmdHueWidget.row,
 			),
 		);
 		this.container = div(
@@ -157,21 +176,15 @@ export class ThemePrompt extends BasePrompt {
 			this._updatePMDVisibility();
 			this._previewTheme();
 		});
-		this._pmdHueInput.addEventListener("input", this._onPMDChange);
+		hueSlider.input.addEventListener("input", this._onPMDSliderInput);
+		this._pmdHueWidget.inputBox.addEventListener("input", this._onPMDNumberInput);
+		this._pmdHueWidget.inputBox.addEventListener("change", this._onPMDNumberChange);
+		this._pmdDarkInput.addEventListener("change", this._onPMDDarkChange);
+		if (typeof ResizeObserver !== "undefined") {
+			this._pmdResizeObserver = new ResizeObserver(() => hueSlider.refreshLayout());
+			this._pmdResizeObserver.observe(hueSlider.container);
+		}
 		this._updatePMDVisibility();
-
-		this._pmdHueNum.addEventListener("input", () => {
-			const v = Math.max(0, Math.min(360, parseInt(this._pmdHueNum.value, 10) || 0));
-			this._pmdHueNum.value = String(v);
-			this._pmdHueSlider.updateValue(v);
-			this._onPMDChange();
-		});
-		this._pmdHueNum.addEventListener("change", () => {
-			const v = Math.max(0, Math.min(360, parseInt(this._pmdHueNum.value, 10) || 0));
-			this._pmdHueNum.value = String(v);
-			this._pmdHueSlider.updateValue(v);
-			this._onPMDChange();
-		});
 	}
 
 	private _updatePMDVisibility(): void {
@@ -181,30 +194,54 @@ export class ThemePrompt extends BasePrompt {
 		this._pmdLayoutFrame = isPMD
 			? window.requestAnimationFrame(() => {
 					this._pmdLayoutFrame = null;
-					this._pmdHueSlider.refreshLayout();
+					this._pmdHueWidget.slider.refreshLayout();
 				})
 			: null;
 	}
 
-	private _onPMDChange = (): void => {
-		const hue = Math.max(0, Math.min(360, parseInt(this._pmdHueInput.value, 10) || 0));
-		this._pmdHueInput.value = String(hue);
-		this._pmdHueNum.value = String(hue);
-		this._pmdHueSlider.container.setAttribute("aria-valuenow", String(hue));
-		ColorConfig.setPMD(hue, true);
+	private _readHue(value: string): number | null {
+		const hue = Number(value);
+		if (value.trim() === "" || !Number.isFinite(hue)) return null;
+		return Math.max(0, Math.min(359, Math.round(hue)));
+	}
+
+	private _applyPMD(hue: number): void {
+		this._pmdHueWidget.updateValue(hue);
+		this._pmdHueWidget.slider.container.setAttribute("aria-valuenow", String(hue));
+		if (ColorConfig.pmdHue === hue && ColorConfig.pmdDark === this._pmdDarkInput.checked)
+			return;
+		ColorConfig.setPMD(hue, this._pmdDarkInput.checked);
 		this._doc.notifier.changed();
+	}
+
+	private _onPMDSliderInput = (): void => {
+		const hue = this._readHue(this._pmdHueWidget.slider.input.value);
+		if (hue !== null) this._applyPMD(hue);
+	};
+
+	private _onPMDNumberInput = (): void => {
+		const hue = this._readHue(this._pmdHueWidget.inputBox.value);
+		if (hue !== null) this._applyPMD(hue);
+	};
+
+	private _onPMDNumberChange = (): void => {
+		const hue = this._readHue(this._pmdHueWidget.inputBox.value);
+		this._applyPMD(hue ?? ColorConfig.pmdHue);
+	};
+
+	private _onPMDDarkChange = (): void => {
+		this._applyPMD(ColorConfig.pmdHue);
 	};
 
 	private _onPMDHueKeyDown = (event: KeyboardEvent): void => {
-		let hue = parseInt(this._pmdHueInput.value, 10) || 0;
+		let hue = this._readHue(this._pmdHueWidget.slider.input.value) ?? 0;
 		if (event.key === "ArrowLeft" || event.key === "ArrowDown") hue--;
 		else if (event.key === "ArrowRight" || event.key === "ArrowUp") hue++;
 		else if (event.key === "Home") hue = 0;
-		else if (event.key === "End") hue = 360;
+		else if (event.key === "End") hue = 359;
 		else return;
 		event.preventDefault();
-		this._pmdHueSlider.updateValue(Math.max(0, Math.min(360, hue)));
-		this._onPMDChange();
+		this._applyPMD(Math.max(0, Math.min(359, hue)));
 	};
 
 	protected override _close = (): void => {
@@ -215,12 +252,15 @@ export class ThemePrompt extends BasePrompt {
 	public override cleanUp(): void {
 		if (this._pmdLayoutFrame !== null) window.cancelAnimationFrame(this._pmdLayoutFrame);
 		this._pmdLayoutFrame = null;
-		this._pmdHueSlider.container.removeEventListener("keydown", this._onPMDHueKeyDown);
+		this._pmdResizeObserver?.disconnect();
+		this._pmdResizeObserver = null;
+		this._pmdHueWidget.slider.container.removeEventListener("keydown", this._onPMDHueKeyDown);
 		super.cleanUp();
 	}
 
 	public override discard(): void {
-		if (this.committed) return;
+		if (this.committed || this.discarded) return;
+		this.discarded = true;
 		if (this.lastTheme != null) window.localStorage.setItem("colorTheme", this.lastTheme);
 		else window.localStorage.removeItem("colorTheme");
 		ColorConfig.setPMD(this.lastHue, this.lastDark);

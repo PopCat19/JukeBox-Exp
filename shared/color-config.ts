@@ -55,15 +55,20 @@ export interface ChannelColors extends BeepBoxOption {
 	readonly primaryNote: string;
 }
 
+function readPersistedPMDHue(): number {
+	const stored = window.localStorage.getItem("pmdHue");
+	const hue = Number(stored ?? "345");
+	if (hue === 360) return 0;
+	if (!Number.isInteger(hue) || hue < 0 || hue > 359) return 345;
+	return hue;
+}
+
 export class ColorConfig {
 	public static colorLookup: Map<number, ChannelColors> = new Map<number, ChannelColors>();
 	public static usesColorFormula: boolean = false;
 	public static readonly defaultTheme: string = "pmd-dynamic";
 	public static readonly PMD_THEME: string = "pmd-dynamic";
-	public static pmdHue: number =
-		typeof window !== "undefined"
-			? parseInt(window.localStorage.getItem("pmdHue") ?? "345", 10)
-			: 345;
+	public static pmdHue: number = typeof window !== "undefined" ? readPersistedPMDHue() : 345;
 	public static pmdDark: boolean =
 		typeof window !== "undefined"
 			? (window.localStorage.getItem("pmdDark") ?? "1") === "1"

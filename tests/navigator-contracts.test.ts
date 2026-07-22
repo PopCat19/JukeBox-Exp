@@ -1310,11 +1310,13 @@ describe("navigator shell", () => {
 		expect(samples).toContain('h2({}, "Add Samples")');
 		expect(euclid).toContain("checkboxInput()");
 		expect(euclid).not.toContain('type: "checkbox"');
-		expect(theme).toContain("rangeSlider(doc, null, 0, 360");
+		expect(theme).toContain("new SliderNumWidget(");
+		expect(theme).toMatch(/new SliderNumWidget\([\s\S]*?0,[\s\S]*?359,[\s\S]*?inputStep: "1"/);
 		expect(theme).toContain("window.requestAnimationFrame");
-		expect(theme).toContain("this._pmdHueSlider.refreshLayout()");
+		expect(theme).toContain("this._pmdHueWidget.slider.refreshLayout()");
 		expect(slider).toContain("public refreshLayout(): void");
-		expect(theme).toContain('class: "pmdHueNum"');
+		expect(theme).not.toContain("pmdHueNum");
+		expect(miscCSS).not.toContain(".pmdHueNum");
 		expect(theme).not.toContain("Hue: ${");
 		expect(rawTheme).toContain('class: "ctCssEditor"');
 		expect(rawTheme).toContain("HTMLTextAreaElement");
@@ -1340,7 +1342,6 @@ describe("navigator shell", () => {
 		expect(smallCSS).toContain(".loopControlsFields");
 		expect(smallCSS).toContain(".euclidOptions");
 		expect(miscCSS).toContain(".ctCssEditor");
-		expect(miscCSS).toContain("padding: 4px 8px");
 		expect(compactSearchCSS).toMatch(/\.navigator-pane-host > \.presetSelectorPrompt \{[^}]*width: 100% !important[^}]*height: 100% !important[^}]*min-height: 0/s);
 		expect(compactSearchCSS).toMatch(/\.presetSelectorPrompt \.presetPaneContainer,[^{]*\.tagGridContainer,[^{]*\.typesTabContent > :first-child \{[^}]*flex: 1 1 0 !important[^}]*height: auto !important[^}]*min-height: 0 !important[^}]*background: var\(--editor-background\)/s);
 		expect(compactSearchCSS).toMatch(/\.presetSelectorPrompt \.categoryListPane,[^{]*\.presetListPane \{[^}]*min-height: 0[^}]*background: var\(--editor-background\)/s);

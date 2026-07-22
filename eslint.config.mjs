@@ -56,6 +56,7 @@ export default tseslint.config(
             "tests/stress-pane-lifecycle.test.ts",
             "tests/css-var-contract.test.ts",
             "tests/interactions-behavior.test.ts",
+            "tests/input-wheel-support.test.ts",
             "tests/loop-editor-contract.test.ts",
             "tests/limiter-prompt.test.ts",
             "tests/lint-baseline.test.ts",

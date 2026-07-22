@@ -11,6 +11,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `command-registry.test.ts`, Behavioral tests for shared command metadata, fuzzy ranking, routing, and one-based bar conversion
 - `barrel-exports.test.ts`, Barrel re-export contract tests for synth, editor/ui, shared
 - `interactions-behavior.test.ts`, Behavioral tests for editor/ui/interactions.ts using a hand-rolled DOM mock (classList adds/removes, style custom props, dataset writes, native disabled property writes, setDisabled helper, tagged style injection dedupe)
+- `input-wheel-support.test.ts`, Behavioral numeric wheel tests for preference, bounds, validity, passive registration, exact events, and page-scroll isolation
 - `ui-states.test.ts`, Contract tests for the PMD state/surface/interaction token layer (states.ts, surfaces.ts, interactions.ts) plus source-grep proofs for refactored buttons and loop-button migrations
 - `debug-tools.test.ts`, Tests for __jukebox__ debug utilities
 - `dsp-utils.test.ts`, Unit tests for pure DSP utility functions (applyFilters, sanitizeDelayLine, findRandomZeroCrossing)

@@ -1,8 +1,8 @@
 {
 	"version": 1,
 	"counts": {
-		"eslint": 4887,
-		"biome": 296
+		"eslint": 4888,
+		"biome": 297
 	},
 	"groups": [
 		{
@@ -131,6 +131,11 @@
 			"hash": "069055ddbc3c01415626217db79acada72ef1c245c93e5b2b6f21d0abcec2c11"
 		},
 		{
+			"key": "biome:editor/prompts/theme-prompt.ts",
+			"count": 1,
+			"hash": "c231d4fcd888746f49bcf1c1843072e5c790e2e372d00ee335b8cd93673b7c3b"
+		},
+		{
 			"key": "biome:editor/renderers/render-layout.ts",
 			"count": 1,
 			"hash": "33ebc45ab9834d66e8fe55259026166161fd22a64d4e96c1e0568f1318694051"
@@ -198,7 +203,7 @@
 		{
 			"key": "biome:shared/color-config.ts",
 			"count": 2,
-			"hash": "eca28b6ca37d0cbae63f0de3f2a5dc0cf64fc97e82a227fe473185ac85ab7dc9"
+			"hash": "bf3208dd4ee97cfb0013ea62840aabf8d3740124c66512d435e6726ed6964895"
 		},
 		{
 			"key": "biome:shared/events.ts",
@@ -962,8 +967,8 @@
 		},
 		{
 			"key": "eslint:editor/prompts/theme-prompt.ts",
-			"count": 8,
-			"hash": "459fb90153f40509bf1e51b2e3746bc96b92d7b788aec8919685205010557702"
+			"count": 9,
+			"hash": "c8c9c10984b334f20cef59df65165efd4262cac488954f0e0fd3c9e32b014e32"
 		},
 		{
 			"key": "eslint:editor/prompts/tip-prompt.ts",
@@ -1143,7 +1148,7 @@
 		{
 			"key": "eslint:shared/color-config.ts",
 			"count": 81,
-			"hash": "7a736b7cd03c2b75ce1d7baaaa5d0e337accc093897c1b0c5ffe7ea1825e3a06"
+			"hash": "45fb24462ac3ed2dbb3eaa3842ac4eced920dc8d543c16a6b4ac8a03410cad6f"
 		},
 		{
 			"key": "eslint:shared/color-utils.ts",

@@ -21,15 +21,24 @@ export interface InputOptions {
 export function addWheelSupport(input: HTMLInputElement): void {
 	input.addEventListener(
 		"wheel",
-		(e: WheelEvent) => {
+		(event: WheelEvent) => {
 			if (window.localStorage.getItem("enableScrollStep") !== "true") return;
-			e.preventDefault();
-			const step = parseFloat(input.step) || 1;
-			const current = parseFloat(input.value) || 0;
-			const min = input.min ? parseFloat(input.min) : -Infinity;
-			const max = input.max ? parseFloat(input.max) : Infinity;
-			const newValue = Math.min(max, Math.max(min, current + (e.deltaY > 0 ? -step : step)));
-			input.value = String(newValue);
+			if (!Number.isFinite(event.deltaY) || event.deltaY === 0) return;
+
+			const current = Number(input.value);
+			if (input.value.trim() === "" || !Number.isFinite(current)) return;
+
+			const parsedStep = Number.parseFloat(input.step);
+			const step = Number.isFinite(parsedStep) && parsedStep !== 0 ? Math.abs(parsedStep) : 1;
+			const parsedMin = Number(input.min);
+			const parsedMax = Number(input.max);
+			const min = input.min !== "" && Number.isFinite(parsedMin) ? parsedMin : -Infinity;
+			const max = input.max !== "" && Number.isFinite(parsedMax) ? parsedMax : Infinity;
+			const next = Math.min(max, Math.max(min, current + (event.deltaY > 0 ? -step : step)));
+			if (!Number.isFinite(next) || next === current) return;
+
+			event.preventDefault();
+			input.value = String(next);
 			input.dispatchEvent(new Event("input", { bubbles: true }));
 			input.dispatchEvent(new Event("change", { bubbles: true }));
 		},
