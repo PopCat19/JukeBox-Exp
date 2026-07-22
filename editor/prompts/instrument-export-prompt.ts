@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import type { Channel, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
-import { labelRow } from "../ui";
+import { focusReveal, hoverReveal, labelRow } from "../ui";
 import {
 	BasePrompt,
 	createPromptSurface,
@@ -20,7 +20,7 @@ import {
 	type PromptSurfaceOptions,
 } from "./base-prompt";
 
-const { div, input, br } = HTML;
+const { div, input, label, br } = HTML;
 
 export class InstrumentExportPrompt extends BasePrompt {
 	private readonly _exportMultipleBox: HTMLInputElement = input({
@@ -46,21 +46,51 @@ export class InstrumentExportPrompt extends BasePrompt {
 	constructor(doc: SongDocument, options: PromptSurfaceOptions = {}) {
 		super(doc);
 		this._surface = options.surface ?? "standalone";
-		const children: Node[] = [
-			div({ class: "rowBetween" }, "File name:", this._fileName),
-			labelRow("Export all instruments", br(), "in channel:", this._exportMultipleBox),
-			this._getOkayRow(),
-		];
-		if (this._surface === "standalone") children.push(this._cancelButton);
+		const children: Node[] =
+			this._surface === "standalone"
+				? [
+						div({ class: "rowBetween" }, "File name:", this._fileName),
+						labelRow(
+							"Export all instruments",
+							br(),
+							"in channel:",
+							this._exportMultipleBox,
+						),
+						this._getOkayRow(),
+						this._cancelButton,
+					]
+				: [
+						label(
+							{ class: "exportField" },
+							div({ class: "exportFieldLabel" }, "File name:"),
+							this._fileName,
+						),
+						label(
+							{ class: "exportCheckControl" },
+							this._exportMultipleBox,
+							div(
+								{ class: "exportControlLabel" },
+								"Export all instruments in channel",
+							),
+						),
+						this._getOkayRow(),
+					];
 		this.container = createPromptSurface(
 			this._surface,
-			"instrumentExportPrompt",
+			this._surface === "navigator"
+				? "instrumentExportPrompt exportPrompt"
+				: "instrumentExportPrompt",
 			"Export Instruments Options",
 			"export",
 			...children,
 		);
 		if (this._surface === "standalone") this.buildTitlebar();
-		else this._fileName.removeAttribute("autofocus");
+		else {
+			this._fileName.removeAttribute("autofocus");
+			this._okayButton.classList.add("pmd-primary");
+			hoverReveal(this._okayButton, { role: "primary" });
+			focusReveal(this._okayButton, { role: "primary" });
+		}
 		this._okayButton.classList.add("exportButton");
 		this._okayButton.textContent = "Export";
 		this._fileName.addEventListener("input", InstrumentExportPrompt._validateFileName);

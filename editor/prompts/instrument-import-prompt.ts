@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import type { Channel, Instrument } from "../../synth";
 import { ChangeAppendInstrument, ChangePasteInstrument, ChangeViewInstrument } from "../changes";
 import type { SongDocument } from "../song-document";
-import { selectField, setDisabled } from "../ui";
+import { actionButton, focusReveal, hoverReveal, selectField, setDisabled } from "../ui";
 import {
 	BasePrompt,
 	createPromptSurface,
@@ -20,7 +20,7 @@ import {
 	type PromptSurfaceOptions,
 } from "./base-prompt";
 
-const { div, input, select, option, code } = HTML;
+const { div, input, output, select, option, code } = HTML;
 
 export class InstrumentImportPrompt extends BasePrompt {
 	private readonly _importStrategySelect: HTMLSelectElement = select(
@@ -33,6 +33,18 @@ export class InstrumentImportPrompt extends BasePrompt {
 		type: "file",
 		accept: ".json,application/json",
 	});
+	private readonly _browseButton: HTMLButtonElement = actionButton("Browse\u2026", {
+		class: "importBrowseButton",
+		type: "button",
+	});
+	private readonly _fileStatus: HTMLOutputElement = output(
+		{
+			class: "importFileStatus",
+			"aria-label": "Selected instrument file",
+			"aria-live": "polite",
+		},
+		"No file selected.",
+	);
 
 	private readonly _strategyInfoText: HTMLDivElement = div(
 		{},
@@ -53,15 +65,31 @@ export class InstrumentImportPrompt extends BasePrompt {
 	constructor(doc: SongDocument, options: PromptSurfaceOptions = {}) {
 		super(doc);
 		this._surface = options.surface ?? "standalone";
-		const children: Node[] = [
-			this._strategyInfoText,
-			selectField("Import:", this._importStrategySelect),
-			this._fileInput,
-		];
-		if (this._surface === "standalone") children.push(this._cancelButton);
+		if (this._surface === "navigator") {
+			this._fileInput.style.display = "none";
+			this._browseButton.classList.add("pmd-secondary");
+			hoverReveal(this._browseButton, { role: "secondary" });
+			focusReveal(this._browseButton, { role: "secondary" });
+		}
+		const children: Node[] =
+			this._surface === "standalone"
+				? [
+						this._strategyInfoText,
+						selectField("Import:", this._importStrategySelect),
+						this._fileInput,
+						this._cancelButton,
+					]
+				: [
+						this._strategyInfoText,
+						selectField("Import strategy:", this._importStrategySelect),
+						div({ class: "importFileRow" }, this._browseButton, this._fileStatus),
+						this._fileInput,
+					];
 		this.container = createPromptSurface(
 			this._surface,
-			"instrumentImportPrompt",
+			this._surface === "navigator"
+				? "instrumentImportPrompt importPrompt"
+				: "instrumentImportPrompt",
 			"Import Instrument(s)",
 			"import",
 			...children,
@@ -78,6 +106,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 			if (lastStrategy != null) this._importStrategySelect.value = lastStrategy;
 			this._strategyInfoText.hidden = true;
 		}
+		this._browseButton.addEventListener("click", this._whenBrowseClicked);
 		this._fileInput.addEventListener("change", this._whenFileSelected);
 	}
 
@@ -87,12 +116,21 @@ export class InstrumentImportPrompt extends BasePrompt {
 		this._activeReader?.abort();
 		this._activeReader = null;
 		super.cleanUp();
+		this._browseButton.removeEventListener("click", this._whenBrowseClicked);
 		this._fileInput.removeEventListener("change", this._whenFileSelected);
 	}
 
+	private _whenBrowseClicked = (): void => {
+		this._fileInput.click();
+	};
+
 	private _whenFileSelected = (): void => {
-		const file: File = this._fileInput.files![0];
-		if (!file) return;
+		const file: File | undefined = this._fileInput.files?.[0];
+		if (!file) {
+			this._fileStatus.textContent = "No file selected.";
+			return;
+		}
+		this._fileStatus.textContent = file.name;
 		this._activeReader?.abort();
 		const operation = ++this._operation;
 		const reader: FileReader = new FileReader();

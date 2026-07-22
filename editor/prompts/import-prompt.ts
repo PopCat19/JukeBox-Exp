@@ -16,6 +16,7 @@ import { ChangeReplacePatterns, ChangeSong, removeDuplicatePatterns } from "../c
 import { ChangeGroup } from "../core/change";
 import { parseMidiFile } from "../io/midi-parser";
 import type { SongDocument } from "../song-document";
+import { actionButton, focusReveal, hoverReveal } from "../ui";
 import {
 	BasePrompt,
 	createPromptSurface,
@@ -33,10 +34,7 @@ export class ImportPrompt extends BasePrompt {
 		accept: ".json,application/json,.mid,.midi,audio/midi,audio/x-midi",
 		style: "display: none;",
 	});
-	private readonly _browseButton: HTMLButtonElement = button(
-		{ class: "importBrowseButton" },
-		"Browse\u2026",
-	);
+	private readonly _browseButton: HTMLButtonElement;
 	private readonly _importMode = "auto";
 
 	private _operation = 0;
@@ -50,6 +48,18 @@ export class ImportPrompt extends BasePrompt {
 	constructor(doc: SongDocument, options: PromptSurfaceOptions = {}) {
 		super(doc);
 		this._surface = options.surface ?? "standalone";
+		this._browseButton =
+			this._surface === "navigator"
+				? actionButton("Browse\u2026", {
+						class: "importBrowseButton",
+						type: "button",
+					})
+				: button({ class: "importBrowseButton" }, "Browse\u2026");
+		if (this._surface === "navigator") {
+			this._browseButton.classList.add("pmd-secondary");
+			hoverReveal(this._browseButton, { role: "secondary" });
+			focusReveal(this._browseButton, { role: "secondary" });
+		}
 		const children: Node[] = [
 			p(
 				{ class: "importNote" },

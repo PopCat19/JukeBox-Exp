@@ -96,11 +96,27 @@ export function buildPromptMiscCSS(): string {
 }
 
 .beepboxEditor .navigator-import-export-surface.importPrompt .importFileRow > .importBrowseButton,
-.beepboxEditor .prompt.importPrompt .importFileRow > .importBrowseButton {
+.beepboxEditor .prompt.importPrompt .importFileRow > .importBrowseButton,
+.beepboxEditor .prompt.instrumentImportPrompt .importFileRow > .importBrowseButton {
 	flex: 0 0 auto;
 	width: auto;
 	padding: 0 var(--padding-10);
 	margin-bottom: 0;
+}
+
+.beepboxEditor .navigator-import-export-surface.importPrompt .importFileStatus,
+.beepboxEditor .prompt.instrumentImportPrompt .importFileStatus {
+	flex: 1 1 auto;
+	min-width: 0;
+	color: var(--secondary-text);
+	font-size: 12px;
+	overflow-wrap: anywhere;
+}
+
+.beepboxEditor .prompt.instrumentImportPrompt .importFileRow {
+	display: flex;
+	align-items: center;
+	gap: var(--gap-md);
 }
 
 .beepboxEditor .navigator-import-export-surface.importPrompt .importNote,

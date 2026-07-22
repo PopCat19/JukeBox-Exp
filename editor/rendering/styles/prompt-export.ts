@@ -185,13 +185,18 @@ export function buildPromptExportCSS(): string {
 .beepboxEditor .navigator-import-export-surface.exportPrompt .exportSection { gap: 4px; }
 .beepboxEditor .navigator-import-export-surface.exportPrompt .exportPromptBody {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	align-items: start;
 }
+.beepboxEditor .navigator-import-export-surface.exportPrompt .exportOptionsSection,
 .beepboxEditor .navigator-import-export-surface.exportPrompt .exportOggWarning,
 .beepboxEditor .navigator-import-export-surface.exportPrompt .exportNote,
 .beepboxEditor .navigator-import-export-surface.exportPrompt .exportProgressContainer { grid-column: 1 / -1; }
-.beepboxEditor .navigator-import-export-surface.exportPrompt .exportPromptFooter > .prompt-button-row { margin: 0; }
+.beepboxEditor .navigator-import-export-surface.exportPrompt .exportPromptFooter > .prompt-button-row,
+.beepboxEditor .navigator-import-export-surface.instrumentExportPrompt > .prompt-button-row { margin: 0; }
+.beepboxEditor .navigator-import-export-surface.instrumentExportPrompt > .prompt-button-row,
+.beepboxEditor .navigator-import-export-surface.instrumentExportPrompt .exportButton { width: 100%; }
+.beepboxEditor .navigator-import-export-surface.instrumentExportPrompt .exportButton { justify-content: center; }
 @media (max-width: 639px) {
 	.beepboxEditor .prompt.exportPrompt { width: min(340px, calc(100vw - 16px)); max-width: 340px; }
 }

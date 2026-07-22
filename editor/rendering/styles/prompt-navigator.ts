@@ -149,8 +149,6 @@ export function buildNavigatorCSS(): string {
 .beepboxEditor .navigator-import-export-surface > h3 { margin: 0; color: var(--primary-text); font-size: 14px; }
 .beepboxEditor .navigator-import-export-surface.importPrompt .importNote { margin: 0; }
 .beepboxEditor .navigator-import-export-surface.importPrompt .importFileRow { margin: 0; }
-.beepboxEditor .navigator-import-export-surface.instrumentImportPrompt > select,
-.beepboxEditor .navigator-import-export-surface.instrumentImportPrompt > input[type="file"] { box-sizing: border-box; width: 100%; min-width: 0; }
 .beepboxEditor .navigator-import-export-surface.instrumentExportPrompt .prompt-button-row { margin: 0; }
 @media (max-width: 639px) {
 	.beepboxEditor .navigator-content { display: flex; flex-direction: column; box-sizing: border-box; max-width: 100%; gap: 8px; overflow-x: hidden; }

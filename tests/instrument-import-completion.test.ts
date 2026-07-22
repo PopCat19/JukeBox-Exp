@@ -22,6 +22,53 @@ describe("instrument import completion", () => {
 		prompt.cleanUp();
 	});
 
+	test("Browse activates the hidden input and selected filename updates live status", () => {
+		const OriginalFileReader = globalThis.FileReader;
+		class PendingFileReader {
+			public onload: ((event: ProgressEvent<FileReader>) => void) | null = null;
+			readAsText(): void {}
+			abort(): void {}
+		}
+		Object.defineProperty(globalThis, "FileReader", {
+			configurable: true,
+			value: PendingFileReader,
+		});
+		try {
+			const prompt = new InstrumentImportPrompt(new SongDocument(), {
+				surface: "navigator",
+			});
+			const fileInput = prompt.container.querySelector<HTMLInputElement>(
+				"input[type='file']",
+			)!;
+			const browse = prompt.container.querySelector<HTMLButtonElement>(
+				".importBrowseButton",
+			)!;
+			const status = prompt.container.querySelector<HTMLOutputElement>(
+				".importFileStatus",
+			)!;
+			let activations = 0;
+			fileInput.click = () => {
+				activations++;
+			};
+			browse.click();
+			expect(activations).toBe(1);
+			expect(fileInput.style.display).toBe("none");
+			expect(status.getAttribute("aria-live")).toBe("polite");
+			Object.defineProperty(fileInput, "files", {
+				configurable: true,
+				value: [new File(["{}"], "picked-string.json")],
+			});
+			fileInput.dispatchEvent(new Event("change"));
+			expect(status.textContent).toBe("picked-string.json");
+			prompt.cleanUp();
+		} finally {
+			Object.defineProperty(globalThis, "FileReader", {
+				configurable: true,
+				value: OriginalFileReader,
+			});
+		}
+	});
+
 	test("cleanup aborts and invalidates a pending file reader", () => {
 		const OriginalFileReader = globalThis.FileReader;
 		let reader: {

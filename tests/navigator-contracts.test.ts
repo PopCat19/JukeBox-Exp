@@ -974,7 +974,8 @@ describe("native navigator extraction", () => {
 		expect(source).toContain('{ class: "exportPromptContent" }');
 		expect(source.match(/{ class: "exportField(?: exportLengthField)?" }/g)?.length).toBe(3);
 		expect(source.match(/label\(\s*\{ class: "exportField(?: exportLengthField)?" \}/g)?.length).toBe(3);
-		expect(source.match(/{ class: "exportSection"/g)?.length).toBe(3);
+		expect(source.match(/{ class: "exportSection"/g)?.length).toBe(2);
+		expect(source).toContain('? "exportSection exportOptionsSection"');
 		expect(source.match(/label\(\s*\{ class: "export(?:Check|Loop)Control" \}/g)?.length).toBe(5);
 		expect(source).toContain('"aria-labelledby": this._playbackLabelId');
 		expect(source).toContain('role: "group"');
@@ -2186,6 +2187,10 @@ describe("native import and export pane", () => {
 		] as const) {
 			const doc = new SongDocument();
 			doc.song.title = "x".repeat(250);
+			if (paneId === "importExportInstrument") {
+				doc.song.patternInstruments = false;
+				doc.song.layeredInstruments = false;
+			}
 			const owner = create(doc, { paneId }, () => Promise.resolve(true), () => Promise.resolve());
 			const root = owner.lifecycle.root.element;
 			expect(root.tagName).toBe("ARTICLE");
@@ -2198,6 +2203,15 @@ describe("native import and export pane", () => {
 			expect(owner.lifecycle.requestClose()).toBe("close");
 			if (paneId === "importExportSong") {
 				expect(root.querySelectorAll("input[type='file']")).toHaveLength(1);
+				const browse = root.querySelector<HTMLButtonElement>(".importBrowseButton")!;
+				const exportAction = root.querySelector<HTMLButtonElement>(".exportButton")!;
+				expect(browse.type).toBe("button");
+				expect(browse.classList.contains("pmd-secondary")).toBeTrue();
+				expect(browse.classList.contains("pmd-hover")).toBeTrue();
+				expect(browse.classList.contains("pmd-focus")).toBeTrue();
+				expect(exportAction.classList.contains("pmd-primary")).toBeTrue();
+				expect(exportAction.classList.contains("pmd-hover")).toBeTrue();
+				expect(exportAction.classList.contains("pmd-focus")).toBeTrue();
 				expect(root.querySelectorAll(".exportPrompt select option")).toHaveLength(10);
 				expect(root.querySelectorAll(".exportPrompt input[type='checkbox']")).toHaveLength(4);
 				expect(root.querySelectorAll(".exportPrompt input[type='number']")).toHaveLength(3);
@@ -2207,10 +2221,34 @@ describe("native import and export pane", () => {
 				expect(owner.lifecycle.requestClose()).toBe("keep-open");
 				keepOpen.checked = false;
 			} else {
-				expect(root.querySelectorAll(".instrumentImportPrompt select option")).toHaveLength(3);
-				expect(root.querySelectorAll(".instrumentImportPrompt input[type='file']")).toHaveLength(1);
-				expect(root.querySelectorAll(".instrumentExportPrompt input[type='checkbox']")).toHaveLength(1);
-				expect(root.querySelectorAll(".instrumentExportPrompt .exportButton")).toHaveLength(1);
+				const strategy = root.querySelector<HTMLSelectElement>(".instrumentImportPrompt select")!;
+				const fileInput = root.querySelector<HTMLInputElement>(
+					".instrumentImportPrompt input[type='file']",
+				)!;
+				const status = root.querySelector<HTMLOutputElement>(".importFileStatus")!;
+				const browse = root.querySelector<HTMLButtonElement>(".importBrowseButton")!;
+				const channelCheckbox = root.querySelector<HTMLInputElement>(
+					".instrumentExportPrompt input[type='checkbox']",
+				)!;
+				const exportAction = root.querySelector<HTMLButtonElement>(
+					".instrumentExportPrompt .exportButton",
+				)!;
+				expect(strategy.tagName).toBe("SELECT");
+				expect(strategy.options).toHaveLength(3);
+				expect(strategy.disabled).toBeTrue();
+				expect(strategy.classList.contains("pmd-disabled")).toBeTrue();
+				expect(fileInput.style.display).toBe("none");
+				expect(status.getAttribute("aria-live")).toBe("polite");
+				expect(status.textContent).toBe("No file selected.");
+				expect(browse.classList.contains("pmd-secondary")).toBeTrue();
+				expect(browse.classList.contains("pmd-hover")).toBeTrue();
+				expect(browse.classList.contains("pmd-focus")).toBeTrue();
+				expect(channelCheckbox.type).toBe("checkbox");
+				expect(channelCheckbox.closest(".exportCheckControl")).not.toBeNull();
+				expect(root.querySelector(".instrumentExportPrompt .exportField input[type='text']")).not.toBeNull();
+				expect(exportAction.classList.contains("pmd-primary")).toBeTrue();
+				expect(exportAction.classList.contains("pmd-hover")).toBeTrue();
+				expect(exportAction.classList.contains("pmd-focus")).toBeTrue();
 			}
 			owner.lifecycle.dispose();
 		}
@@ -2344,6 +2382,27 @@ describe("native import and export pane", () => {
 		else browser.lamejs = previous;
 	});
 
+	test("native actions use PMD factories and route-specific classes", async () => {
+		const [songImport, songExport, instrumentImport, instrumentExport] = await Promise.all([
+			Bun.file("editor/prompts/import-prompt.ts").text(),
+			Bun.file("editor/prompts/export-prompt.ts").text(),
+			Bun.file("editor/prompts/instrument-import-prompt.ts").text(),
+			Bun.file("editor/prompts/instrument-export-prompt.ts").text(),
+		]);
+		expect(songImport).toContain('actionButton("Browse\\u2026"');
+		expect(instrumentImport).toContain('actionButton("Browse\\u2026"');
+		for (const source of [songImport, instrumentImport]) {
+			expect(source).toContain('classList.add("pmd-secondary")');
+			expect(source).toContain("hoverReveal(this._browseButton");
+			expect(source).toContain("focusReveal(this._browseButton");
+		}
+		for (const source of [songExport, instrumentExport]) {
+			expect(source).toContain('classList.add("pmd-primary")');
+			expect(source).toContain("hoverReveal(this._okayButton");
+			expect(source).toContain("focusReveal(this._okayButton");
+		}
+	});
+
 	test("native aggregate CSS is bounded and has no inner scrolling", () => {
 		const css = `${buildNavigatorCSS()}${buildPromptExportCSS()}`;
 		expect(css).not.toContain("navigator-import-export-child");
@@ -2355,7 +2414,11 @@ describe("native import and export pane", () => {
 		expect(surfaceRule).toMatch(/width:\s*100%;/);
 		expect(surfaceRule).toMatch(/min-width:\s*0;/);
 		expect(surfaceRule).toMatch(/max-width:\s*100%;/);
-		expect(css).toContain("grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);");
+		expect(css).toContain("grid-template-columns: repeat(2, minmax(0, 1fr));");
+		expect(css).toMatch(/\.exportOptionsSection,[^{]*\{ grid-column: 1 \/ -1; \}/s);
+		expect(css).toMatch(/\.instrumentExportPrompt > \.prompt-button-row,[^{]*\{ width: 100%; \}/s);
+		expect(buildNavigatorCSS()).not.toContain("instrumentImportPrompt > select");
+		expect(buildNavigatorCSS()).not.toContain('instrumentImportPrompt > input[type="file"]');
 	});
 });
 

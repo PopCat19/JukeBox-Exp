@@ -98,7 +98,7 @@
 		{
 			"key": "biome:editor/prompts/export-prompt.ts",
 			"count": 20,
-			"hash": "585c8726eab9d4ce26aa61bbe9bed4c198944315a3af20d44e143f43642b8dbc"
+			"hash": "a2828fb2c3ae37fd5596eeadcc46e1cf735f74f3733494df62ef0450fe0c29a8"
 		},
 		{
 			"key": "biome:editor/prompts/instrument-browser-prompt.ts",
@@ -108,12 +108,12 @@
 		{
 			"key": "biome:editor/prompts/instrument-export-prompt.ts",
 			"count": 3,
-			"hash": "b43bce391eeae700bc1ba15f535a6b632fce9eaca897995c15d72b5b356821c7"
+			"hash": "385e8599af0ae36716fe8f954ab9a08ea1e3de02f48b6c340fa19d2da5acd718"
 		},
 		{
 			"key": "biome:editor/prompts/instrument-import-prompt.ts",
 			"count": 3,
-			"hash": "05a6ccf0e76a8ce5ded077c95dbde7a848902cee8e9e430af7cabb5d463937b1"
+			"hash": "2d8cafa17320d317002460b3208f22897f27a9be6c3075de6f4b79c58d80a0a3"
 		},
 		{
 			"key": "biome:editor/prompts/layout-prompt.ts",
@@ -868,12 +868,12 @@
 		{
 			"key": "eslint:editor/prompts/export-prompt.ts",
 			"count": 139,
-			"hash": "21ffa934f0e56e8ab656787556a927d8cc6e4ece6d6e8497ade599fe2dc5b5ff"
+			"hash": "01db46f035be86d7d31ef11476b150f008994821af6f3710a0e60dd6bb83c586"
 		},
 		{
 			"key": "eslint:editor/prompts/import-prompt.ts",
 			"count": 5,
-			"hash": "5f697842d3ce28711e605140b9a16b454bceb93174963cdd38198b96e6135c0a"
+			"hash": "142c9f3e412e9c59c76e0a1b31fcc1d0d53765cb928c14b83558916b7851daea"
 		},
 		{
 			"key": "eslint:editor/prompts/input-helpers.ts",
@@ -887,13 +887,13 @@
 		},
 		{
 			"key": "eslint:editor/prompts/instrument-export-prompt.ts",
-			"count": 9,
-			"hash": "7c23ffcb25767dd4d7e15b9e834a62d857878b5ad9663caababf717517a16a43"
+			"count": 10,
+			"hash": "e4ea517202692d99f1e1fa53ce4fc0464e951824c3edd02e449e711a39b21256"
 		},
 		{
 			"key": "eslint:editor/prompts/instrument-import-prompt.ts",
-			"count": 10,
-			"hash": "9131ea9a4e8ef104524c4f1889d383168bc01fff8239de7308a3660c6ba8b37f"
+			"count": 9,
+			"hash": "9c0863facca3d30f5f15764ee080748c91082862f33504093d08e3c009009528"
 		},
 		{
 			"key": "eslint:editor/prompts/keyboard-shortcuts-prompt.ts",
