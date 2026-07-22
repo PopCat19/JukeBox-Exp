@@ -539,7 +539,10 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this.buildTitlebar();
 		this._onDocChange = this._renderChannelList.bind(this);
 		this._doc.notifier.watch(this._onDocChange);
-		this._onThemeChange = this._refreshSpectrumColors.bind(this);
+		this._onThemeChange = (): void => {
+			this._refreshSpectrumColors();
+			this._repaintChannelSpectra();
+		};
 		events.listen("themeChange", this._onThemeChange);
 		this._doc.synth.channelAudioCaptureEnabled = true;
 		this._renderChannelList();
@@ -855,6 +858,7 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 		this._doc.synth.channelAudioCaptureEnabled = false;
 		this._doc.notifier.unwatch(this._onDocChange);
 		events.unlisten("themeChange", this._onThemeChange);
+		this._cvSpectrum.dispose();
 		if (this._resizeObserver != null) {
 			this._resizeObserver.disconnect();
 			this._resizeObserver = null;
@@ -924,6 +928,57 @@ export class ChannelVolumeVisualizerPrompt extends BasePrompt {
 			const hex = ColorConfig.getComputedChannelColor(song, channelIndex).primaryChannel;
 			this._channelSpectrumColors.set(channelIndex, hex);
 			this._cachedChannelRGB.set(channelIndex, hexToRgb(hex));
+		}
+	}
+
+	private _repaintChannelSpectra(): void {
+		for (const [channelIndex, canvas] of this._channelSpectrumCanvases) {
+			const ctx = this._channelSpectrumCanvas2ds.get(channelIndex);
+			const size = this._canvasSizes.get(channelIndex);
+			const fg = this._spectrumSmooth.get(channelIndex);
+			const bg = this._bgSpectrumSmooth.get(channelIndex);
+			const color = this._channelSpectrumColors.get(channelIndex);
+			if (ctx == null || size == null || fg == null || bg == null || color == null) continue;
+			if (size.w <= 0 || size.h <= 0) continue;
+			if (canvas.width !== size.w || canvas.height !== size.h) {
+				canvas.width = size.w;
+				canvas.height = size.h;
+			}
+			const w = canvas.width;
+			const h = canvas.height;
+			ctx.clearRect(0, 0, w, h);
+			const gap = Math.max(1, window.devicePixelRatio || 1);
+			const barOuter = w / BAR_COUNT;
+			const barW = barOuter - gap;
+			const radius = Math.min(barW * 0.5, h * 0.12);
+			drawSpectrumBars(
+				ctx,
+				color,
+				h,
+				barOuter,
+				barW,
+				radius,
+				gap,
+				BG_BANDS,
+				bg,
+				FG_REF,
+				0.24,
+				this._smoothedMasterScale,
+			);
+			drawSpectrumBars(
+				ctx,
+				color,
+				h,
+				barOuter,
+				barW,
+				radius,
+				gap,
+				FG_BANDS,
+				fg,
+				FG_REF,
+				0.48,
+				this._smoothedMasterScale,
+			);
 		}
 	}
 

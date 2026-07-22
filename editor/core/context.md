@@ -28,3 +28,4 @@
 - `selection.ts`, Manages note and bar selection state with clipboard copy/paste support
 - `song-performance.ts`, Manages live performance mode with real-time note input and recording
 - `tag-autocomplete.ts`, Tag autocomplete suggestion UI for preset tag input
+- `theme-raster-redraw.ts`, Routes global theme changes through weak live SongEditor raster ownership

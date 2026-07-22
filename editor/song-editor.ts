@@ -16,6 +16,7 @@ import { BarScrollBar } from "./components/bar-scroll-bar";
 import { Shiggy } from "./components/shiggy-component";
 import { EditorConfig, isMobile } from "./config/editor-config";
 import type { Change } from "./core/change";
+import { registerSongEditorThemeRasterOwner } from "./core/theme-raster-redraw";
 import "./ui/layout/layout"; // Imported here for the sake of ensuring this code is transpiled early.
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { spectrumCanvas } from "../shared/spectrum";
@@ -3177,6 +3178,14 @@ export class SongEditor
 	public patternUsed: boolean = false;
 	private _modRecTimeout: number = -1;
 
+	public redrawThemeRasters(): void {
+		this._patternEditorPrev.render();
+		this._patternEditor.render();
+		this._patternEditorNext.render();
+		this._customWaveDrawCanvas.redrawCanvas();
+		this._customAlgorithmCanvas.redrawCanvas(true);
+	}
+
 	constructor(/*private _doc: SongDocument*/) {
 		this._navigatorShell.setDockController(this._promptManager.dockController);
 		this._promptContainer.append(this._navigatorShell.container);
@@ -3184,6 +3193,7 @@ export class SongEditor
 		this._keyboardHandler = new KeyboardHandler(this);
 		this._dispatch = new ChangeDispatcher(this);
 		getPMDRealtimeHueCoordinator(window).ensureEnabled(this.doc.prefs.pmdRealtimeHue);
+		registerSongEditorThemeRasterOwner(this);
 
 		// Track the <select> opened by pointer so editor focus can be
 		// restored after the dropdown closes, without stealing focus during

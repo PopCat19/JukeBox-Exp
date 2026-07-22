@@ -1754,11 +1754,6 @@ export class ColorConfig {
 			);
 		}
 
-		ColorConfig.resetColors();
-
-		// Dispatch theme change event for spectrum and other listeners
-		events.raise("themeChange", resolvedName);
-
 		ColorConfig.usesColorFormula =
 			getComputedStyle(ColorConfig._styleElement)
 				.getPropertyValue("--use-color-formula")
@@ -2053,6 +2048,9 @@ export class ColorConfig {
 				).getPropertyValue("--formula-mod-channel-count-override");
 			}
 		}
+
+		ColorConfig.resetColors();
+		events.raise("themeChange", resolvedName);
 	}
 
 	public static setPMDState(
@@ -2079,8 +2077,8 @@ export class ColorConfig {
 		applyPMDTheme(ColorConfig.pmdEffectiveHue, isDark);
 		ColorConfig._renderedPMDHue = ColorConfig.pmdEffectiveHue;
 		ColorConfig._renderedPMDDark = isDark;
-		events.raise("themeChange", ColorConfig.PMD_THEME);
 		ColorConfig.resetColors();
+		events.raise("themeChange", ColorConfig.PMD_THEME);
 		return true;
 	}
 

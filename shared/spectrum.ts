@@ -25,6 +25,7 @@ interface Particle {
 	maxLife: number;
 	size: number;
 	color: string;
+	colorRole: "left" | "right";
 }
 
 const MAX_PARTICLES = 300;
@@ -35,6 +36,7 @@ function spawnParticle(
 	mag: number,
 	impulse: number,
 	color: string,
+	colorRole: Particle["colorRole"],
 ): Particle {
 	const maxLife = 80 + Math.random() * 120;
 	const speed = 0.3 + impulse * 1.0 + mag * 0.6;
@@ -47,6 +49,7 @@ function spawnParticle(
 		maxLife,
 		size: 1 + Math.random() * 3 + mag * 2,
 		color,
+		colorRole,
 	};
 }
 
@@ -55,6 +58,9 @@ export class spectrumCanvas {
 	private _cachedBgColor: string = "";
 	private _cachedLColor: string = "";
 	private _cachedRColor: string = "";
+	private _hasValidFrame = false;
+	private _disposed = false;
+	private readonly _ownerWindow: Window | null;
 
 	private _sampleRate = 48000;
 	private _lastBufferSize = 0;
@@ -89,33 +95,16 @@ export class spectrumCanvas {
 		readonly scale: number = 1,
 		readonly transparentBg: boolean = false,
 	) {
+		this._ownerWindow = canvas.ownerDocument?.defaultView ?? null;
 		this._updateCachedColors();
 		this._initBands(48000);
 
 		this._EventUpdateCanvas = (directlinkL: Float32Array, directlinkR?: Float32Array): void => {
-			if (!directlinkR) return;
-
-			const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-			// Match canvas resolution to CSS layout for sharp rendering
-			const displayW = Math.round(canvas.clientWidth * devicePixelRatio);
-			const displayH = Math.round(canvas.clientHeight * devicePixelRatio);
-			if (canvas.width !== displayW || canvas.height !== displayH) {
-				canvas.width = displayW;
-				canvas.height = displayH;
-			}
-			const w = canvas.width;
-			const h = canvas.height;
-
-			// Clear
-			if (!this.transparentBg) {
-				ctx.fillStyle = this._cachedBgColor;
-				ctx.fillRect(0, 0, w, h);
-			} else {
-				ctx.clearRect(0, 0, w, h);
-			}
+			if (!directlinkR || this._disposed) return;
 
 			const sampleCount = directlinkL.length;
 			if (sampleCount < 4) return;
+			this._resizeBackingStore();
 
 			// Compute instant RMS energy for impulse tracking
 			let rawEnergy = 0;
@@ -267,56 +256,125 @@ export class spectrumCanvas {
 				}
 			}
 
-			const bgRef = spectrumCanvas.BG_REF;
-			const fgRef = spectrumCanvas.FG_REF;
-
-			// Cache Y positions for particle spawning
-			this._computeYPositions(h, this._bgSmoothMags, bgRef, BG_BANDS, this._bgYs, 1.0);
-			this._computeYPositions(h, this._fgSmoothMags, fgRef, FG_BANDS, this._fgYs, 1.0);
-
-			// Draw background bass layer (R color, low opacity)
-			this._drawSmooth(
-				ctx,
-				w,
+			const h = this.canvas.height;
+			const w = this.canvas.width;
+			this._computeYPositions(
 				h,
 				this._bgSmoothMags,
-				bgRef,
+				spectrumCanvas.BG_REF,
 				BG_BANDS,
-				this._cachedRColor,
-				0.4,
+				this._bgYs,
 				1.0,
 			);
-
-			// Draw foreground main layer (L color, full opacity)
-			this._drawSmooth(
-				ctx,
-				w,
+			this._computeYPositions(
 				h,
 				this._fgSmoothMags,
-				fgRef,
+				spectrumCanvas.FG_REF,
 				FG_BANDS,
-				this._cachedLColor,
-				1.0,
+				this._fgYs,
 				1.0,
 			);
-
-			// Update and draw particles
 			if (this.showParticles) {
 				this._updateParticles(h);
 				this._spawnParticles(w, impulse);
-				this._drawParticles(ctx);
 			} else {
 				this._particles.length = 0;
 			}
+			this._hasValidFrame = true;
+			this._paintRetainedFrame(this.showParticles, false);
 		};
 
 		events.listen("spectrumUpdate", this._EventUpdateCanvas);
-		events.listen("spectrumReset", () => {
-			this.reset();
-		});
-		events.listen("themeChange", () => {
-			this._updateCachedColors();
-		});
+		events.listen("spectrumReset", this._onSpectrumReset);
+		events.listen("themeChange", this._onThemeChange);
+		this._ownerWindow?.addEventListener("resize", this._onResize);
+	}
+
+	private readonly _onSpectrumReset = (): void => {
+		this.reset();
+	};
+
+	private readonly _onThemeChange = (): void => {
+		if (this._disposed) return;
+		this._updateCachedColors();
+		for (const particle of this._particles) {
+			particle.color =
+				particle.colorRole === "left" ? this._cachedLColor : this._cachedRColor;
+		}
+		if (this._hasValidFrame) this._paintRetainedFrame(this.showParticles);
+	};
+
+	private readonly _onResize = (): void => {
+		if (this._disposed || !this._resizeBackingStore()) return;
+		this._computeRetainedYPositions();
+		if (this._hasValidFrame) this._paintRetainedFrame(this.showParticles, false);
+	};
+
+	private _resizeBackingStore(): boolean {
+		const pixelRatio = this._ownerWindow?.devicePixelRatio ?? 1;
+		const displayW = Math.round(this.canvas.clientWidth * pixelRatio);
+		const displayH = Math.round(this.canvas.clientHeight * pixelRatio);
+		if (this.canvas.width === displayW && this.canvas.height === displayH) return false;
+		this.canvas.width = displayW;
+		this.canvas.height = displayH;
+		return true;
+	}
+
+	private _computeRetainedYPositions(): void {
+		const h = this.canvas.height;
+		this._computeYPositions(
+			h,
+			this._bgSmoothMags,
+			spectrumCanvas.BG_REF,
+			BG_BANDS,
+			this._bgYs,
+			1.0,
+		);
+		this._computeYPositions(
+			h,
+			this._fgSmoothMags,
+			spectrumCanvas.FG_REF,
+			FG_BANDS,
+			this._fgYs,
+			1.0,
+		);
+	}
+
+	private _paintRetainedFrame(drawParticles: boolean, resize = true): void {
+		const ctx = this.canvas.getContext("2d");
+		if (ctx === null) return;
+		if (resize && this._resizeBackingStore()) this._computeRetainedYPositions();
+		const w = this.canvas.width;
+		const h = this.canvas.height;
+		if (!this.transparentBg) {
+			ctx.fillStyle = this._cachedBgColor;
+			ctx.fillRect(0, 0, w, h);
+		} else {
+			ctx.clearRect(0, 0, w, h);
+		}
+		this._drawSmooth(
+			ctx,
+			w,
+			h,
+			this._bgSmoothMags,
+			spectrumCanvas.BG_REF,
+			BG_BANDS,
+			this._cachedRColor,
+			0.4,
+			1.0,
+		);
+		this._drawSmooth(
+			ctx,
+			w,
+			h,
+			this._fgSmoothMags,
+			spectrumCanvas.FG_REF,
+			FG_BANDS,
+			this._cachedLColor,
+			1.0,
+			1.0,
+		);
+		if (drawParticles) this._drawParticles(ctx);
 	}
 
 	private _computeYPositions(
@@ -395,7 +453,9 @@ export class spectrumCanvas {
 			if (normMag > 0.08 && Math.random() < normMag * (0.5 + impulse * 0.3)) {
 				const x = b * fgBandWidth + (Math.random() - 0.5) * fgBandWidth * 0.8;
 				const y = this._fgYs[b] + (Math.random() - 0.5) * 6;
-				this._particles.push(spawnParticle(x, y, normMag, impulse, this._cachedLColor));
+				this._particles.push(
+					spawnParticle(x, y, normMag, impulse, this._cachedLColor, "left"),
+				);
 				if (this._particles.length >= MAX_PARTICLES) return;
 			}
 		}
@@ -410,7 +470,9 @@ export class spectrumCanvas {
 			if (normMag > 0.1 && Math.random() < normMag * 0.25) {
 				const x = b * bgBandWidth + (Math.random() - 0.5) * bgBandWidth * 0.5;
 				const y = this._bgYs[b] + (Math.random() - 0.5) * 4;
-				this._particles.push(spawnParticle(x, y, normMag, impulse, this._cachedRColor));
+				this._particles.push(
+					spawnParticle(x, y, normMag, impulse, this._cachedRColor, "right"),
+				);
 				if (this._particles.length >= MAX_PARTICLES) return;
 			}
 		}
@@ -450,6 +512,7 @@ export class spectrumCanvas {
 	}
 
 	public reset(): void {
+		this._hasValidFrame = false;
 		this._fgSmoothMags.fill(0);
 		this._bgSmoothMags.fill(0);
 		// Clear the background ring buffer so the next FFT doesn't
@@ -468,6 +531,15 @@ export class spectrumCanvas {
 				ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 			}
 		}
+	}
+
+	public dispose(): void {
+		if (this._disposed) return;
+		this._disposed = true;
+		events.unlisten("spectrumUpdate", this._EventUpdateCanvas);
+		events.unlisten("spectrumReset", this._onSpectrumReset);
+		events.unlisten("themeChange", this._onThemeChange);
+		this._ownerWindow?.removeEventListener("resize", this._onResize);
 	}
 
 	private _updateCachedColors(): void {

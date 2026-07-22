@@ -60,6 +60,7 @@ export default tseslint.config(
             "tests/loop-editor-contract.test.ts",
             "tests/limiter-prompt.test.ts",
             "tests/pmd-hue.test.ts",
+            "tests/theme-raster-redraw.test.ts",
             "tests/lint-baseline.test.ts",
             "tests/song-document-contract.test.ts",
             "tests/song-data-recovery.test.ts",

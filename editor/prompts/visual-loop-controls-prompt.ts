@@ -8,6 +8,7 @@
 
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
+import { events } from "../../shared/events";
 import type { Instrument } from "../../synth";
 import {
 	type ChipWave,
@@ -35,6 +36,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	private readonly _waveformCanvasWidth: number = 500;
 	private readonly _waveformCanvasHeight: number = 200;
 	private readonly _handleCanvasHeight: number = 20;
+	private _disposed = false;
 
 	private readonly _songEditor: PromptEditorRefs;
 	private _instrument: Instrument | null = null;
@@ -406,6 +408,7 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._updatePlaySongButton();
 		this._render();
 		this._reconfigureLoopControls();
+		events.listen("themeChange", this._onThemeChange);
 		this._viewportOffsetSlider.addEventListener("input", this._whenViewportOffsetSliderChanges);
 		this._zoomInButton.addEventListener("click", this._whenZoomInClicked);
 		this._zoomOutButton.addEventListener("click", this._whenZoomOutClicked);
@@ -427,6 +430,10 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 		this._overlayCanvas.addEventListener("touchend", this._whenOverlayTouchIsUp);
 		this._overlayCanvas.addEventListener("touchcancel", this._whenOverlayTouchIsUp);
 	}
+
+	private readonly _onThemeChange = (): void => {
+		this._render();
+	};
 
 	private _waveformSampleLookup = (x: number): number => {
 		const n: number = this._waveformDataLength!;
@@ -453,6 +460,9 @@ export class VisualLoopControlsPrompt extends BasePrompt {
 	};
 
 	public override cleanUp(): void {
+		if (this._disposed) return;
+		this._disposed = true;
+		events.unlisten("themeChange", this._onThemeChange);
 		super.cleanUp();
 		this._startOffsetHandle.cleanUp();
 		this._loopStartHandle.cleanUp();
