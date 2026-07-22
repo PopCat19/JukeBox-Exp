@@ -974,7 +974,7 @@ describe("native navigator extraction", () => {
 		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane:hover,[^{]*\.navigator-native-pane\.focused,[^{]*\.navigator-native-pane:focus-visible \{[^}]*box-shadow: none !important;[^}]*outline: none !important;/s);
 		expect(css).not.toMatch(/\.navigator-detached-content > \.navigator-native-pane:hover \{[^}]*outline: none;/s);
 		expect(css).not.toMatch(/\.navigator-pane-host[^,{]*[> ](?:button|\.selectableRow):hover/);
-		expect(css).toMatch(/\.navigator-detached-content > \.navigator-native-pane \{[^}]*min-height: 100%/s);
+		expect(css).toMatch(/\.navigator-detached-content > \.navigator-native-pane \{[^}]*min-height: 100%[^}]*background: transparent !important[^}]*backdrop-filter: none !important[^}]*-webkit-backdrop-filter: none !important/s);
 		expect(css).toContain(".navigator-native-pane > .prompt-titlebar");
 		expect(css).toContain("display: none !important");
 	});
@@ -1347,16 +1347,19 @@ describe("navigator shell", () => {
 		expect(compactSearchCSS).toMatch(/\.presetSelectorPrompt \.categoryListPane,[^{]*\.presetListPane \{[^}]*min-height: 0[^}]*background: var\(--editor-background\)/s);
 	});
 
-	test("backdrop preference uses direct PMD 8x and updates the open shell", () => {
+	test("PMD backdrop tracks current base00 across hue updates", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
-		const colors = pmdGenerateColors(245, true);
-		applyPMDToDOM(colors);
-		expect(document.documentElement.style.getPropertyValue("--prompt-backdrop-color")).toBe(
-			`rgba(${colors.base01.rgb.r}, ${colors.base01.rgb.g}, ${colors.base01.rgb.b}, 0.4)`,
-		);
-		expect(document.documentElement.style.getPropertyValue("--prompt-bg-color")).toBe(
-			"var(--prompt-backdrop-color)",
-		);
+		for (const hue of [245, 35]) {
+			const colors = pmdGenerateColors(hue, true);
+			applyPMDToDOM(colors);
+			expect(document.documentElement.style.getPropertyValue("--prompt-backdrop-color")).toBe(
+				`rgba(${colors.base00.rgb.r}, ${colors.base00.rgb.g}, ${colors.base00.rgb.b}, 0.64)`,
+			);
+			expect(document.documentElement.style.getPropertyValue("--prompt-bg-color")).toBe(
+				"var(--prompt-backdrop-color)",
+			);
+			expect(document.documentElement.style.getPropertyValue("--prompt-backdrop-filter")).toBe("blur(24px)");
+		}
 		const shell = new NavigatorShell();
 		shell.setBackdropPreference(true);
 		expect(shell.container.style.getPropertyValue("--prompt-bg-color")).toBe(
@@ -1366,6 +1369,14 @@ describe("navigator shell", () => {
 		shell.setBackdropPreference(false);
 		expect(shell.container.style.getPropertyValue("--prompt-bg-color")).toBe("transparent");
 		expect(shell.container.style.getPropertyValue("--prompt-backdrop-filter")).toBe("none");
+	});
+
+	test("PMD prompt backdrop source rejects the old base01 mapping", async () => {
+		const source = await Bun.file("shared/pmd-adapter.ts").text();
+		expect(source).toContain('set("--prompt-backdrop-color", withAlpha("base00", 0.64));');
+		expect(source).not.toMatch(/set\("--prompt-backdrop-color", withAlpha\("base01", 0\.40?\)\);/);
+		expect(source).toContain('set("--prompt-bg-color", "var(--prompt-backdrop-color)");');
+		expect(source).toContain('set("--prompt-backdrop-filter", "blur(24px)");');
 	});
 
 	test("opening Project Data clears stale shade state", () => {
