@@ -65,7 +65,7 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--tab-inactive-fg", c("base03"));
 
 	// Prompt surfaces (inner widgets). The prompt itself uses
-	// --prompt-bg-color (base00 @ 64% alpha) + 24px backdrop blur.
+	// --prompt-bg-color (base00 @ 48% alpha) + 24px backdrop blur.
 	set("--prompt-list-item-bg", c("base02"));
 	set("--prompt-list-item-bg-hover", c("base01"));
 	set("--prompt-list-item-border", c("base01"));
@@ -121,7 +121,7 @@ export function applyPMDToDOM(colors: Base16Palette): void {
 	set("--mute-button-mod", c("base0C"));
 
 	// Prompt/modal chrome
-	set("--prompt-backdrop-color", withAlpha("base00", 0.64));
+	set("--prompt-backdrop-color", withAlpha("base00", 0.48));
 	set("--prompt-bg-color", "var(--prompt-backdrop-color)");
 	set("--prompt-backdrop-filter", "blur(24px)");
 

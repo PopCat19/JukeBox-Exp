@@ -1541,7 +1541,7 @@ describe("navigator shell", () => {
 			const colors = pmdGenerateColors(hue, true);
 			applyPMDToDOM(colors);
 			expect(document.documentElement.style.getPropertyValue("--prompt-backdrop-color")).toBe(
-				`rgba(${colors.base00.rgb.r}, ${colors.base00.rgb.g}, ${colors.base00.rgb.b}, 0.64)`,
+				`rgba(${colors.base00.rgb.r}, ${colors.base00.rgb.g}, ${colors.base00.rgb.b}, 0.48)`,
 			);
 			expect(document.documentElement.style.getPropertyValue("--prompt-bg-color")).toBe(
 				"var(--prompt-backdrop-color)",
@@ -1561,7 +1561,7 @@ describe("navigator shell", () => {
 
 	test("PMD prompt backdrop source rejects the old base01 mapping", async () => {
 		const source = await Bun.file("shared/pmd-adapter.ts").text();
-		expect(source).toContain('set("--prompt-backdrop-color", withAlpha("base00", 0.64));');
+		expect(source).toContain('set("--prompt-backdrop-color", withAlpha("base00", 0.48));');
 		expect(source).not.toMatch(/set\("--prompt-backdrop-color", withAlpha\("base01", 0\.40?\)\);/);
 		expect(source).toContain('set("--prompt-bg-color", "var(--prompt-backdrop-color)");');
 		expect(source).toContain('set("--prompt-backdrop-filter", "blur(24px)");');
