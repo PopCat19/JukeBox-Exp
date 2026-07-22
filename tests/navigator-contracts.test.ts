@@ -1566,6 +1566,7 @@ describe("navigator shell", () => {
 			disposeNavigatorPrompt: (prompt: Prompt) => {
 				prompt.discard();
 				prompt.container.remove();
+				expect(prompt.container.querySelectorAll("[data-pmd-role]")).toHaveLength(0);
 				prompt.cleanUp();
 				current = null;
 			},
@@ -2206,10 +2207,14 @@ describe("native import and export pane", () => {
 				const browse = root.querySelector<HTMLButtonElement>(".importBrowseButton")!;
 				const exportAction = root.querySelector<HTMLButtonElement>(".exportButton")!;
 				expect(browse.type).toBe("button");
-				expect(browse.classList.contains("pmd-secondary")).toBeTrue();
+				expect(browse.dataset.pmdRole).toBe("secondary");
+				expect(browse.style.background).toBe("var(--ui-widget-background)");
 				expect(browse.classList.contains("pmd-hover")).toBeTrue();
 				expect(browse.classList.contains("pmd-focus")).toBeTrue();
-				expect(exportAction.classList.contains("pmd-primary")).toBeTrue();
+				expect(exportAction.dataset.pmdRole).toBe("primary");
+				expect(exportAction.getAttribute("style") ?? "").toContain(
+					"background: var(--cta-bg, var(--prompt-titlebar-text));",
+				);
 				expect(exportAction.classList.contains("pmd-hover")).toBeTrue();
 				expect(exportAction.classList.contains("pmd-focus")).toBeTrue();
 				expect(root.querySelectorAll(".exportPrompt select option")).toHaveLength(10);
@@ -2240,13 +2245,17 @@ describe("native import and export pane", () => {
 				expect(fileInput.style.display).toBe("none");
 				expect(status.getAttribute("aria-live")).toBe("polite");
 				expect(status.textContent).toBe("No file selected.");
-				expect(browse.classList.contains("pmd-secondary")).toBeTrue();
+				expect(browse.dataset.pmdRole).toBe("secondary");
+				expect(browse.style.background).toBe("var(--ui-widget-background)");
 				expect(browse.classList.contains("pmd-hover")).toBeTrue();
 				expect(browse.classList.contains("pmd-focus")).toBeTrue();
 				expect(channelCheckbox.type).toBe("checkbox");
 				expect(channelCheckbox.closest(".exportCheckControl")).not.toBeNull();
 				expect(root.querySelector(".instrumentExportPrompt .exportField input[type='text']")).not.toBeNull();
-				expect(exportAction.classList.contains("pmd-primary")).toBeTrue();
+				expect(exportAction.dataset.pmdRole).toBe("primary");
+				expect(exportAction.getAttribute("style") ?? "").toContain(
+					"background: var(--cta-bg, var(--prompt-titlebar-text));",
+				);
 				expect(exportAction.classList.contains("pmd-hover")).toBeTrue();
 				expect(exportAction.classList.contains("pmd-focus")).toBeTrue();
 			}
@@ -2392,14 +2401,17 @@ describe("native import and export pane", () => {
 		expect(songImport).toContain('actionButton("Browse\\u2026"');
 		expect(instrumentImport).toContain('actionButton("Browse\\u2026"');
 		for (const source of [songImport, instrumentImport]) {
-			expect(source).toContain('classList.add("pmd-secondary")');
-			expect(source).toContain("hoverReveal(this._browseButton");
-			expect(source).toContain("focusReveal(this._browseButton");
+			expect(source).toContain('surface: "secondary"');
+			expect(source).not.toContain("hoverReveal");
+			expect(source).not.toContain("focusReveal");
 		}
 		for (const source of [songExport, instrumentExport]) {
-			expect(source).toContain('classList.add("pmd-primary")');
-			expect(source).toContain("hoverReveal(this._okayButton");
-			expect(source).toContain("focusReveal(this._okayButton");
+			expect(source).toContain('applyActionButtonSurface(this._okayButton, "primary")');
+			expect(source).not.toContain("hoverReveal");
+			expect(source).not.toContain("focusReveal");
+		}
+		for (const source of [songImport, songExport, instrumentImport, instrumentExport]) {
+			expect(source).not.toMatch(/pmd-(?:primary|secondary)/);
 		}
 	});
 

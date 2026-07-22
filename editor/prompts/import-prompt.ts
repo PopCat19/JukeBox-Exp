@@ -16,7 +16,7 @@ import { ChangeReplacePatterns, ChangeSong, removeDuplicatePatterns } from "../c
 import { ChangeGroup } from "../core/change";
 import { parseMidiFile } from "../io/midi-parser";
 import type { SongDocument } from "../song-document";
-import { actionButton, focusReveal, hoverReveal } from "../ui";
+import { actionButton } from "../ui";
 import {
 	BasePrompt,
 	createPromptSurface,
@@ -53,13 +53,9 @@ export class ImportPrompt extends BasePrompt {
 				? actionButton("Browse\u2026", {
 						class: "importBrowseButton",
 						type: "button",
+						surface: "secondary",
 					})
 				: button({ class: "importBrowseButton" }, "Browse\u2026");
-		if (this._surface === "navigator") {
-			this._browseButton.classList.add("pmd-secondary");
-			hoverReveal(this._browseButton, { role: "secondary" });
-			focusReveal(this._browseButton, { role: "secondary" });
-		}
 		const children: Node[] = [
 			p(
 				{ class: "importNote" },

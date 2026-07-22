@@ -3,7 +3,7 @@
 // Purpose: Barrel re-export of button variants
 
 export type { ActionButtonOptions } from "./action-button";
-export { actionButton } from "./action-button";
+export { actionButton, applyActionButtonSurface } from "./action-button";
 export { clearButton } from "./clear-button";
 export type { DeleteButtonOptions } from "./delete-button";
 export { deleteButton } from "./delete-button";

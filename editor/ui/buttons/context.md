@@ -1,6 +1,6 @@
 # Button Components
 
-- `action-button.ts`, Text-labeled button for instrument operations (copy, paste, export, import)
+- `action-button.ts`, Text-labeled action button with optional canonical PMD surface roles and post-construction decoration
 - `clear-button.ts`, Compact × button for clearing input fields
 - `delete-button.ts`, CSS class-based delete button for list rows (envelopes, etc.)
 - `dropdown-button.ts`, Small toggle button with ▼ indicator for expanding dropdown menus

@@ -357,7 +357,7 @@ export class CustomChipPrompt extends BasePrompt {
 
 	private readonly copyButton: HTMLButtonElement = button(
 		{
-			class: "iconBtnSm copyButton pmd-secondary",
+			class: "iconBtnSm copyButton",
 			type: "button",
 			title: "Copy custom chip waveform",
 			"aria-label": "Copy custom chip waveform",
@@ -394,7 +394,7 @@ export class CustomChipPrompt extends BasePrompt {
 	);
 	private readonly pasteButton: HTMLButtonElement = button(
 		{
-			class: "iconBtnSm pasteButton pmd-secondary",
+			class: "iconBtnSm pasteButton",
 			type: "button",
 			title: "Paste custom chip waveform",
 			"aria-label": "Paste custom chip waveform",

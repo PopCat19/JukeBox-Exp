@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import type { Channel, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
-import { focusReveal, hoverReveal, labelRow } from "../ui";
+import { applyActionButtonSurface, labelRow } from "../ui";
 import {
 	BasePrompt,
 	createPromptSurface,
@@ -87,9 +87,7 @@ export class InstrumentExportPrompt extends BasePrompt {
 		if (this._surface === "standalone") this.buildTitlebar();
 		else {
 			this._fileName.removeAttribute("autofocus");
-			this._okayButton.classList.add("pmd-primary");
-			hoverReveal(this._okayButton, { role: "primary" });
-			focusReveal(this._okayButton, { role: "primary" });
+			applyActionButtonSurface(this._okayButton, "primary");
 		}
 		this._okayButton.classList.add("exportButton");
 		this._okayButton.textContent = "Export";

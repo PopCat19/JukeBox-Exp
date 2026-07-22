@@ -111,6 +111,7 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/components/loop-editor.ts` | `tests/loop-editor-contract.test.ts` | CSS class for disabled state, no inline opacity conflict |
 | `editor/ui/index.ts` (barrel) | `tests/barrel-exports.test.ts` | buildOptions, numberInput, Slider, Layout, createDiv, etc. |
 | `editor/ui/states.ts` | `tests/ui-states.test.ts` | Token values, surface CSS, source-grep proofs for refactored buttons |
+| `editor/ui/buttons/action-button.ts` | `tests/action-button.test.ts` | Optional canonical PMD surfaces, role metadata, interaction hooks, idempotent decoration, and generic caller preservation |
 | `editor/ui/surfaces.ts` | `tests/ui-states.test.ts` | primarySurface/secondarySurface/ghostSurface role outputs |
 | `editor/ui/interactions.ts` | `tests/interactions-behavior.test.ts` | Behavioral: classList adds, style custom props, dataset writes, native disabled property writes, tagged style injection dedupe |
 | `editor/ui/interactions.ts` (source-grep) | `tests/ui-states.test.ts` | CSS rule content (incl. pmd-disabled), helper exports, DisableableElement union coverage |

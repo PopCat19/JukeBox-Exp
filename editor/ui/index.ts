@@ -36,6 +36,7 @@ export type {
 // Buttons
 export {
 	actionButton,
+	applyActionButtonSurface,
 	clearButton,
 	deleteButton,
 	dropdownButton,

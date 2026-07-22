@@ -98,7 +98,7 @@
 		{
 			"key": "biome:editor/prompts/export-prompt.ts",
 			"count": 20,
-			"hash": "a2828fb2c3ae37fd5596eeadcc46e1cf735f74f3733494df62ef0450fe0c29a8"
+			"hash": "da69243b2b422a6762b9699da441e43f96159abecfe9688c6248074b538b5709"
 		},
 		{
 			"key": "biome:editor/prompts/instrument-browser-prompt.ts",
@@ -108,12 +108,12 @@
 		{
 			"key": "biome:editor/prompts/instrument-export-prompt.ts",
 			"count": 3,
-			"hash": "385e8599af0ae36716fe8f954ab9a08ea1e3de02f48b6c340fa19d2da5acd718"
+			"hash": "6ced81cc4583500f88aa1b03461dcfd9d67a39701546758faa227a16635aad1f"
 		},
 		{
 			"key": "biome:editor/prompts/instrument-import-prompt.ts",
 			"count": 3,
-			"hash": "2d8cafa17320d317002460b3208f22897f27a9be6c3075de6f4b79c58d80a0a3"
+			"hash": "b9a716b987ff5a40002f82944a257328ccb77ed56cd331af1c54448645fc6193"
 		},
 		{
 			"key": "biome:editor/prompts/layout-prompt.ts",
@@ -868,12 +868,12 @@
 		{
 			"key": "eslint:editor/prompts/export-prompt.ts",
 			"count": 139,
-			"hash": "01db46f035be86d7d31ef11476b150f008994821af6f3710a0e60dd6bb83c586"
+			"hash": "74785c6fe8642d436024f01a68209435f240384ea383d1532c695ef8b2ebb8f4"
 		},
 		{
 			"key": "eslint:editor/prompts/import-prompt.ts",
 			"count": 5,
-			"hash": "142c9f3e412e9c59c76e0a1b31fcc1d0d53765cb928c14b83558916b7851daea"
+			"hash": "5c21f77655124e8c441b57d3c98f66e2c433559f339814ba40f5d603e7f81e24"
 		},
 		{
 			"key": "eslint:editor/prompts/input-helpers.ts",
@@ -888,12 +888,12 @@
 		{
 			"key": "eslint:editor/prompts/instrument-export-prompt.ts",
 			"count": 10,
-			"hash": "e4ea517202692d99f1e1fa53ce4fc0464e951824c3edd02e449e711a39b21256"
+			"hash": "6b7f6c39a9ba8198621c296cb8b8213be5ecd3fd12253cc03ba06298d72ee71a"
 		},
 		{
 			"key": "eslint:editor/prompts/instrument-import-prompt.ts",
 			"count": 9,
-			"hash": "9c0863facca3d30f5f15764ee080748c91082862f33504093d08e3c009009528"
+			"hash": "b3486b74799d3fd8df8d87b22de26b9da00c7fd395e185f627fd3741954fc204"
 		},
 		{
 			"key": "eslint:editor/prompts/keyboard-shortcuts-prompt.ts",

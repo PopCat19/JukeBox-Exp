@@ -12,7 +12,7 @@ import { HTML } from "imperative-html/dist/esm/elements-strict";
 import type { Channel, Instrument } from "../../synth";
 import { ChangeAppendInstrument, ChangePasteInstrument, ChangeViewInstrument } from "../changes";
 import type { SongDocument } from "../song-document";
-import { actionButton, focusReveal, hoverReveal, selectField, setDisabled } from "../ui";
+import { actionButton, selectField, setDisabled } from "../ui";
 import {
 	BasePrompt,
 	createPromptSurface,
@@ -33,10 +33,7 @@ export class InstrumentImportPrompt extends BasePrompt {
 		type: "file",
 		accept: ".json,application/json",
 	});
-	private readonly _browseButton: HTMLButtonElement = actionButton("Browse\u2026", {
-		class: "importBrowseButton",
-		type: "button",
-	});
+	private readonly _browseButton: HTMLButtonElement;
 	private readonly _fileStatus: HTMLOutputElement = output(
 		{
 			class: "importFileStatus",
@@ -65,12 +62,12 @@ export class InstrumentImportPrompt extends BasePrompt {
 	constructor(doc: SongDocument, options: PromptSurfaceOptions = {}) {
 		super(doc);
 		this._surface = options.surface ?? "standalone";
-		if (this._surface === "navigator") {
-			this._fileInput.style.display = "none";
-			this._browseButton.classList.add("pmd-secondary");
-			hoverReveal(this._browseButton, { role: "secondary" });
-			focusReveal(this._browseButton, { role: "secondary" });
-		}
+		this._browseButton = actionButton("Browse\u2026", {
+			class: "importBrowseButton",
+			type: "button",
+			...(this._surface === "navigator" ? { surface: "secondary" as const } : {}),
+		});
+		if (this._surface === "navigator") this._fileInput.style.display = "none";
 		const children: Node[] =
 			this._surface === "standalone"
 				? [

@@ -13,7 +13,7 @@ import { Song, Synth } from "../../synth";
 import { toJukeboxExpJson, toJukeboxExpV2Json, toLegacyCompatJson } from "../../synth/formats";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
-import { focusReveal, hoverReveal, setDisabled } from "../ui";
+import { applyActionButtonSurface, setDisabled } from "../ui";
 import {
 	BasePrompt,
 	createPromptSurface,
@@ -237,9 +237,7 @@ export class ExportPrompt extends BasePrompt {
 		if (this._surface === "standalone") this.buildTitlebar();
 		else {
 			this._fileName.removeAttribute("autofocus");
-			this._okayButton.classList.add("pmd-primary");
-			hoverReveal(this._okayButton, { role: "primary" });
-			focusReveal(this._okayButton, { role: "primary" });
+			applyActionButtonSurface(this._okayButton, "primary");
 		}
 		this._okayButton.classList.add("exportButton");
 		this._okayButton.textContent = "Export";
