@@ -948,6 +948,7 @@ describe("native navigator extraction", () => {
 		expect(css).toMatch(/\.navigator-pane-host > \.navigator-native-pane\.exportPrompt \.exportPromptContent \{[^}]*width: 100%;[^}]*max-width: none;/s);
 		expect(css).toMatch(/\.prompt\.exportPrompt \.exportField \{[^}]*display: flex;[^}]*flex-direction: column;[^}]*align-items: stretch;[^}]*min-width: 0;/s);
 		expect(css).toMatch(/\.prompt\.exportPrompt \.exportField > input\[type="text"\],[^{]*\.exportField > select \{[^}]*max-width: 100%;[^}]*min-width: 0;/s);
+		expect(css).toMatch(/\.navigator-import-export-surface\.exportPrompt \.exportField > \.selectContainer,[^{]*\.exportField > \.selectContainer > select \{[^}]*box-sizing: border-box;[^}]*width: 100%;[^}]*max-width: 100%;[^}]*min-width: 0;/s);
 		expect(css).toMatch(/\.prompt\.exportPrompt \.exportValue \{[^}]*padding: 0;[^}]*background: transparent;/s);
 		expect(css).toMatch(/\.prompt\.exportPrompt \.exportLengthField \{[^}]*flex-direction: row;[^}]*align-items: baseline;/s);
 		expect(css).toMatch(/\.prompt\.exportPrompt \.exportPromptFooter \.exportButton \{[^}]*width: 100%;/s);
@@ -972,7 +973,7 @@ describe("native navigator extraction", () => {
 	test("Export Song DOM keeps fields, status, and actions in one bounded content flow", async () => {
 		const source = await Bun.file("editor/prompts/export-prompt.ts").text();
 		expect(source).toContain('{ class: "exportPromptContent" }');
-		expect(source.match(/{ class: "exportField(?: exportLengthField)?" }/g)?.length).toBe(3);
+		expect(source.match(/{ class: "exportField(?: exportLengthField)?" }/g)?.length).toBe(4);
 		expect(source.match(/label\(\s*\{ class: "exportField(?: exportLengthField)?" \}/g)?.length).toBe(3);
 		expect(source.match(/{ class: "exportSection"/g)?.length).toBe(2);
 		expect(source).toContain('? "exportSection exportOptionsSection"');
@@ -2207,8 +2208,9 @@ describe("native import and export pane", () => {
 				const browse = root.querySelector<HTMLButtonElement>(".importBrowseButton")!;
 				const exportAction = root.querySelector<HTMLButtonElement>(".exportButton")!;
 				const format = root.querySelector<HTMLSelectElement>(".exportPrompt select")!;
-				const formatRow = format.closest(".selectContainer")?.parentElement;
-				const formatLabel = formatRow?.querySelector<HTMLLabelElement>("label");
+				const formatContainer = format.closest<HTMLDivElement>(".selectContainer")!;
+				const formatField = formatContainer.parentElement!;
+				const formatLabel = formatField.querySelector<HTMLLabelElement>(":scope > label");
 				expect(browse.type).toBe("button");
 				expect(browse.dataset.pmdRole).toBe("secondary");
 				expect(browse.style.background).toBe("var(--ui-widget-background)");
@@ -2219,8 +2221,14 @@ describe("native import and export pane", () => {
 				expect(exportAction.getAttribute("style") ?? "").not.toContain("--cta-bg");
 				expect(exportAction.classList.contains("pmd-hover")).toBeTrue();
 				expect(exportAction.classList.contains("pmd-focus")).toBeTrue();
-				expect(formatRow?.classList.contains("prompt-form-row-end")).toBeTrue();
-				expect(format.closest(".selectContainer")).not.toBeNull();
+				expect(formatField.className).toBe("exportField");
+				expect(formatField.children).toHaveLength(2);
+				expect(formatField.querySelector(":scope > .prompt-form-row-end")).toBeNull();
+				expect(formatField.querySelector(":scope > .selectContainer > select")).toBe(format);
+				expect(formatContainer.parentElement).toBe(formatField);
+				expect(format.parentElement).toBe(formatContainer);
+				expect(formatContainer.style.width).toBe("100%");
+				expect(formatContainer.style.marginLeft).toBe("0px");
 				expect(formatLabel?.textContent).toBe("Format:");
 				expect(formatLabel?.htmlFor).toBe(format.id);
 				expect(format.id.length).toBeGreaterThan(0);
@@ -2273,6 +2281,15 @@ describe("native import and export pane", () => {
 			}
 			owner.lifecycle.dispose();
 		}
+
+		const standalone = new ExportPrompt(new SongDocument(), { autofocus: false });
+		const standaloneFormat = standalone.container.querySelector<HTMLSelectElement>("select")!;
+		const standaloneField = standaloneFormat.parentElement!;
+		expect(standaloneField.tagName).toBe("LABEL");
+		expect(standaloneField.className).toBe("exportField");
+		expect(standaloneFormat.closest(".selectContainer")).toBeNull();
+		expect(standaloneField.querySelector(":scope > .prompt-form-row-end")).toBeNull();
+		standalone.cleanUp();
 	});
 
 	test("song import restores denied UI before an accepted aggregate close", async () => {

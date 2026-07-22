@@ -69,6 +69,13 @@ export function buildPromptExportCSS(): string {
 	max-width: 100%;
 	min-width: 0;
 }
+.beepboxEditor .navigator-import-export-surface.exportPrompt .exportField > .selectContainer,
+.beepboxEditor .navigator-import-export-surface.exportPrompt .exportField > .selectContainer > select {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	min-width: 0;
+}
 .beepboxEditor .navigator-import-export-surface.exportPrompt .exportLoopBounds,
 .beepboxEditor .prompt.exportPrompt .exportLoopBounds,
 .beepboxEditor .navigator-import-export-surface.exportPrompt .exportPlaybackControls,

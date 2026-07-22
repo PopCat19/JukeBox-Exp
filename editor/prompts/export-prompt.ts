@@ -13,7 +13,7 @@ import { Song, Synth } from "../../synth";
 import { toJukeboxExpJson, toJukeboxExpV2Json, toLegacyCompatJson } from "../../synth/formats";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
-import { applyActionButtonSurface, selectField, setDisabled } from "../ui";
+import { applyActionButtonSurface, selectContainer, setDisabled } from "../ui";
 import {
 	BasePrompt,
 	createPromptSurface,
@@ -125,19 +125,20 @@ export class ExportPrompt extends BasePrompt {
 	) {
 		super(doc);
 		this._surface = options.surface ?? "standalone";
-		const formatField =
-			this._surface === "standalone"
-				? label(
-						{ class: "exportField" },
-						div({ class: "exportFieldLabel" }, "Format:"),
-						this._formatSelect,
-					)
-				: selectField("Format:", this._formatSelect);
-		if (this._surface === "navigator") {
+		let formatField: HTMLElement;
+		if (this._surface === "standalone") {
+			formatField = label(
+				{ class: "exportField" },
+				div({ class: "exportFieldLabel" }, "Format:"),
+				this._formatSelect,
+			);
+		} else {
 			const formatSelectId = `${this._playbackLabelId}-format`;
 			this._formatSelect.id = formatSelectId;
-			formatField.prepend(
+			formatField = div(
+				{ class: "exportField" },
 				label({ class: "exportFieldLabel", for: formatSelectId }, "Format:"),
+				selectContainer(this._formatSelect, { width: "100%", marginLeft: "0" }),
 			);
 		}
 		this.container = createPromptSurface(
