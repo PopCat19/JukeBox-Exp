@@ -1,7 +1,7 @@
 {
 	"version": 1,
 	"counts": {
-		"eslint": 4881,
+		"eslint": 4887,
 		"biome": 296
 	},
 	"groups": [
@@ -148,7 +148,7 @@
 		{
 			"key": "biome:editor/rendering/style.ts",
 			"count": 1,
-			"hash": "cbfc7528a63eb1031e529cd942d9758dfae65de81cc72599eca654d8a21e24bc"
+			"hash": "75c6157e90dcf44520995ea0c1b9328665a2642f2a1a0d6d245707c94598090b"
 		},
 		{
 			"key": "biome:editor/song-custom-samples.ts",
@@ -908,7 +908,7 @@
 		{
 			"key": "eslint:editor/prompts/limiter-prompt.ts",
 			"count": 28,
-			"hash": "1fe77f80db49a9f273c3fbd2c9d5965dabf7b516ab8ba4c27ef77ebb3d64ddcb"
+			"hash": "c5769a5331ce7ef40c3cf31d9853bc83a2f8c5934bc28e72332aff73a9b9c615"
 		},
 		{
 			"key": "eslint:editor/prompts/move-notes-sideways-prompt.ts",
@@ -1018,7 +1018,12 @@
 		{
 			"key": "eslint:editor/rendering/style.ts",
 			"count": 1,
-			"hash": "6686dd978ddee8bd0c7807f4de9546f15c879fbba78b33f26596c1a24bf6fc2d"
+			"hash": "d13d7d2b6be52eff7bfec8b31aa0f60afacc2b0e6da658ed6ffa3f5c5729d34f"
+		},
+		{
+			"key": "eslint:editor/rendering/styles/prompt-limiter.ts",
+			"count": 6,
+			"hash": "52f6b0ad7c6ce48bbbe390b28e9419645f3cf9f27aeda22a988e75125a1e2500"
 		},
 		{
 			"key": "eslint:editor/song-custom-samples.ts",

@@ -1,4 +1,3 @@
-import { BorderWidth } from "../ui/style-constants";
 // LimiterPrompt
 //
 // Purpose: Provides dialog for configuring song limiter and compressor settings
@@ -15,13 +14,105 @@ import { ChangeLimiterSettings } from "../changes";
 import { prettyNumber } from "../config/editor-config";
 import type { PromptEditorRefs } from "../core/prompt-manager";
 import type { SongDocument } from "../song-document";
-import { flexRowCenter, labelRow, w } from "../ui";
+import { actionButton, applyActionButtonSurface, rangeSlider, type Slider } from "../ui";
+import { BorderWidth } from "../ui/style-constants";
 import { BasePrompt } from "./base-prompt";
 import { updatePlayButton } from "./input-helpers";
 
-const { button, div, h2, input } = HTML;
+const { div, fieldset, figcaption, figure, form, h2, label, legend, output, section, span } = HTML;
+
+export interface LimiterValueCodec {
+	readonly minPosition: number;
+	readonly maxPosition: number;
+	readonly minValue: number;
+	readonly maxValue: number;
+	encode(value: number): number;
+	decode(position: number): number;
+}
+
+export const limiterValueCodecs = {
+	decay: {
+		minPosition: 1,
+		maxPosition: 30,
+		minValue: 1,
+		maxValue: 30,
+		encode: (value: number): number => value,
+		decode: (position: number): number => position,
+	},
+	rise: {
+		minPosition: 0,
+		maxPosition: 32,
+		minValue: 2000,
+		maxValue: 10000,
+		encode: (value: number): number => (value - 2000) / 250,
+		decode: (position: number): number => 2000 + position * 250,
+	},
+	boostThreshold: {
+		minPosition: 0,
+		maxPosition: 22,
+		minValue: 0,
+		maxValue: 1.1,
+		encode: (value: number): number => value * 20,
+		decode: (position: number): number => position / 20,
+	},
+	cutoffThreshold: {
+		minPosition: 0,
+		maxPosition: 40,
+		minValue: 0,
+		maxValue: 2,
+		encode: (value: number): number => value * 20,
+		decode: (position: number): number => position / 20,
+	},
+	boostRatio: {
+		minPosition: 0,
+		maxPosition: 20,
+		minValue: 0,
+		maxValue: 7 / 6,
+		encode: (value: number): number =>
+			Math.round(value < 1 ? value * 10 : 10 + (value - 1) * 60),
+		decode: (position: number): number =>
+			position < 10 ? position / 10 : 1 + (position - 10) / 60,
+	},
+	cutoffRatio: {
+		minPosition: 0,
+		maxPosition: 20,
+		minValue: 0,
+		maxValue: 11,
+		encode: (value: number): number => Math.round(value < 1 ? value * 10 : 9 + value),
+		decode: (position: number): number => (position < 10 ? position / 10 : position - 9),
+	},
+	masterGain: {
+		minPosition: 0,
+		maxPosition: 250,
+		minValue: 0,
+		maxValue: 5,
+		encode: (value: number): number => value * 50,
+		decode: (position: number): number => position / 50,
+	},
+} as const satisfies Record<string, LimiterValueCodec>;
+
+const RATIO_DISPLAY_DECIMALS = 2;
+
+function formatRatio(value: number): string {
+	return `${Number(value.toFixed(RATIO_DISPLAY_DECIMALS))}:1`;
+}
+
+interface LimiterValues {
+	readonly limitRatio: number;
+	readonly compressionRatio: number;
+	readonly limitThreshold: number;
+	readonly compressionThreshold: number;
+	readonly limitRise: number;
+	readonly limitDecay: number;
+	readonly masterGain: number;
+}
 
 export class LimiterCanvas {
+	private static _nextId: number = 0;
+	private readonly _instanceId: number = LimiterCanvas._nextId++;
+	private readonly _graphTitleId: string = `limiterGraphTitle-${this._instanceId}`;
+	private readonly _graphDescId: string = `limiterGraphDesc-${this._instanceId}`;
+	private readonly _gradientId: string = `limiterVolumeGrad-${this._instanceId}`;
 	private readonly _editorWidth: number = 200;
 	private readonly _editorHeight: number = 52;
 	private readonly _fill: SVGPathElement = SVG.path({
@@ -152,7 +243,7 @@ export class LimiterCanvas {
 		height: "6px",
 		x: "0%",
 		y: "105%",
-		fill: "url('#volumeGrad')",
+		fill: `url('#${this._gradientId}')`,
 		rx: "3",
 	});
 	private readonly _inVolumeCap: SVGRectElement = SVG.rect({
@@ -168,7 +259,7 @@ export class LimiterCanvas {
 		height: "6px",
 		x: "0%",
 		y: "120%",
-		fill: "url('#volumeGrad')",
+		fill: `url('#${this._gradientId}')`,
 		rx: "3",
 	});
 	private readonly _outVolumeCap: SVGRectElement = SVG.rect({
@@ -183,7 +274,7 @@ export class LimiterCanvas {
 	private readonly _stop2: SVGStopElement = SVG.stop({ "stop-color": "orange", offset: "45%" });
 	private readonly _stop3: SVGStopElement = SVG.stop({ "stop-color": "red", offset: "50%" });
 	private readonly _gradient: SVGGradientElement = SVG.linearGradient(
-		{ id: "volumeGrad", gradientUnits: "userSpaceOnUse" },
+		{ id: this._gradientId, gradientUnits: "userSpaceOnUse" },
 		this._stop1,
 		this._stop2,
 		this._stop3,
@@ -191,12 +282,19 @@ export class LimiterCanvas {
 	private readonly _defs: SVGDefsElement = SVG.defs({}, this._gradient);
 	private readonly _svg: SVGSVGElement = SVG.svg(
 		{
+			role: "img",
+			"aria-labelledby": `${this._graphTitleId} ${this._graphDescId}`,
 			style: `background-color: ${ColorConfig.editorBackground}; touch-action: none; overflow: visible;`,
 			width: "100%",
 			height: "100%",
 			viewBox: `0 0 ${this._editorWidth} ${this._editorHeight}`,
 			preserveAspectRatio: "none",
 		},
+		SVG.title({ id: this._graphTitleId }, "Limiter dynamics curve and level meters"),
+		SVG.desc(
+			{ id: this._graphDescId },
+			"Boost, neutral, and cutoff gain curves with live input and output level meters.",
+		),
 		this._defs,
 		this._fill,
 		this._ticks,
@@ -221,10 +319,7 @@ export class LimiterCanvas {
 		this._outVolumeCap,
 	);
 
-	public readonly container: HTMLElement = HTML.div(
-		{ class: "", style: "width: 100%; aspect-ratio: 200 / 52; padding-bottom: 1.5em;" },
-		this._svg,
-	);
+	public readonly container: HTMLElement = div({ class: "limiterGraphCanvas" }, this._svg);
 
 	private _limiterPrompt: LimiterPrompt;
 
@@ -289,14 +384,10 @@ export class LimiterCanvas {
 		let path: string = "";
 		const subPaths: string[] = ["", "", ""];
 		for (let i: number = 0; i < 64; i++) {
-			let limiterRatio: number = +this._limiterPrompt.limitRatioSlider.value;
-			limiterRatio = limiterRatio < 10 ? limiterRatio / 10 : limiterRatio - 9;
-			let compressorRatio: number = +this._limiterPrompt.compressionRatioSlider.value;
-			compressorRatio =
-				compressorRatio < 10 ? compressorRatio / 10 : 1 + (compressorRatio - 10) / 60;
-			const limiterThreshold: number = +this._limiterPrompt.limitThresholdSlider.value;
-			const compressorThreshold: number =
-				+this._limiterPrompt.compressionThresholdSlider.value;
+			const limiterRatio: number = this._limiterPrompt.getLimitRatio();
+			const compressorRatio: number = this._limiterPrompt.getCompressionRatio();
+			const limiterThreshold: number = this._limiterPrompt.getLimitThreshold();
+			const compressorThreshold: number = this._limiterPrompt.getCompressionThreshold();
 			const useVol: number = (i * 2.0) / 64.0;
 			let nextValue: number = 1 / 1.05;
 			if (useVol >= limiterThreshold) {
@@ -391,243 +482,465 @@ export class LimiterCanvas {
 export class LimiterPrompt extends BasePrompt {
 	private _saved: boolean = false;
 	private _restored: boolean = false;
-	private limiterCanvas: LimiterCanvas = new LimiterCanvas(this);
+	private _disposed: boolean = false;
+	private _paneActive: boolean = true;
+	private readonly limiterCanvas: LimiterCanvas = new LimiterCanvas(this);
+	private readonly _draggingControls = new Set<Slider>();
+	private readonly _controlCleanups: Array<() => void> = [];
+	private readonly _controlNames = new WeakMap<HTMLInputElement, string>();
 
-	public readonly _playButton: HTMLButtonElement = button({ style: w("55%"), type: "button" });
+	public readonly _playButton: HTMLButtonElement = actionButton("Play", {
+		class: "limiterPlay",
+		surface: "secondary",
+		style: "width: fit-content;",
+	});
+	public readonly limitDecaySlider: Slider;
+	public readonly limitRiseSlider: Slider;
+	public readonly compressionThresholdSlider: Slider;
+	public readonly limitThresholdSlider: Slider;
+	public readonly compressionRatioSlider: Slider;
+	public readonly limitRatioSlider: Slider;
+	public readonly masterGainSlider: Slider;
 
-	public readonly limitDecaySlider: HTMLInputElement = input({
-		title: "limit decay",
-		style: `width: 5em; flex-grow: 1; margin: 0;`,
-		type: "range",
-		min: "1",
-		max: "30",
-		value: "4",
-		step: "1",
+	private readonly _compressionThresholdOutput: HTMLOutputElement = output();
+	private readonly _limitThresholdOutput: HTMLOutputElement = output();
+	private readonly _compressionRatioOutput: HTMLOutputElement = output();
+	private readonly _limitRatioOutput: HTMLOutputElement = output();
+	private readonly _limitDecayOutput: HTMLOutputElement = output();
+	private readonly _limitRiseOutput: HTMLOutputElement = output();
+	private readonly _masterGainOutput: HTMLOutputElement = output();
+	private readonly _status: HTMLDivElement = div({
+		class: "limiterStatus",
+		role: "status",
+		"aria-live": "polite",
+		"aria-atomic": "true",
 	});
-	public readonly limitRiseSlider: HTMLInputElement = input({
-		title: "limit rise",
-		style: `width: 5em; flex-grow: 1; margin: 0;`,
-		type: "range",
-		min: "2000",
-		max: "10000",
-		value: "4000",
-		step: "250",
-	});
-	public readonly compressionThresholdSlider: HTMLInputElement = input({
-		title: "compressor threshold",
-		style: `width: 100%; flex-grow: 1; margin: 0;`,
-		type: "range",
-		min: "0",
-		max: "1.1",
-		value: "1",
-		step: "0.05",
-	});
-	public readonly limitThresholdSlider: HTMLInputElement = input({
-		title: "limiter threshold",
-		style: `width: 100%; flex-grow: 1; margin: 0;`,
-		type: "range",
-		min: "0",
-		max: "2",
-		value: "1",
-		step: "0.05",
-	});
-	public readonly compressionRatioSlider: HTMLInputElement = input({
-		title: "compressor ratio",
-		style: `width: 100%; flex-grow: 1; margin: 0;`,
-		type: "range",
-		min: "0",
-		max: "20",
-		value: "10",
-		step: "1",
-	});
-	public readonly limitRatioSlider: HTMLInputElement = input({
-		title: "limiter ratio",
-		style: `width: 100%; flex-grow: 1; margin: 0;`,
-		type: "range",
-		min: "0",
-		max: "20",
-		value: "10",
-		step: "1",
-	});
-	public readonly masterGainSlider: HTMLInputElement = input({
-		title: "master gain",
-		style: `width: 5em; flex-grow: 1; margin: 0;`,
-		type: "range",
-		min: "0",
-		max: "5",
-		value: "1",
-		step: "0.02",
-	});
-
-	private startingLimitDecay: number;
-	private startingLimitRise: number;
-	private startingCompressionThreshold: number;
-	private startingLimitThreshold: number;
-	private startingCompressionRatio: number;
-	private startingLimitRatio: number;
-	private startingMasterGain: number;
+	private readonly _startingValues: LimiterValues;
 
 	private inVolumeHistoricTimer: number = 0.0;
 	private inVolumeHistoricCap: number = 0.0;
 	private outVolumeHistoricTimer: number = 0.0;
 	private outVolumeHistoricCap: number = 0.0;
 	private _volumeFrame: number | null = null;
-	private _volumeUpdatesActive: boolean = true;
+	private _volumeFrameOwner: Window | null = null;
+	private _volumeGeneration: number = 0;
+	private _focusTimer: ReturnType<typeof setTimeout> | null = null;
 
-	private readonly _resetButton: HTMLButtonElement = button({ style: "width:45%;" }, "Reset");
+	private readonly _resetButton: HTMLButtonElement = actionButton("Reset", {
+		class: "limiterReset",
+		surface: "secondary",
+		style: "width: fit-content;",
+	});
 
-	public readonly container: HTMLDivElement = div(
-		{ class: "prompt noSelection fill-x", style: w("250px") },
-		h2("Limiter Options"),
-		div(
-			{
-				style: "display: flex; width: 55%; align-self: center; flex-direction: row; align-items: center; justify-content: center;",
-			},
-			this._playButton,
-		),
-		flexRowCenter(undefined, this.limiterCanvas.container),
-		labelRow(
-			{ marginTop: "1.5em" },
-			div(
-				{
-					style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};`,
-				},
-				"",
-			),
-			div(
-				{
-					style: `text-align: center; width: 33%; margin-right: 4.5%; color: ${ColorConfig.textSelection};`,
-				},
-				"Boost",
-			),
-			div(
-				{
-					style: `text-align: center; width: 33%; margin-right: 0%; color: ${ColorConfig.linkAccent};`,
-				},
-				"Cutoff",
-			),
-		),
-		labelRow(
-			{ marginTop: "0.5em" },
-			div(
-				{
-					style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};`,
-				},
-				"Threshold:",
-			),
-			div({ style: `width: 33%; margin-right: 4.5%;` }, this.compressionThresholdSlider),
-			div({ style: `width: 33%; margin-right: 0%;` }, this.limitThresholdSlider),
-		),
-		labelRow(
-			div(
-				{
-					style: `text-align: right; width: 25%; margin-right: 4.5%; color: ${ColorConfig.primaryText};`,
-				},
-				"Ratio:",
-			),
-			div({ style: `width: 33%; margin-right: 4.5%;` }, this.compressionRatioSlider),
-			div({ style: `width: 33%; margin-right: 0%;` }, this.limitRatioSlider),
-		),
-		labelRow(
-			div(
-				{
-					style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};`,
-				},
-				"Limit Decay:",
-			),
-			this.limitDecaySlider,
-		),
-		labelRow(
-			div(
-				{
-					style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};`,
-				},
-				"Limit Rise:",
-			),
-			this.limitRiseSlider,
-		),
-		labelRow(
-			div(
-				{
-					style: `text-align: right; width: 8.5em; margin-right: 1em; color: ${ColorConfig.primaryText};`,
-				},
-				"Master Gain:",
-			),
-			this.masterGainSlider,
-		),
-		this._getOkayRow(this._resetButton),
-		this._cancelButton,
-	);
+	public readonly container: HTMLElement;
 
 	constructor(
 		doc: SongDocument,
 		private _songEditor: PromptEditorRefs,
 	) {
 		super(doc);
+		this._startingValues = this._readSongValues();
+		this.limitDecaySlider = this._createSlider(
+			limiterValueCodecs.decay,
+			this._startingValues.limitDecay,
+			"limit decay",
+		);
+		this.limitRiseSlider = this._createSlider(
+			limiterValueCodecs.rise,
+			this._startingValues.limitRise,
+			"limit rise",
+		);
+		this.compressionThresholdSlider = this._createSlider(
+			limiterValueCodecs.boostThreshold,
+			this._startingValues.compressionThreshold,
+			"boost threshold",
+		);
+		this.limitThresholdSlider = this._createSlider(
+			limiterValueCodecs.cutoffThreshold,
+			this._startingValues.limitThreshold,
+			"cutoff threshold",
+		);
+		this.compressionRatioSlider = this._createSlider(
+			limiterValueCodecs.boostRatio,
+			this._startingValues.compressionRatio,
+			"boost ratio",
+		);
+		this.limitRatioSlider = this._createSlider(
+			limiterValueCodecs.cutoffRatio,
+			this._startingValues.limitRatio,
+			"cutoff ratio",
+		);
+		this.masterGainSlider = this._createSlider(
+			limiterValueCodecs.masterGain,
+			this._startingValues.masterGain,
+			"master gain",
+		);
+
+		this.container = section(
+			{ class: "prompt limiterPrompt noSelection", tabindex: "-1" },
+			h2("Limiter Options"),
+			div(
+				{ class: "limiterBody" },
+				div(
+					{ class: "limiterPreview" },
+					this._playButton,
+					figure(
+						{ class: "limiterGraph" },
+						this.limiterCanvas.container,
+						figcaption({ class: "limiterMeterLabels" }, "Live input and output levels"),
+					),
+				),
+				form(
+					{ class: "limiterControls" },
+					fieldset(
+						{ class: "limiterStageGrid" },
+						legend("Dynamics curve"),
+						div(
+							{ class: "limiterColumnHeaders", "aria-hidden": "true" },
+							span(),
+							span("Boost"),
+							span("Cutoff"),
+						),
+						div(
+							{ class: "limiterCurveGrid" },
+							this._rangeField(
+								"Boost threshold",
+								this.compressionThresholdSlider,
+								limiterValueCodecs.boostThreshold,
+								this._compressionThresholdOutput,
+								"limiterBoostThreshold",
+							),
+							this._rangeField(
+								"Cutoff threshold",
+								this.limitThresholdSlider,
+								limiterValueCodecs.cutoffThreshold,
+								this._limitThresholdOutput,
+								"limiterCutoffThreshold",
+							),
+							this._rangeField(
+								"Boost ratio",
+								this.compressionRatioSlider,
+								limiterValueCodecs.boostRatio,
+								this._compressionRatioOutput,
+								"limiterBoostRatio",
+							),
+							this._rangeField(
+								"Cutoff ratio",
+								this.limitRatioSlider,
+								limiterValueCodecs.cutoffRatio,
+								this._limitRatioOutput,
+								"limiterCutoffRatio",
+							),
+						),
+					),
+					fieldset(
+						{ class: "limiterTiming" },
+						legend("Response and output"),
+						div(
+							{ class: "limiterTimingGrid" },
+							this._rangeField(
+								"Decay",
+								this.limitDecaySlider,
+								limiterValueCodecs.decay,
+								this._limitDecayOutput,
+								"limiterDecay",
+							),
+							this._rangeField(
+								"Rise",
+								this.limitRiseSlider,
+								limiterValueCodecs.rise,
+								this._limitRiseOutput,
+								"limiterRise",
+							),
+							this._rangeField(
+								"Master gain",
+								this.masterGainSlider,
+								limiterValueCodecs.masterGain,
+								this._masterGainOutput,
+								"limiterMasterGain",
+							),
+						),
+					),
+				),
+				this._status,
+				this._getOkayRow(this._resetButton),
+			),
+			this._cancelButton,
+		);
+
+		this._okayButton.classList.add("okayButton");
+		this._okayButton.style.width = "fit-content";
+		applyActionButtonSurface(this._okayButton, "primary");
 		this.buildTitlebar();
+		this._syncControlsFromSong();
 
 		this._resetButton.addEventListener("click", this._resetDefaults);
-		this.container.addEventListener("keydown", this.whenKeyPressed);
-
-		this.limitRatioSlider.value = `${this._doc.song.limitRatio < 1 ? this._doc.song.limitRatio * 10 : 9 + this._doc.song.limitRatio}`;
-		this.compressionRatioSlider.value = `${this._doc.song.compressionRatio < 1 ? this._doc.song.compressionRatio * 10 : 10 + (this._doc.song.compressionRatio - 1) * 60}`;
-		this.limitThresholdSlider.value = `${this._doc.song.limitThreshold}`;
-		this.compressionThresholdSlider.value = `${this._doc.song.compressionThreshold}`;
-		this.limitDecaySlider.value = `${this._doc.song.limitDecay}`;
-		this.limitRiseSlider.value = `${this._doc.song.limitRise}`;
-		this.masterGainSlider.value = `${this._doc.song.masterGain}`;
-
-		this.startingLimitRatio = +this.limitRatioSlider.value;
-		this.startingCompressionRatio = +this.compressionRatioSlider.value;
-		this.startingLimitThreshold = +this.limitThresholdSlider.value;
-		this.startingCompressionThreshold = +this.compressionThresholdSlider.value;
-		this.startingLimitDecay = +this.limitDecaySlider.value;
-		this.startingLimitRise = +this.limitRiseSlider.value;
-		this.startingMasterGain = +this.masterGainSlider.value;
-
-		this.limitDecaySlider.addEventListener("input", this._whenInput);
-		this.limitRiseSlider.addEventListener("input", this._whenInput);
-		this.limitRatioSlider.addEventListener("input", this._whenInput);
-		this.limitThresholdSlider.addEventListener("input", this._whenInputFavorLimitThreshold);
-		this.compressionRatioSlider.addEventListener("input", this._whenInput);
-		this.compressionThresholdSlider.addEventListener("input", this._whenInput);
-		this.masterGainSlider.addEventListener("input", this._whenInput);
-
+		this.limitDecaySlider.input.addEventListener("input", this._whenInput);
+		this.limitRiseSlider.input.addEventListener("input", this._whenInput);
+		this.limitRatioSlider.input.addEventListener("input", this._whenInput);
+		this.limitThresholdSlider.input.addEventListener(
+			"input",
+			this._whenInputFavorLimitThreshold,
+		);
+		this.compressionRatioSlider.input.addEventListener("input", this._whenInput);
+		this.compressionThresholdSlider.input.addEventListener("input", this._whenInput);
+		this.masterGainSlider.input.addEventListener("input", this._whenInput);
 		this._playButton.addEventListener("click", this._togglePlay);
+		this._doc.notifier.watch(this._whenDocumentChanged);
 
 		this._requestVolumeUpdate();
-
 		updatePlayButton(this._playButton, this._doc.synth.playing);
-
-		setTimeout(() => {
-			this._playButton.focus();
+		this._focusTimer = setTimeout(() => {
+			this._focusTimer = null;
+			if (!this._disposed && this._paneActive) this._playButton.focus();
 		});
+	}
 
+	private _createSlider(codec: LimiterValueCodec, value: number, title: string): Slider {
+		return rangeSlider(
+			this._doc,
+			null,
+			codec.minPosition,
+			codec.maxPosition,
+			Math.round(codec.encode(value)),
+			{ title, undo: false },
+		);
+	}
+
+	private _rangeField(
+		name: string,
+		control: Slider,
+		codec: LimiterValueCodec,
+		value: HTMLOutputElement,
+		className: string,
+	): HTMLDivElement {
+		const inputId = `limiter-${this.id}-${className}-input`;
+		const labelId = `limiter-${this.id}-${className}-label`;
+		const outputId = `limiter-${this.id}-${className}-output`;
+		control.input.id = inputId;
+		control.input.setAttribute("aria-labelledby", labelId);
+		control.container.classList.add("limiterSlider");
+		control.container.style.width = "100%";
+		control.container.style.flex = "1 1 auto";
+		control.container.style.minWidth = "0";
+		control.container.tabIndex = 0;
+		control.container.setAttribute("role", "slider");
+		control.container.setAttribute("aria-labelledby", labelId);
+		control.container.setAttribute("aria-controls", outputId);
+		control.container.setAttribute("aria-valuemin", String(codec.minValue));
+		control.container.setAttribute("aria-valuemax", String(codec.maxValue));
+		value.id = outputId;
+		value.setAttribute("for", inputId);
+		this._controlNames.set(control.input, name);
+		this._bindControlEvents(control, codec);
+		return div(
+			{ class: `limiterField ${className}` },
+			label({ class: "limiterFieldLabel", id: labelId, for: inputId }, name),
+			div({ class: "limiterSliderRow" }, control.container, value),
+		);
+	}
+
+	private _bindControlEvents(control: Slider, codec: LimiterValueCodec): void {
+		const beginDrag = (): void => {
+			this._draggingControls.add(control);
+		};
+		const endDrag = (): void => {
+			this._draggingControls.delete(control);
+		};
+		const onKeyDown = (event: KeyboardEvent): void => {
+			let position = Number(control.input.value);
+			if (event.key === "ArrowLeft" || event.key === "ArrowDown") position--;
+			else if (event.key === "ArrowRight" || event.key === "ArrowUp") position++;
+			else if (event.key === "PageDown") position -= 10;
+			else if (event.key === "PageUp") position += 10;
+			else if (event.key === "Home") position = codec.minPosition;
+			else if (event.key === "End") position = codec.maxPosition;
+			else return;
+			event.preventDefault();
+			position = Math.max(codec.minPosition, Math.min(codec.maxPosition, position));
+			control.updateValue(position);
+			control.input.dispatchEvent(new Event("input", { bubbles: true }));
+		};
+		control.container.addEventListener("pointerdown", beginDrag, true);
+		control.container.addEventListener("pointerup", endDrag);
+		control.container.addEventListener("pointercancel", endDrag);
+		control.container.addEventListener("lostpointercapture", endDrag);
+		control.container.addEventListener("keydown", onKeyDown);
+		this._controlCleanups.push(() => {
+			control.container.removeEventListener("pointerdown", beginDrag, true);
+			control.container.removeEventListener("pointerup", endDrag);
+			control.container.removeEventListener("pointercancel", endDrag);
+			control.container.removeEventListener("lostpointercapture", endDrag);
+			control.container.removeEventListener("keydown", onKeyDown);
+		});
+	}
+
+	private _readSongValues(): LimiterValues {
+		return {
+			limitRatio: this._doc.song.limitRatio,
+			compressionRatio: this._doc.song.compressionRatio,
+			limitThreshold: this._doc.song.limitThreshold,
+			compressionThreshold: this._doc.song.compressionThreshold,
+			limitRise: this._doc.song.limitRise,
+			limitDecay: this._doc.song.limitDecay,
+			masterGain: this._doc.song.masterGain,
+		};
+	}
+
+	private _decode(control: Slider, codec: LimiterValueCodec): number {
+		return codec.decode(Number(control.input.value));
+	}
+
+	private _setControl(
+		control: Slider,
+		codec: LimiterValueCodec,
+		value: number,
+		force: boolean = false,
+	): void {
+		if (!force && this._draggingControls.has(control)) return;
+		const position = Math.max(
+			codec.minPosition,
+			Math.min(codec.maxPosition, Math.round(codec.encode(value))),
+		);
+		control.updateValue(position);
+	}
+
+	private _syncControlsFromSong(): void {
+		this._setControl(
+			this.limitRatioSlider,
+			limiterValueCodecs.cutoffRatio,
+			this._doc.song.limitRatio,
+		);
+		this._setControl(
+			this.compressionRatioSlider,
+			limiterValueCodecs.boostRatio,
+			this._doc.song.compressionRatio,
+		);
+		this._setControl(
+			this.limitThresholdSlider,
+			limiterValueCodecs.cutoffThreshold,
+			this._doc.song.limitThreshold,
+		);
+		this._setControl(
+			this.compressionThresholdSlider,
+			limiterValueCodecs.boostThreshold,
+			this._doc.song.compressionThreshold,
+		);
+		this._setControl(
+			this.limitDecaySlider,
+			limiterValueCodecs.decay,
+			this._doc.song.limitDecay,
+		);
+		this._setControl(this.limitRiseSlider, limiterValueCodecs.rise, this._doc.song.limitRise);
+		this._setControl(
+			this.masterGainSlider,
+			limiterValueCodecs.masterGain,
+			this._doc.song.masterGain,
+		);
+		this._syncOutputs();
 		this.limiterCanvas.render();
 	}
 
-	private _requestVolumeUpdate(): void {
-		if (!this._volumeUpdatesActive || this._volumeFrame !== null) return;
-		this._volumeFrame = window.requestAnimationFrame(this._volumeUpdate);
+	private _syncOutputs(): void {
+		this._compressionThresholdOutput.value = `${prettyNumber(this.getCompressionThreshold())}×`;
+		this._limitThresholdOutput.value = `${prettyNumber(this.getLimitThreshold())}×`;
+		this._compressionRatioOutput.value = formatRatio(this.getCompressionRatio());
+		this._limitRatioOutput.value = formatRatio(this.getLimitRatio());
+		this._limitDecayOutput.value = `${prettyNumber(this.getLimitDecay())} s`;
+		this._limitRiseOutput.value = `${prettyNumber(this.getLimitRise())} samples`;
+		this._masterGainOutput.value = `${prettyNumber(this.getMasterGain())}×`;
+		this._syncSliderAccessibility(
+			this.compressionThresholdSlider,
+			this.getCompressionThreshold(),
+			this._compressionThresholdOutput.value,
+		);
+		this._syncSliderAccessibility(
+			this.limitThresholdSlider,
+			this.getLimitThreshold(),
+			this._limitThresholdOutput.value,
+		);
+		this._syncSliderAccessibility(
+			this.compressionRatioSlider,
+			this.getCompressionRatio(),
+			this._compressionRatioOutput.value,
+		);
+		this._syncSliderAccessibility(
+			this.limitRatioSlider,
+			this.getLimitRatio(),
+			this._limitRatioOutput.value,
+		);
+		this._syncSliderAccessibility(
+			this.limitDecaySlider,
+			this.getLimitDecay(),
+			this._limitDecayOutput.value,
+		);
+		this._syncSliderAccessibility(
+			this.limitRiseSlider,
+			this.getLimitRise(),
+			this._limitRiseOutput.value,
+		);
+		this._syncSliderAccessibility(
+			this.masterGainSlider,
+			this.getMasterGain(),
+			this._masterGainOutput.value,
+		);
 	}
 
-	private _volumeUpdate = (): void => {
+	private _syncSliderAccessibility(control: Slider, value: number, text: string): void {
+		control.container.setAttribute("aria-valuenow", String(value));
+		control.container.setAttribute("aria-valuetext", text);
+	}
+
+	private _announce(event?: Event): void {
+		if (!(event?.target instanceof HTMLInputElement)) return;
+		const name = this._controlNames.get(event.target);
+		const outputId = event.target.closest(".limiterField")?.querySelector("output")?.id;
+		const value = outputId === undefined ? null : this.container.querySelector(`#${outputId}`);
+		if (name !== undefined && value instanceof HTMLOutputElement) {
+			this._status.textContent = `${name}: ${value.value}`;
+		}
+	}
+
+	private _whenDocumentChanged = (): void => {
+		if (this._disposed) return;
+		this._syncControlsFromSong();
+		updatePlayButton(this._playButton, this._doc.synth.playing);
+	};
+
+	private _requestVolumeUpdate(): void {
+		if (this._disposed || !this._paneActive || this._volumeFrame !== null) return;
+		const owner = this.container.ownerDocument.defaultView;
+		if (owner === null) return;
+		const generation = this._volumeGeneration;
+		this._volumeFrameOwner = owner;
+		this._volumeFrame = owner.requestAnimationFrame(() => {
+			this._volumeUpdate(generation);
+		});
+	}
+
+	private _cancelVolumeUpdate(): void {
+		this._volumeGeneration++;
+		if (this._volumeFrame !== null) {
+			this._volumeFrameOwner?.cancelAnimationFrame(this._volumeFrame);
+		}
 		this._volumeFrame = null;
-		if (!this._volumeUpdatesActive) return;
+		this._volumeFrameOwner = null;
+	}
+
+	private _volumeUpdate = (generation: number): void => {
+		if (generation !== this._volumeGeneration) return;
+		this._volumeFrame = null;
+		this._volumeFrameOwner = null;
+		if (this._disposed || !this._paneActive) return;
 
 		this.inVolumeHistoricTimer--;
-		if (this.inVolumeHistoricTimer <= 0) {
-			this.inVolumeHistoricCap -= 0.03;
-		}
+		if (this.inVolumeHistoricTimer <= 0) this.inVolumeHistoricCap -= 0.03;
 		if (this._doc.song.inVolumeCap > this.inVolumeHistoricCap) {
 			this.inVolumeHistoricCap = this._doc.song.inVolumeCap;
 			this.inVolumeHistoricTimer = 50;
 		}
-
 		this.outVolumeHistoricTimer--;
-		if (this.outVolumeHistoricTimer <= 0) {
-			this.outVolumeHistoricCap -= 0.03;
-		}
+		if (this.outVolumeHistoricTimer <= 0) this.outVolumeHistoricCap -= 0.03;
 		if (this._doc.song.outVolumeCap > this.outVolumeHistoricCap) {
 			this.outVolumeHistoricCap = this._doc.song.outVolumeCap;
 			this.outVolumeHistoricTimer = 50;
@@ -647,28 +960,63 @@ export class LimiterPrompt extends BasePrompt {
 		updatePlayButton(this._playButton, this._doc.synth.playing);
 	};
 
-	private _whenInput = (): void => {
-		if (+this.limitThresholdSlider.value < +this.compressionThresholdSlider.value) {
-			this.limitThresholdSlider.removeEventListener(
-				"input",
-				this._whenInputFavorLimitThreshold,
+	private _whenInput = (event?: Event): void => {
+		if (this.getLimitThreshold() < this.getCompressionThreshold()) {
+			this._setControl(
+				this.limitThresholdSlider,
+				limiterValueCodecs.cutoffThreshold,
+				this.getCompressionThreshold(),
+				true,
 			);
-			this.limitThresholdSlider.value = this.compressionThresholdSlider.value;
-			this.limitThresholdSlider.addEventListener("input", this._whenInputFavorLimitThreshold);
 		}
 		this.limiterCanvas.render();
+		this._syncOutputs();
+		this._announce(event);
 		this._updateLimiter();
 	};
 
-	private _whenInputFavorLimitThreshold = (): void => {
-		if (+this.limitThresholdSlider.value < +this.compressionThresholdSlider.value) {
-			this.compressionThresholdSlider.removeEventListener("input", this._whenInput);
-			this.compressionThresholdSlider.value = this.limitThresholdSlider.value;
-			this.compressionThresholdSlider.addEventListener("input", this._whenInput);
+	private _whenInputFavorLimitThreshold = (event: Event): void => {
+		if (this.getLimitThreshold() < this.getCompressionThreshold()) {
+			this._setControl(
+				this.compressionThresholdSlider,
+				limiterValueCodecs.boostThreshold,
+				this.getLimitThreshold(),
+				true,
+			);
 		}
 		this.limiterCanvas.render();
+		this._syncOutputs();
+		this._announce(event);
 		this._updateLimiter();
 	};
+
+	public getLimitRatio(): number {
+		return this._decode(this.limitRatioSlider, limiterValueCodecs.cutoffRatio);
+	}
+
+	public getCompressionRatio(): number {
+		return this._decode(this.compressionRatioSlider, limiterValueCodecs.boostRatio);
+	}
+
+	public getLimitThreshold(): number {
+		return this._decode(this.limitThresholdSlider, limiterValueCodecs.cutoffThreshold);
+	}
+
+	public getCompressionThreshold(): number {
+		return this._decode(this.compressionThresholdSlider, limiterValueCodecs.boostThreshold);
+	}
+
+	public getLimitRise(): number {
+		return this._decode(this.limitRiseSlider, limiterValueCodecs.rise);
+	}
+
+	public getLimitDecay(): number {
+		return this._decode(this.limitDecaySlider, limiterValueCodecs.decay);
+	}
+
+	public getMasterGain(): number {
+		return this._decode(this.masterGainSlider, limiterValueCodecs.masterGain);
+	}
 
 	public override discard(): void {
 		this._restoreOpeningState();
@@ -677,95 +1025,159 @@ export class LimiterPrompt extends BasePrompt {
 	private _restoreOpeningState(): void {
 		if (this._saved || this._restored) return;
 		this._restored = true;
-		this.limitRatioSlider.value = `${this.startingLimitRatio}`;
-		this.compressionRatioSlider.value = `${this.startingCompressionRatio}`;
-		this.limitThresholdSlider.value = `${this.startingLimitThreshold}`;
-		this.compressionThresholdSlider.value = `${this.startingCompressionThreshold}`;
-		this.limitDecaySlider.value = `${this.startingLimitDecay}`;
-		this.limitRiseSlider.value = `${this.startingLimitRise}`;
-		this.masterGainSlider.value = `${this.startingMasterGain}`;
-
+		this._setAllControls(this._startingValues);
+		this.limiterCanvas.render();
+		this._syncOutputs();
 		this._updateLimiter();
+	}
+
+	private _setAllControls(values: LimiterValues): void {
+		this._setControl(
+			this.limitRatioSlider,
+			limiterValueCodecs.cutoffRatio,
+			values.limitRatio,
+			true,
+		);
+		this._setControl(
+			this.compressionRatioSlider,
+			limiterValueCodecs.boostRatio,
+			values.compressionRatio,
+			true,
+		);
+		this._setControl(
+			this.limitThresholdSlider,
+			limiterValueCodecs.cutoffThreshold,
+			values.limitThreshold,
+			true,
+		);
+		this._setControl(
+			this.compressionThresholdSlider,
+			limiterValueCodecs.boostThreshold,
+			values.compressionThreshold,
+			true,
+		);
+		this._setControl(this.limitRiseSlider, limiterValueCodecs.rise, values.limitRise, true);
+		this._setControl(this.limitDecaySlider, limiterValueCodecs.decay, values.limitDecay, true);
+		this._setControl(
+			this.masterGainSlider,
+			limiterValueCodecs.masterGain,
+			values.masterGain,
+			true,
+		);
 	}
 
 	protected override _close = (): void => {
 		this._restoreOpeningState();
-		if (this.closeCallback) {
-			this.closeCallback(this);
-		} else {
-			this._doc.prompt = null;
-		}
+		this._finishClose();
 	};
 
-	public override cleanUp(): void {
-		this._volumeUpdatesActive = false;
-		if (this._volumeFrame !== null) {
-			window.cancelAnimationFrame(this._volumeFrame);
-			this._volumeFrame = null;
+	private _finishClose(): void {
+		if (this.closeCallback) this.closeCallback(this);
+		else this._doc.prompt = null;
+	}
+
+	public suspendPane(): void {
+		this._paneActive = false;
+		this._cancelVolumeUpdate();
+		if (this._focusTimer !== null) {
+			clearTimeout(this._focusTimer);
+			this._focusTimer = null;
 		}
+	}
+
+	public resumePane(): void {
+		if (this._disposed) return;
+		this._paneActive = true;
+		this._requestVolumeUpdate();
+	}
+
+	public override cleanUp(): void {
+		if (this._disposed) return;
+		this._disposed = true;
+		this.suspendPane();
 		this._restoreOpeningState();
+		this._doc.notifier.unwatch(this._whenDocumentChanged);
 		super.cleanUp();
 		this._resetButton.removeEventListener("click", this._resetDefaults);
-		this.container.removeEventListener("keydown", this.whenKeyPressed);
-		this.limitDecaySlider.removeEventListener("input", this._whenInput);
-		this.limitRiseSlider.removeEventListener("input", this._whenInput);
-		this.limitThresholdSlider.removeEventListener("input", this._whenInputFavorLimitThreshold);
-		this.limitRatioSlider.removeEventListener("input", this._whenInput);
-		this.compressionRatioSlider.removeEventListener("input", this._whenInput);
-		this.compressionThresholdSlider.removeEventListener("input", this._whenInput);
-		this.masterGainSlider.removeEventListener("input", this._whenInput);
-
+		this.limitDecaySlider.input.removeEventListener("input", this._whenInput);
+		this.limitRiseSlider.input.removeEventListener("input", this._whenInput);
+		this.limitThresholdSlider.input.removeEventListener(
+			"input",
+			this._whenInputFavorLimitThreshold,
+		);
+		this.limitRatioSlider.input.removeEventListener("input", this._whenInput);
+		this.compressionRatioSlider.input.removeEventListener("input", this._whenInput);
+		this.compressionThresholdSlider.input.removeEventListener("input", this._whenInput);
+		this.masterGainSlider.input.removeEventListener("input", this._whenInput);
 		this._playButton.removeEventListener("click", this._togglePlay);
+		for (const cleanUp of this._controlCleanups) cleanUp();
+		this._controlCleanups.length = 0;
+		this._draggingControls.clear();
 	}
 
 	public override whenKeyPressed = (event: KeyboardEvent): void => {
-		this._handleCommonKeys(event, {
-			togglePlay: this._togglePlay,
-		});
+		if (event.key === "Escape") {
+			event.preventDefault();
+			this._close();
+			return;
+		}
+		this._handleCommonKeys(event, { togglePlay: this._togglePlay });
 	};
 
 	private _resetDefaults = (): void => {
+		const defaults: LimiterValues = {
+			limitRatio: 1,
+			compressionRatio: 1,
+			limitThreshold: 1,
+			compressionThreshold: 1,
+			limitRise: 4000,
+			limitDecay: 4,
+			masterGain: 1,
+		};
+		const current = this._readControlValues();
 		if (
-			this.limitRatioSlider.value !== "10" ||
-			this.limitRiseSlider.value !== "4000" ||
-			this.limitDecaySlider.value !== "4" ||
-			this.limitThresholdSlider.value !== "1" ||
-			this.compressionRatioSlider.value !== "10" ||
-			this.compressionThresholdSlider.value !== "1" ||
-			this.masterGainSlider.value !== "1"
+			Object.keys(defaults).every(
+				(key) =>
+					current[key as keyof LimiterValues] === defaults[key as keyof LimiterValues],
+			)
 		) {
-			this.limitRatioSlider.value = "10";
-			this.limitRiseSlider.value = "4000";
-			this.limitDecaySlider.value = "4";
-			this.limitThresholdSlider.value = "1";
-			this.compressionRatioSlider.value = "10";
-			this.compressionThresholdSlider.value = "1";
-			this.masterGainSlider.value = "1";
-
-			this._whenInput();
+			return;
 		}
+		this._setAllControls(defaults);
+		this._whenInput();
+		this._status.textContent = "Limiter settings reset";
 	};
 
+	private _readControlValues(): LimiterValues {
+		return {
+			limitRatio: this.getLimitRatio(),
+			compressionRatio: this.getCompressionRatio(),
+			limitThreshold: this.getLimitThreshold(),
+			compressionThreshold: this.getCompressionThreshold(),
+			limitRise: this.getLimitRise(),
+			limitDecay: this.getLimitDecay(),
+			masterGain: this.getMasterGain(),
+		};
+	}
+
 	private _updateLimiter = (): ChangeLimiterSettings => {
+		const values = this._readControlValues();
 		return new ChangeLimiterSettings(
 			this._doc,
-			+this.limitRatioSlider.value < 10
-				? +this.limitRatioSlider.value / 10
-				: +this.limitRatioSlider.value - 9,
-			+this.compressionRatioSlider.value < 10
-				? +this.compressionRatioSlider.value / 10
-				: 1 + (+this.compressionRatioSlider.value - 10) / 60,
-			+this.limitThresholdSlider.value,
-			+this.compressionThresholdSlider.value,
-			+this.limitRiseSlider.value,
-			+this.limitDecaySlider.value,
-			+this.masterGainSlider.value,
+			values.limitRatio,
+			values.compressionRatio,
+			values.limitThreshold,
+			values.compressionThreshold,
+			values.limitRise,
+			values.limitDecay,
+			values.masterGain,
 		);
 	};
 
 	protected override _saveChanges(): void {
+		if (this._saved) return;
 		this._saved = true;
 		this._doc.record(this._updateLimiter(), true);
-		this._doc.prompt = null;
+		this._finishClose();
 	}
 }

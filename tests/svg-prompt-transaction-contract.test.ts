@@ -106,7 +106,9 @@ describe("SVG prompt transactions", () => {
 		test(`${name} commit disables cleanup restore before close`, () => {
 			const save = methodBody(source, "_saveChanges");
 			const saved = save.indexOf("this._saved = true;");
-			const close = save.indexOf("this._doc.prompt = null;");
+			const close = save.indexOf(
+				name === "limiter" ? "this._finishClose();" : "this._doc.prompt = null;",
+			);
 			expect(saved).toBeGreaterThanOrEqual(0);
 			expect(close).toBeGreaterThan(saved);
 		});
