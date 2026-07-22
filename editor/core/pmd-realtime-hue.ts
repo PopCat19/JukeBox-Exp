@@ -21,7 +21,6 @@ export interface PMDRealtimeHueUpdate {
 
 export interface PMDRealtimeHueState {
 	readonly controlHue: number;
-	readonly dark: boolean;
 	readonly effectiveHue: number;
 	readonly enabled: boolean;
 }
@@ -56,7 +55,6 @@ export class PMDRealtimeHueCoordinator {
 	public capture(): PMDRealtimeHueState {
 		return {
 			controlHue: ColorConfig.pmdHue,
-			dark: ColorConfig.pmdDark,
 			effectiveHue: ColorConfig.pmdEffectiveHue,
 			enabled: this._enabled,
 		};
@@ -86,7 +84,7 @@ export class PMDRealtimeHueCoordinator {
 		const previous = this.capture();
 		if (enabled === previous.enabled) {
 			this._syncScheduler(timestamp);
-			this._applyAt(ColorConfig.pmdHue, ColorConfig.pmdDark, timestamp, previous);
+			this._applyAt(ColorConfig.pmdHue, timestamp, previous);
 			return;
 		}
 		const visibleHue = previous.enabled
@@ -101,12 +99,12 @@ export class PMDRealtimeHueCoordinator {
 				? normalizePMDOffset(previous.controlHue)
 				: normalizePMDHue(previous.controlHue);
 		this._syncScheduler(timestamp);
-		this._applyAt(controlHue, previous.dark, timestamp, previous);
+		this._applyAt(controlHue, timestamp, previous);
 	}
 
-	public preview(controlHue: number, isDark = ColorConfig.pmdDark): void {
+	public preview(controlHue: number): void {
 		const timestamp = this._now();
-		this._applyAt(controlHue, isDark, timestamp, this.capture());
+		this._applyAt(controlHue, timestamp, this.capture());
 	}
 
 	public apply(state: PMDRealtimeHueState, targetTheme?: string): void {
@@ -117,7 +115,7 @@ export class PMDRealtimeHueCoordinator {
 		const controlHue = state.enabled
 			? normalizePMDOffset(state.controlHue)
 			: normalizePMDHue(state.controlHue, 0);
-		this._applyExact(controlHue, state.effectiveHue, state.dark, previous, targetTheme);
+		this._applyExact(controlHue, state.effectiveHue, previous, targetTheme);
 	}
 
 	public restore(state: PMDRealtimeHueState, targetTheme?: string): void {
@@ -127,7 +125,7 @@ export class PMDRealtimeHueCoordinator {
 	public refresh(): void {
 		if (!this._enabled) return;
 		const timestamp = this._now();
-		this._applyAt(ColorConfig.pmdHue, ColorConfig.pmdDark, timestamp, this.capture());
+		this._applyAt(ColorConfig.pmdHue, timestamp, this.capture());
 	}
 
 	public persist(): void {
@@ -142,25 +140,19 @@ export class PMDRealtimeHueCoordinator {
 		this._syncScheduler();
 	}
 
-	private _applyAt(
-		controlHue: number,
-		isDark: boolean,
-		timestamp: Date,
-		previous: PMDRealtimeHueState,
-	): void {
+	private _applyAt(controlHue: number, timestamp: Date, previous: PMDRealtimeHueState): void {
 		const normalizedControl = this._enabled
 			? normalizePMDOffset(controlHue)
 			: normalizePMDHue(controlHue, 0);
 		const effectiveHue = this._enabled
 			? effectivePMDHue(clockHue(timestamp), normalizedControl)
 			: normalizedControl;
-		this._applyExact(normalizedControl, effectiveHue, isDark, previous);
+		this._applyExact(normalizedControl, effectiveHue, previous);
 	}
 
 	private _applyExact(
 		controlHue: number,
 		effectiveHue: number,
-		isDark: boolean,
 		previous: PMDRealtimeHueState,
 		targetTheme?: string,
 	): void {
@@ -168,7 +160,6 @@ export class PMDRealtimeHueCoordinator {
 		const rendered = ColorConfig.setPMDState(
 			controlHue,
 			normalizedEffective,
-			isDark,
 			false,
 			targetTheme,
 		);
@@ -176,7 +167,6 @@ export class PMDRealtimeHueCoordinator {
 			!rendered &&
 			previous.controlHue === controlHue &&
 			previous.effectiveHue === normalizedEffective &&
-			previous.dark === isDark &&
 			previous.enabled === this._enabled
 		)
 			return;

@@ -25,6 +25,8 @@ export const PMD_DARK: PMDVariables = {
 	"0x": { l: 0.0, c: 0.0 },
 };
 
+// Compatibility palette for direct PMD consumers. The editor Theme and realtime
+// coordinator force PMD_DARK, but this export stays stable for palette tooling.
 export const PMD_LIGHT: PMDVariables = {
 	"100x": { l: 0.0, c: 0.0 },
 	"88x": { l: 0.28, c: 0.032 },

@@ -109,7 +109,6 @@ export class ThemePrompt extends BasePrompt {
 	);
 
 	private _pmdHueWidget!: SliderNumWidget;
-	private readonly _pmdDarkInput: HTMLInputElement = checkboxInput();
 	private readonly _pmdRealtimeInput: HTMLInputElement = checkboxInput();
 	private readonly _pmdEffectiveHue: HTMLInputElement = input({
 		type: "text",
@@ -117,7 +116,7 @@ export class ThemePrompt extends BasePrompt {
 		"aria-label": "Effective hue",
 	});
 	private readonly _pmdHueExplanation: HTMLParagraphElement = p({
-		class: "pmdHueExplanation",
+		class: "pmdHueExplanation prompt-hint",
 	});
 	private readonly _pmdCoordinator: PMDRealtimeHueCoordinator;
 	private readonly _releasePMDCoordinator: () => void;
@@ -153,7 +152,6 @@ export class ThemePrompt extends BasePrompt {
 		this._syncPMDControlUI();
 		hueSlider.container.setAttribute("aria-valuenow", String(ColorConfig.pmdHue));
 		hueSlider.container.addEventListener("keydown", this._onPMDHueKeyDown);
-		this._pmdDarkInput.checked = ColorConfig.pmdDark;
 		this._pmdRealtimeInput.checked = this._pmdCoordinator.enabled;
 		const copyEffectiveHue = button(
 			{ type: "button", "aria-label": "Copy effective hue" },
@@ -166,7 +164,6 @@ export class ThemePrompt extends BasePrompt {
 			{ class: "pmdControls" },
 			div(
 				{ class: "pmdControlGroup" },
-				label({ class: "pmdDarkRow" }, "Dark", this._pmdDarkInput),
 				label({ class: "pmdRealtimeRow" }, "Use local clock", this._pmdRealtimeInput),
 				this._pmdHueWidget.row,
 				this._pmdHueExplanation,
@@ -195,7 +192,6 @@ export class ThemePrompt extends BasePrompt {
 		hueSlider.input.addEventListener("input", this._onPMDSliderInput);
 		this._pmdHueWidget.inputBox.addEventListener("input", this._onPMDNumberInput);
 		this._pmdHueWidget.inputBox.addEventListener("change", this._onPMDNumberChange);
-		this._pmdDarkInput.addEventListener("change", this._onPMDDarkChange);
 		this._pmdRealtimeInput.addEventListener("change", this._onPMDRealtimeChange);
 		if (typeof ResizeObserver !== "undefined") {
 			this._pmdResizeObserver = new ResizeObserver(() => {
@@ -236,7 +232,6 @@ export class ThemePrompt extends BasePrompt {
 		this._pmdHueWidget.setRangeAndLabel(min, max, labelText);
 		this._pmdHueWidget.updateValue(ColorConfig.pmdHue);
 		if (activeValue !== null) this._pmdHueWidget.inputBox.value = activeValue;
-		this._pmdDarkInput.checked = ColorConfig.pmdDark;
 		this._pmdRealtimeInput.checked = realtime;
 		this._pmdHueExplanation.textContent = realtime
 			? "Clock offset is added to local 24-hour time."
@@ -250,7 +245,7 @@ export class ThemePrompt extends BasePrompt {
 	}
 
 	private _applyPMD(hue: number): void {
-		this._pmdCoordinator.preview(hue, this._pmdDarkInput.checked);
+		this._pmdCoordinator.preview(hue);
 		this._syncPMDControlUI(false);
 	}
 
@@ -272,10 +267,6 @@ export class ThemePrompt extends BasePrompt {
 	private _onPMDNumberChange = (): void => {
 		const hue = this._readHue(this._pmdHueWidget.inputBox.value);
 		this._applyPMD(hue ?? ColorConfig.pmdHue);
-	};
-
-	private _onPMDDarkChange = (): void => {
-		this._applyPMD(ColorConfig.pmdHue);
 	};
 
 	private _onPMDRealtimeChange = (): void => {
@@ -351,7 +342,6 @@ export class ThemePrompt extends BasePrompt {
 		return (
 			this._themeSelect.value !== this.lastTheme ||
 			ColorConfig.pmdHue !== this.lastPMDState.controlHue ||
-			ColorConfig.pmdDark !== this.lastPMDState.dark ||
 			this._pmdCoordinator.enabled !== this.lastPMDState.enabled
 		);
 	}

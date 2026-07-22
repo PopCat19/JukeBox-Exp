@@ -63,16 +63,35 @@ export interface ChannelColors extends BeepBoxOption {
 	readonly primaryNote: string;
 }
 
+function readLocalStorage(key: string): string | null {
+	try {
+		return window.localStorage.getItem(key);
+	} catch {
+		return null;
+	}
+}
+
 function readPersistedPMDRealtimeHue(): boolean {
-	return window.localStorage.getItem("pmdRealtimeHue") === "true";
+	return readLocalStorage("pmdRealtimeHue") === "true";
 }
 
 function readPersistedPMDHue(): number {
 	const realtime = readPersistedPMDRealtimeHue();
-	const stored = window.localStorage.getItem("pmdHue");
+	const stored = readLocalStorage("pmdHue");
 	if (stored === null) return realtime ? 0 : PMD_MANUAL_HUE_DEFAULT;
 	const hue = Number(stored);
 	return realtime ? normalizePMDOffset(hue) : clampPMDManualHue(hue);
+}
+
+function forcePersistedPMDDark(): true {
+	try {
+		if (window.localStorage.getItem("pmdDark") !== "1") {
+			window.localStorage.setItem("pmdDark", "1");
+		}
+	} catch {
+		// Restricted storage must not block editor module initialization.
+	}
+	return true;
 }
 
 export class ColorConfig {
@@ -82,10 +101,7 @@ export class ColorConfig {
 	public static readonly PMD_THEME: string = "pmd-dynamic";
 	public static pmdHue: number =
 		typeof window !== "undefined" ? readPersistedPMDHue() : PMD_MANUAL_HUE_DEFAULT;
-	public static pmdDark: boolean =
-		typeof window !== "undefined"
-			? (window.localStorage.getItem("pmdDark") ?? "1") === "1"
-			: true;
+	public static pmdDark: boolean = typeof window !== "undefined" ? forcePersistedPMDDark() : true;
 	public static pmdEffectiveHue: number =
 		typeof window !== "undefined" && readPersistedPMDRealtimeHue()
 			? effectivePMDHue(clockHue(new Date()), ColorConfig.pmdHue)
@@ -1042,7 +1058,8 @@ export class ColorConfig {
 				: ColorConfig.defaultTheme;
 		ColorConfig.currentTheme = resolvedName;
 		if (resolvedName === ColorConfig.PMD_THEME) {
-			applyPMDTheme(ColorConfig.pmdEffectiveHue, ColorConfig.pmdDark);
+			ColorConfig.pmdDark = true;
+			applyPMDTheme(ColorConfig.pmdEffectiveHue, true);
 			ColorConfig._renderedPMDHue = ColorConfig.pmdEffectiveHue;
 			ColorConfig._renderedPMDDark = ColorConfig.pmdDark;
 			ColorConfig._styleElement.textContent = "";
@@ -2056,13 +2073,12 @@ export class ColorConfig {
 	public static setPMDState(
 		controlHue: number,
 		effectiveHue: number,
-		isDark: boolean,
 		persist: boolean,
 		targetTheme?: string,
 	): boolean {
 		ColorConfig.pmdHue = controlHue;
 		ColorConfig.pmdEffectiveHue = normalizePMDHue(effectiveHue, 0);
-		ColorConfig.pmdDark = isDark;
+		ColorConfig.pmdDark = true;
 		if (persist) ColorConfig.persistPMD();
 		if (targetTheme !== undefined && targetTheme !== ColorConfig.currentTheme) {
 			ColorConfig.setTheme(targetTheme);
@@ -2071,25 +2087,26 @@ export class ColorConfig {
 		if (ColorConfig.currentTheme !== ColorConfig.PMD_THEME) return false;
 		if (
 			ColorConfig._renderedPMDHue === ColorConfig.pmdEffectiveHue &&
-			ColorConfig._renderedPMDDark === isDark
+			ColorConfig._renderedPMDDark === true
 		)
 			return false;
-		applyPMDTheme(ColorConfig.pmdEffectiveHue, isDark);
+		applyPMDTheme(ColorConfig.pmdEffectiveHue, true);
 		ColorConfig._renderedPMDHue = ColorConfig.pmdEffectiveHue;
-		ColorConfig._renderedPMDDark = isDark;
+		ColorConfig._renderedPMDDark = true;
 		ColorConfig.resetColors();
 		events.raise("themeChange", ColorConfig.PMD_THEME);
 		return true;
 	}
 
 	public static persistPMD(): void {
+		ColorConfig.pmdDark = true;
 		window.localStorage.setItem("pmdHue", String(ColorConfig.pmdHue));
-		window.localStorage.setItem("pmdDark", ColorConfig.pmdDark ? "1" : "0");
+		window.localStorage.setItem("pmdDark", "1");
 	}
 
-	public static setPMD(hue: number, isDark: boolean): void {
+	public static setPMD(hue: number): void {
 		const normalizedHue = normalizePMDHue(hue);
-		ColorConfig.setPMDState(normalizedHue, normalizedHue, isDark, true);
+		ColorConfig.setPMDState(normalizedHue, normalizedHue, true);
 	}
 
 	public static getComputed(name: string): string {

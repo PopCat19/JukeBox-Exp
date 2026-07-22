@@ -221,7 +221,7 @@ ${buildAnimationsCSS()}
 
 .beepboxEditor .prompt-hint {
 	font-size: smaller;
-	color: var(--secondary-text);
+	color: var(--subtext);
 }
 
 .beepboxEditor .prompt-tip-content {

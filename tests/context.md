@@ -27,7 +27,8 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `pattern-editor-contract.test.ts`, Structural contract tests for pattern-editor.ts rendering invariants (stale canvas path, SVG/canvas y-center alignment)
 - `loop-editor-contract.test.ts`, Structural contract tests for loop-editor.ts UI invariants (CSS class for disabled state, no inline opacity conflict) and song-editor.ts focus-steal listeners (mouseup blur buttons, keydown intercept Space on button/select)
 - `limiter-prompt.test.ts`, Behavioral, accessibility, transaction, lifecycle, and responsive CSS contracts for LimiterPrompt
-- `pmd-hue.test.ts`, Pure hue migration plus page-global scheduling, wake events, atomic restore, persistence, and cleanup
+- `pmd-hue.test.ts`, Pure hue migration plus page-global scheduling, wake events, atomic restore, forced-dark persistence, and cleanup
+- `theme-raster-redraw.test.ts`, Behavioral retained spectrum resize/recolor plus weak editor and prompt raster lifecycle coverage
 - `lint-baseline.test.ts`, Contract tests for exact lint warning fingerprint drift detection
 - `song-document-contract.test.ts`, Structural contracts for position persistence during record, redo-preserving navigation, and history-state application
 - `song-data-recovery.test.ts`, Corruption repair, atomic replacement, defensive recovery parsing, and duplicate history event coverage

@@ -1954,6 +1954,10 @@ describe("attached Navigator theme lifecycle", () => {
 			owner.lifecycle.mount(attachedHost);
 			mounted = true;
 			const attachedRoot = owner.lifecycle.root.element;
+			expect(attachedRoot.querySelector(".pmdDarkRow")).toBeNull();
+			expect(
+				attachedRoot.querySelector(".pmdHueExplanation")?.classList.contains("prompt-hint"),
+			).toBeTrue();
 			const select = attachedRoot.querySelector("select") as HTMLSelectElement;
 			select.value = "nebula";
 			select.dispatchEvent(new Event("change"));

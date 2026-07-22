@@ -46,7 +46,7 @@ beforeEach(() => {
 		})),
 		theme: ColorConfig.currentTheme,
 	};
-	coordinator.apply({ controlHue: 345, dark: true, effectiveHue: 345, enabled: false });
+	coordinator.apply({ controlHue: 345, effectiveHue: 345, enabled: false });
 	localStorage.clear();
 });
 
@@ -60,7 +60,7 @@ describe("visual prompt dirty rollback", () => {
 	test("ThemePrompt denies discard, then restores theme and persisted PMD hue", () => {
 		localStorage.setItem("colorTheme", "forest");
 		ColorConfig.setTheme("forest");
-		ColorConfig.setPMD(42, false);
+		ColorConfig.setPMD(42);
 		const prompt = new ThemePrompt(visualDoc());
 		const hue = prompt.container.querySelector<HTMLInputElement>("input[type='range']")!;
 		const hueNumber = prompt.container.querySelector<HTMLInputElement>(
@@ -98,9 +98,9 @@ describe("visual prompt dirty rollback", () => {
 			expect(prompt.requestPaneClose()).toBeTrue();
 			prompt.discard();
 			expect(ColorConfig.pmdHue).toBe(42);
-			expect(ColorConfig.pmdDark).toBeFalse();
+			expect(ColorConfig.pmdDark).toBeTrue();
 			expect(localStorage.getItem("pmdHue")).toBe("42");
-			expect(localStorage.getItem("pmdDark")).toBe("0");
+			expect(localStorage.getItem("pmdDark")).toBe("1");
 			expect(localStorage.getItem("colorTheme")).toBe("forest");
 		} finally {
 			window.confirm = oldConfirm;
@@ -112,7 +112,7 @@ describe("visual prompt dirty rollback", () => {
 		localStorage.setItem("colorTheme", ColorConfig.PMD_THEME);
 		localStorage.setItem("enableScrollStep", "true");
 		ColorConfig.setTheme(ColorConfig.PMD_THEME);
-		ColorConfig.setPMD(20, true);
+		ColorConfig.setPMD(20);
 		let notifications = 0;
 		let themeChanges = 0;
 		const onThemeChange = (): void => { themeChanges++; };
@@ -141,7 +141,7 @@ describe("visual prompt dirty rollback", () => {
 	test("ThemePrompt syncs absolute and signed UI without clobbering active edits", () => {
 		localStorage.setItem("enableScrollStep", "true");
 		ColorConfig.setTheme(ColorConfig.PMD_THEME);
-		ColorConfig.setPMDState(20, 20, true, false);
+		ColorConfig.setPMDState(20, 20, false);
 		const doc = visualDoc();
 		let historyWrites = 0;
 		doc.record = () => { historyWrites++; };
@@ -155,8 +155,9 @@ describe("visual prompt dirty rollback", () => {
 		const checkboxes = prompt.container.querySelectorAll<HTMLInputElement>(
 			"input[type='checkbox']",
 		);
-		const dark = checkboxes[0];
-		const realtime = checkboxes[1];
+		const realtime = checkboxes[0];
+		expect(checkboxes.length).toBe(1);
+		expect(prompt.container.querySelector(".pmdDarkRow")).toBeNull();
 		const effective = prompt.container.querySelector<HTMLInputElement>(
 			"input[aria-label='Effective hue']",
 		)!;
@@ -174,8 +175,6 @@ describe("visual prompt dirty rollback", () => {
 		expect(slider.getAttribute("aria-valuenow")).toBe(String(ColorConfig.pmdHue));
 		expect(range.value).toBe(String(ColorConfig.pmdHue));
 		expect(effective.value).toBe(String(coordinator.effectiveHue));
-		coordinator.preview(ColorConfig.pmdHue, false);
-		expect(dark.checked).toBeFalse();
 		number.blur();
 		number.focus();
 		number.value = "179";
@@ -199,7 +198,7 @@ describe("visual prompt dirty rollback", () => {
 
 	test("ThemePrompt reads global state and never persists open or preview", () => {
 		localStorage.setItem("pmdHue", "999");
-		ColorConfig.setPMDState(77, 77, true, false);
+		ColorConfig.setPMDState(77, 77, false);
 		const persist = spyOn(coordinator, "persist");
 		const prompt = new ThemePrompt(visualDoc());
 		const hue = prompt.container.querySelector<HTMLInputElement>(
@@ -218,10 +217,10 @@ describe("visual prompt dirty rollback", () => {
 		persist.mockRestore();
 	});
 
-	test("ThemePrompt persists committed widget and dark-toggle previews once", () => {
+	test("ThemePrompt persists committed widget in forced dark mode once", () => {
 		localStorage.setItem("colorTheme", ColorConfig.PMD_THEME);
 		ColorConfig.setTheme(ColorConfig.PMD_THEME);
-		ColorConfig.setPMD(12, true);
+		ColorConfig.setPMD(12);
 		let notifications = 0;
 		const doc = visualDoc();
 		doc.notifier.changed = () => notifications++;
@@ -230,19 +229,17 @@ describe("visual prompt dirty rollback", () => {
 		const hue = prompt.container.querySelector<HTMLInputElement>(
 			"input[data-dev-component='SliderNumWidget']",
 		)!;
-		const dark = prompt.container.querySelector<HTMLInputElement>("input[type='checkbox']")!;
+		expect(prompt.container.querySelectorAll("input[type='checkbox']").length).toBe(1);
 		hue.value = "99";
 		hue.dispatchEvent(new Event("input"));
-		dark.checked = false;
-		dark.dispatchEvent(new Event("change"));
 		(prompt.container.querySelector("button[title='Commit']") as HTMLButtonElement).click();
 
 		expect(ColorConfig.pmdHue).toBe(99);
-		expect(ColorConfig.pmdDark).toBeFalse();
+		expect(ColorConfig.pmdDark).toBeTrue();
 		expect(localStorage.getItem("pmdHue")).toBe("99");
-		expect(localStorage.getItem("pmdDark")).toBe("0");
+		expect(localStorage.getItem("pmdDark")).toBe("1");
 		expect(persist).toHaveBeenCalledTimes(1);
-		expect(notifications).toBe(2);
+		expect(notifications).toBe(1);
 		prompt.discard();
 		expect(ColorConfig.pmdHue).toBe(99);
 		prompt.cleanUp();
@@ -315,7 +312,7 @@ describe("visual prompt dirty rollback", () => {
 	test("legacy Cancel and close cleanup roll back exactly once", () => {
 		localStorage.setItem("colorTheme", "forest");
 		ColorConfig.setTheme("forest");
-		ColorConfig.setPMD(42, false);
+		ColorConfig.setPMD(42);
 		let notifications = 0;
 		const doc = visualDoc();
 		doc.notifier.changed = () => notifications++;

@@ -1,7 +1,7 @@
 {
 	"version": 1,
 	"counts": {
-		"eslint": 4891,
+		"eslint": 4897,
 		"biome": 297
 	},
 	"groups": [
@@ -88,7 +88,7 @@
 		{
 			"key": "biome:editor/prompts/channel-volume-visualizer-prompt.ts",
 			"count": 4,
-			"hash": "159053b5604049659951da2406324795d31b10de5896245b0a588199464a73cb"
+			"hash": "e35fe2677ae1949d87acc3a7162f187e9e987916cfe719f454fe989a9055972d"
 		},
 		{
 			"key": "biome:editor/prompts/custom-filter-prompt.ts",
@@ -133,7 +133,7 @@
 		{
 			"key": "biome:editor/prompts/theme-prompt.ts",
 			"count": 1,
-			"hash": "8ab83cd29693370ef056b941d529f669e9003f4c05a56b6485aa8d1de4417d6e"
+			"hash": "3f3034cb91aa997325eb9dd78669d1305efb32f6d215086e7b37cfe1aba60d46"
 		},
 		{
 			"key": "biome:editor/renderers/render-layout.ts",
@@ -163,7 +163,7 @@
 		{
 			"key": "biome:editor/song-editor.ts",
 			"count": 1,
-			"hash": "a132bdd9703802a49b9b8d080dc6135bbfc5d193e4fb3c758af2e18095c6ce7b"
+			"hash": "7823c9b080e549c90fbbd5b049efb476eb6104d9a2bde09d13a60f7170699c5f"
 		},
 		{
 			"key": "biome:editor/ui/array-buffer-writer.ts",
@@ -203,7 +203,7 @@
 		{
 			"key": "biome:shared/color-config.ts",
 			"count": 2,
-			"hash": "f909ddec269e575406201db8b750be990b95911993ffc93752e5817aaeeb219d"
+			"hash": "3d73ca5693b51b6a5a48450d58464e0e2d3f6c53df8dc6b0417c56062e4870ad"
 		},
 		{
 			"key": "biome:shared/events.ts",
@@ -817,8 +817,8 @@
 		},
 		{
 			"key": "eslint:editor/prompts/channel-volume-visualizer-prompt.ts",
-			"count": 67,
-			"hash": "fa41b20fca56a7bffbdc36c5eb7ab057df7fd1a083913c54b21969f5031cacd5"
+			"count": 72,
+			"hash": "bb0a25453134a481ac885ec3abfa883492e1ad1afaf657fabc6f6ec446f95888"
 		},
 		{
 			"key": "eslint:editor/prompts/clean-channel-prompt.ts",
@@ -968,7 +968,7 @@
 		{
 			"key": "eslint:editor/prompts/theme-prompt.ts",
 			"count": 11,
-			"hash": "564b16a9aa2c8800750c6f158c835d3344665df111a66f191c9cd533f86f5d2b"
+			"hash": "2cdc0e73a464d64f81c965c232deeb7981e5e2b0b025ee5cbb763ee45979ec6d"
 		},
 		{
 			"key": "eslint:editor/prompts/tip-prompt.ts",
@@ -983,7 +983,7 @@
 		{
 			"key": "eslint:editor/prompts/visual-loop-controls-prompt.ts",
 			"count": 67,
-			"hash": "1cb9a4568ed5b6dd587378a10eddf7f9087640b5d1a5780042e69391d2a89e3b"
+			"hash": "2f0e876f605ffc2f462e6dfb5b9f7ecefd0040993a0a817554e31642cf492bdf"
 		},
 		{
 			"key": "eslint:editor/renderers/instrument-visibility.ts",
@@ -1043,7 +1043,7 @@
 		{
 			"key": "eslint:editor/song-editor.ts",
 			"count": 51,
-			"hash": "4d1d58dbdace01054ebb64b50a53546e49b4b636894627dc6e7af1a739b9fc70"
+			"hash": "da3c4157dc1a7623cbfd926d65d7f2ca7b96e15ebc1d89aa4c695e56df11cd67"
 		},
 		{
 			"key": "eslint:editor/ui/array-buffer-reader.ts",
@@ -1148,7 +1148,7 @@
 		{
 			"key": "eslint:shared/color-config.ts",
 			"count": 82,
-			"hash": "ba92fb3ef3d1f3c52e8c599cfbeff5924b43f7c57b6dd4c39ba343137cdfe66f"
+			"hash": "ac7d67a9c5d08921605463e3f327509eafc6e322af63fd1c6729e6027c4e4bed"
 		},
 		{
 			"key": "eslint:shared/color-utils.ts",
@@ -1174,6 +1174,11 @@
 			"key": "eslint:shared/pmd/color.ts",
 			"count": 1,
 			"hash": "dec10300c7740009bf3465c4cb128ccf2855195068e9339e816d3e372e0977a2"
+		},
+		{
+			"key": "eslint:shared/spectrum.ts",
+			"count": 1,
+			"hash": "f4fa3e5a9239884fdadcb7437f4c070363e39a6099c5454740d452b3ed6ee29e"
 		},
 		{
 			"key": "eslint:synth/audio-backend.ts",

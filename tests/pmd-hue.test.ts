@@ -8,6 +8,7 @@ import {
 	PMDRealtimeHueCoordinator,
 } from "../editor/core/pmd-realtime-hue";
 import { ColorConfig } from "../shared/color-config";
+import { getPMD, PMD_DARK, PMD_LIGHT } from "../shared/pmd/variables";
 import {
 	clampPMDManualHue,
 	clockHue,
@@ -103,15 +104,15 @@ beforeEach(() => {
 	ColorConfig.pmdDark = true;
 	ColorConfig.currentTheme = ColorConfig.PMD_THEME;
 	setPMDStateSpy = spyOn(ColorConfig, "setPMDState").mockImplementation(
-		(control, effective, dark, _persist, targetTheme) => {
+		(control, effective, _persist, targetTheme) => {
 			const rendered =
 				ColorConfig.currentTheme === ColorConfig.PMD_THEME &&
-				(ColorConfig.pmdEffectiveHue !== effective || ColorConfig.pmdDark !== dark);
+				ColorConfig.pmdEffectiveHue !== effective;
 			const themeChanged =
 				targetTheme !== undefined && ColorConfig.currentTheme !== targetTheme;
 			ColorConfig.pmdHue = control;
 			ColorConfig.pmdEffectiveHue = effective;
-			ColorConfig.pmdDark = dark;
+			ColorConfig.pmdDark = true;
 			if (targetTheme !== undefined) ColorConfig.currentTheme = targetTheme;
 			return rendered || themeChanged;
 		},
@@ -153,6 +154,41 @@ describe("PMD hue policy", () => {
 	test("targets the next exact minute boundary", () => {
 		expect(millisecondsUntilNextMinute(new Date(2026, 0, 1, 1, 2, 0, 0))).toBe(60_000);
 		expect(millisecondsUntilNextMinute(new Date(2026, 0, 1, 1, 2, 59, 999))).toBe(1);
+	});
+
+	test("migrates stale PMD light storage on persistence", () => {
+		window.localStorage.setItem("pmdDark", "0");
+		ColorConfig.pmdDark = false;
+		ColorConfig.persistPMD();
+		expect(ColorConfig.pmdDark).toBeTrue();
+		expect(window.localStorage.getItem("pmdDark")).toBe("1");
+	});
+
+	test("keeps the light palette as dormant compatibility data", () => {
+		expect(getPMD(true).pmd).toBe(PMD_DARK);
+		expect(getPMD(false).pmd).toBe(PMD_LIGHT);
+		const coordinator = new PMDRealtimeHueCoordinator(new FakeWindow() as unknown as Window);
+		expect(coordinator.capture()).toEqual({
+			controlHue: ColorConfig.pmdHue,
+			effectiveHue: ColorConfig.pmdEffectiveHue,
+			enabled: false,
+		});
+		coordinator.stop();
+	});
+
+	test("restricted localStorage cannot abort ColorConfig module load", () => {
+		const moduleUrl = new URL("../shared/color-config.ts?restricted-storage", import.meta.url).href;
+		const script = `
+			globalThis.window = { localStorage: {
+				getItem() { throw new Error("restricted"); },
+				setItem() { throw new Error("restricted"); }
+			} };
+			const { ColorConfig } = await import(${JSON.stringify(moduleUrl)});
+			console.log(ColorConfig.pmdDark, ColorConfig.pmdHue);
+		`;
+		const result = Bun.spawnSync([process.execPath, "-e", script]);
+		expect(result.exitCode).toBe(0);
+		expect(result.stdout.toString().trim()).toBe("true 345");
 	});
 });
 
@@ -241,10 +277,10 @@ describe("PMD realtime hue coordinator", () => {
 
 	test("retains policy without rendering on a non-PMD theme", () => {
 		ColorConfig.currentTheme = "forest";
-		setPMDStateSpy.mockImplementation((control: number, effective: number, dark: boolean) => {
+		setPMDStateSpy.mockImplementation((control: number, effective: number) => {
 			ColorConfig.pmdHue = control;
 			ColorConfig.pmdEffectiveHue = effective;
-			ColorConfig.pmdDark = dark;
+			ColorConfig.pmdDark = true;
 			return false;
 		});
 		const owner = new FakeWindow();
@@ -269,7 +305,7 @@ describe("PMD realtime hue coordinator", () => {
 		const coordinator = new PMDRealtimeHueCoordinator(owner as unknown as Window);
 		const persist = spyOn(ColorConfig, "persistPMD").mockImplementation(() => {});
 		coordinator.setEnabled(true, false);
-		coordinator.preview(-10, false);
+		coordinator.preview(-10);
 		expect(persist).toHaveBeenCalledTimes(0);
 		coordinator.persist();
 		expect(persist).toHaveBeenCalledTimes(1);

@@ -167,14 +167,6 @@ export function buildPromptMiscCSS(): string {
 	min-width: 0;
 }
 
-.beepboxEditor .prompt.themePrompt .pmdDarkRow {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	color: var(--secondary-text);
-	font-size: 12px;
-}
-
 .beepboxEditor .prompt.themePrompt .pmdControlGroup > .selectRow {
 	width: 100%;
 	min-width: 0;

@@ -101,7 +101,8 @@ All 12 types verified via encode→decode→type-preservation.
 | `editor/input/inventory.ts` | `tests/input-inventory.test.ts` | InputBinding, inputBindings |
 | `editor/core/application-router.ts`, `editor/song-editor.ts` | `tests/application-router.test.ts` | Global funnel convergence, unavailable and denied route results, synchronous guards, production wiring, immutable context, ordered import file delivery |
 | `editor/core/preferences.ts` | `tests/navigator-contracts.test.ts`, `tests/pmd-hue.test.ts` | Navigator collapse persistence, PMD realtime default/persistence, and legacy migration |
-| `editor/core/pmd-realtime-hue.ts` | `tests/pmd-hue.test.ts` | Page-global singleton scheduling, document/window wake refresh, atomic restore, transitions, persistence, and cleanup |
+| `editor/core/pmd-realtime-hue.ts` | `tests/pmd-hue.test.ts` | Page-global singleton scheduling, document/window wake refresh, atomic restore, forced-dark transitions, persistence, and cleanup |
+| `editor/song-editor.ts`, `editor/core/theme-raster-redraw.ts`, `editor/prompts/channel-volume-visualizer-prompt.ts`, `editor/prompts/visual-loop-controls-prompt.ts` | `tests/theme-raster-redraw.test.ts` | Behavioral theme redraw, weak owner pruning, prompt repaint, and idempotent cleanup |
 | `editor/navigator/command-registry.ts` | `tests/command-registry.test.ts` | Stable metadata, fuzzy ranking, Navigator routing, argument validation, and one-based bar conversion |
 | `editor/prompts/import-prompt.ts` | `tests/import-prompt-external-delivery.test.ts` | External file validation, transport restoration, completion ordering, cleanup invalidation, and latest-operation generation safety |
 | `editor/prompts/instrument-import-prompt.ts` | `tests/instrument-import-completion.test.ts` | Successful import completion through bound Navigator close authority |
@@ -177,7 +178,7 @@ All 12 types verified via encode→decode→type-preservation.
 | `shared/styles/css-var-contract.ts` | `tests/css-var-contract.test.ts` | known CSS custom properties, source references, theme declarations, ColorConfig fallback coverage for required theme variables, required var set stability, theme registry wiring, per-theme :root presence |
 | `shared/styles/inject.ts` | `tests/style-inject.test.ts` | tagged global style injection and same-id deduplication |
 | `shared/styles/inject.ts` | `tests/style-slots.test.ts` | hardcoded slot id uniqueness and known-set guard |
-| `shared/spectrum.ts` | none | Spectrogram type exports |
+| `shared/spectrum.ts` | `tests/theme-raster-redraw.test.ts` | Retained particle geometry, post-reset colors, DPR resize repaint, and idempotent disposal |
 
 ## Test structure: every file
 
