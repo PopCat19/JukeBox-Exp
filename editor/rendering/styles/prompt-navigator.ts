@@ -93,8 +93,6 @@ export function buildNavigatorCSS(): string {
 .beepboxEditor .navigator-route-group-title[aria-expanded="true"]::before { content: "▾"; }
 .beepboxEditor .navigator-route-group-content { display: flex; flex-direction: column; gap: 4px; }
 .beepboxEditor .navigator-route-group-content[hidden] { display: none; }
-.beepboxEditor .navigator-route[disabled] { opacity: 0.24; cursor: not-allowed; }
-.beepboxEditor .navigator-route.selectableRow:not(.active) { background: var(--ui-widget-background); }
 .beepboxEditor .navigator-route {
 	min-width: 0;
 	overflow: hidden;
@@ -102,11 +100,32 @@ export function buildNavigatorCSS(): string {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+.beepboxEditor .navigator-route.selectableRow:not(.active):not([disabled]) {
+	background: var(--ui-widget-background);
+	color: var(--primary-text);
+}
+.beepboxEditor .navigator-route.selectableRow:not([disabled]):hover {
+	outline-color: var(--hout, var(--primary-text));
+}
 .beepboxEditor .navigator-route.selectableRow.active {
 	background: var(--cta-bg);
 	color: var(--cta-fg);
-	border-color: var(--cta-bg);
+	outline-color: transparent;
 	font-weight: inherit;
+}
+.beepboxEditor .navigator-route.selectableRow.active:not([disabled]):hover {
+	outline-color: var(--editor-background);
+}
+.beepboxEditor .navigator-route.selectableRow[disabled],
+.beepboxEditor .navigator-route.selectableRow[disabled]:hover {
+	opacity: 1;
+	background: transparent;
+	color: var(--secondary-text);
+	border-style: solid;
+	border-width: 2px;
+	border-color: var(--hout, var(--primary-text));
+	outline-color: transparent;
+	cursor: not-allowed;
 }
 .beepboxEditor .navigator-workspace {
 	display: flex;

@@ -33,7 +33,7 @@ import {
 	setSelectableRowActive,
 	tagChip,
 } from "../ui";
-import { tabButton } from "../ui/buttons/tab-button";
+import { setTabButtonActive, tabButton } from "../ui/buttons/tab-button";
 import { TagListItem } from "../ui/chips/tag-list-item";
 import { BasePrompt } from "./base-prompt";
 
@@ -367,9 +367,9 @@ export class InstrumentBrowserPrompt extends BasePrompt {
 
 	private _switchToTab(tab: "presets" | "tags" | "types", focusSearch = true): void {
 		this._currentTab = tab;
-		this._tabPresets.classList.toggle("active", tab === "presets");
-		this._tabTypes.classList.toggle("active", tab === "types");
-		this._tabTags.classList.toggle("active", tab === "tags");
+		setTabButtonActive(this._tabPresets, tab === "presets");
+		setTabButtonActive(this._tabTypes, tab === "types");
+		setTabButtonActive(this._tabTags, tab === "tags");
 		this._presetsTabContent.style.display = tab === "presets" ? "" : "none";
 		this._typesTabContent.style.display = tab === "types" ? "" : "none";
 		this._tagsTabContent.style.display = tab === "tags" ? "" : "none";

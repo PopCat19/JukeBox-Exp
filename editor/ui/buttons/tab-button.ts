@@ -4,15 +4,23 @@
 //
 // This module:
 // - Creates buttons matching the editor's tab design language
-// - Supports active/inactive states
+// - Owns active classes and pressed-state semantics
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 
-export function tabButton(label: string, active?: boolean): HTMLButtonElement {
-	return HTML.button(
+export function setTabButtonActive(button: HTMLButtonElement, active: boolean): void {
+	button.classList.toggle("active", active);
+	button.setAttribute("aria-pressed", String(active));
+}
+
+export function tabButton(label: string, active = false): HTMLButtonElement {
+	const button = HTML.button(
 		{
-			class: active ? "tabButton active" : "tabButton",
+			class: "tabButton",
+			type: "button",
 		},
 		label,
 	);
+	setTabButtonActive(button, active);
+	return button;
 }

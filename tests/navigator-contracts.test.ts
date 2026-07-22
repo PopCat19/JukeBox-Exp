@@ -21,6 +21,7 @@ import type { CloseDecision, CommandReference, HostLease, LeaveDecision, PaneHos
 import { isSerializableValue, validateRetainedState } from "../editor/navigator/contracts";
 import { LegacyPromptPaneFactory } from "../editor/navigator/navigator-route-host";
 import { buildNavigatorPanesCSS } from "../editor/rendering/styles/navigator-panes";
+import { buildBaseWidgetsCSS } from "../editor/rendering/styles/base-widgets";
 import { buildPromptCompactSearchCSS } from "../editor/rendering/styles/prompt-compact-search";
 import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
 import { buildPromptMiscCSS } from "../editor/rendering/styles/prompt-misc";
@@ -34,6 +35,7 @@ import { ExportPrompt, getExportPaneAuthority } from "../editor/prompts/export-p
 import { ImportPrompt } from "../editor/prompts/import-prompt";
 import { InstrumentImportPrompt } from "../editor/prompts/instrument-import-prompt";
 import { InstrumentExportPrompt } from "../editor/prompts/instrument-export-prompt";
+import { InstrumentBrowserPrompt } from "../editor/prompts/instrument-browser-prompt";
 import type { Prompt } from "../editor/prompts/prompt";
 import { ThemePrompt } from "../editor/prompts/theme-prompt";
 import { ShortenerConfigPrompt } from "../editor/prompts/shortener-config-prompt";
@@ -49,6 +51,7 @@ import {
 } from "../editor/navigator/route-catalog";
 import { buildNavigatorCSS } from "../editor/rendering/styles/prompt-navigator";
 import { buildSharedUICSS } from "../editor/rendering/styles/shared-ui";
+import { setTabButtonActive, tabButton } from "../editor/ui/buttons/tab-button";
 import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
 import {
 	createImportExportPaneOwner,
@@ -1255,10 +1258,10 @@ describe("navigator shell", () => {
 		expect(css).toMatch(/\.navigator-workspace \{[^}]*flex: 1 1 auto[^}]*overflow: hidden/s);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*display: flex[^}]*flex: 1 1 0[^}]*flex-direction: column[^}]*overflow: hidden/s);
 		expect(css).not.toContain(".navigator-route.active");
-		expect(css).toContain(".navigator-route[disabled] { opacity: 0.24;");
+		expect(css).not.toContain(".navigator-route[disabled] { opacity: 0.24;");
 		const sharedCSS = buildSharedUICSS();
 		expect(sharedCSS).toMatch(/\.selectableRow \{[^}]*padding: var\(--padding-6\) var\(--padding-12\)[^}]*outline: 2px solid transparent[^}]*outline-offset: -2px[^}]*box-shadow: none[^}]*background: var\(--prompt-list-item-bg\)[^}]*font-size: 12px/s);
-		expect(css).toMatch(/\.navigator-route\.selectableRow\.active \{[^}]*background: var\(--cta-bg\)[^}]*color: var\(--cta-fg\)[^}]*border-color: var\(--cta-bg\)/s);
+		expect(css).toMatch(/\.navigator-route\.selectableRow\.active \{[^}]*background: var\(--cta-bg\)[^}]*color: var\(--cta-fg\)[^}]*outline-color: transparent/s);
 		expect(css).toMatch(/\.navigator-route \{[^}]*text-overflow: ellipsis[^}]*white-space: nowrap/s);
 		expect(css).toContain("@media (max-width: 639px)");
 		expect(css).not.toContain("navigator-route-split");
@@ -1342,9 +1345,194 @@ describe("navigator shell", () => {
 		expect(smallCSS).toContain(".loopControlsFields");
 		expect(smallCSS).toContain(".euclidOptions");
 		expect(miscCSS).toContain(".ctCssEditor");
-		expect(compactSearchCSS).toMatch(/\.navigator-pane-host > \.presetSelectorPrompt \{[^}]*width: 100% !important[^}]*height: 100% !important[^}]*min-height: 0/s);
-		expect(compactSearchCSS).toMatch(/\.presetSelectorPrompt \.presetPaneContainer,[^{]*\.tagGridContainer,[^{]*\.typesTabContent > :first-child \{[^}]*flex: 1 1 0 !important[^}]*height: auto !important[^}]*min-height: 0 !important[^}]*background: var\(--editor-background\)/s);
-		expect(compactSearchCSS).toMatch(/\.presetSelectorPrompt \.categoryListPane,[^{]*\.presetListPane \{[^}]*min-height: 0[^}]*background: var\(--editor-background\)/s);
+		expect(compactSearchCSS).toMatch(/\.navigator-pane-host > \.presetSelectorPrompt,[^{]*\.navigator-detached-content > \.presetSelectorPrompt \{[^}]*width: 100% !important[^}]*height: 100% !important[^}]*min-height: 0/s);
+		expect(compactSearchCSS).toMatch(/\.presetSelectorPrompt \.presetPaneContainer,[\s\S]*\.navigator-detached-content > \.presetSelectorPrompt \.typesTabContent > :first-child \{[^}]*flex: 1 1 0 !important[^}]*height: auto !important[^}]*min-height: 0 !important[^}]*background: transparent/s);
+		expect(compactSearchCSS).toMatch(/\.presetSelectorPrompt \.categoryListPane,[\s\S]*\.navigator-detached-content > \.presetSelectorPrompt \.presetListPane \{[^}]*min-height: 0[^}]*background: transparent/s);
+		expect(compactSearchCSS).not.toMatch(/\.navigator-(?:pane-host|detached-content)[\s\S]*?\.preset(?:PaneContainer|ListPane)[^}]*background: var\(--editor-background\)/s);
+	});
+
+	test("shared tabs keep native pressed-button semantics and helper idempotence", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		document.body.className = "beepboxEditor";
+		document.body.style.setProperty("--padding-10", "10px");
+		document.body.style.setProperty("--ui-widget-background", "rgb(17, 34, 51)");
+		document.body.style.setProperty("--primary-text", "rgb(221, 238, 255)");
+		document.body.style.setProperty("--cta-bg", "rgb(170, 187, 204)");
+		document.body.style.setProperty("--cta-fg", "rgb(1, 2, 3)");
+		const style = document.createElement("style");
+		style.textContent = `${buildPromptCompactSearchCSS()}${buildCleanChannelCSS()}`;
+		document.head.append(style);
+
+		const helperButton = tabButton("Helper");
+		setTabButtonActive(helperButton, true);
+		setTabButtonActive(helperButton, true);
+		expect(helperButton.className).toBe("tabButton active");
+		expect(helperButton.getAttribute("aria-pressed")).toBe("true");
+		setTabButtonActive(helperButton, false);
+		setTabButtonActive(helperButton, false);
+		expect(helperButton.className).toBe("tabButton");
+		expect(helperButton.getAttribute("aria-pressed")).toBe("false");
+
+		const browser = new InstrumentBrowserPrompt(new SongDocument());
+		const cleaner = new CleanChannelPrompt(new SongDocument());
+		document.body.append(browser.container, cleaner.container);
+		for (const prompt of [browser.container, cleaner.container]) {
+			const tabs = Array.from(prompt.querySelectorAll<HTMLButtonElement>(".tabButton"));
+			expect(tabs.length).toBeGreaterThan(1);
+			expect(tabs.every((tab) => tab.type === "button" && tab.getAttribute("role") === null)).toBeTrue();
+			expect(tabs.every((tab) => tab.tabIndex === 0)).toBeTrue();
+			const active = tabs.find((tab) => tab.classList.contains("active"));
+			const inactive = tabs.find((tab) => !tab.classList.contains("active"));
+			if (active === undefined || inactive === undefined) throw new Error("missing active or inactive tab");
+			expect(active.getAttribute("aria-pressed")).toBe("true");
+			expect(inactive.getAttribute("aria-pressed")).toBe("false");
+			expect(getComputedStyle(active).backgroundColor).toBe("rgb(170, 187, 204)");
+			expect(getComputedStyle(active).color).toBe("rgb(1, 2, 3)");
+			expect(getComputedStyle(inactive).backgroundColor).toBe("rgb(17, 34, 51)");
+			expect(getComputedStyle(inactive).color).toBe("rgb(221, 238, 255)");
+			inactive.focus();
+			expect(document.activeElement).toBe(inactive);
+			inactive.click();
+			expect(inactive.getAttribute("aria-pressed")).toBe("true");
+			expect(active.getAttribute("aria-pressed")).toBe("false");
+		}
+		const cleanTabs = Array.from(cleaner.container.querySelectorAll<HTMLButtonElement>(".tabButton"));
+		expect(getComputedStyle(cleanTabs[0]).height).toBe("32px");
+		expect(getComputedStyle(cleanTabs[0]).borderTopLeftRadius).toBe("16px");
+		expect(getComputedStyle(cleanTabs[cleanTabs.length - 1]).borderTopRightRadius).toBe("16px");
+		expect(buildCleanChannelCSS()).toMatch(/\.tabButton:focus-visible \{[^}]*outline-color: var\(--scrollbar-color, var\(--secondary-text\)\)/s);
+		browser.cleanUp();
+		cleaner.cleanUp();
+	});
+
+	test("Navigator route cascade overrides shared PMD and disabled widget states", () => {
+		const compact = buildPromptCompactSearchCSS();
+		const clean = buildCleanChannelCSS();
+		for (const css of [compact, clean]) {
+			expect(css).toMatch(/\.tabButton \{[^}]*background: var\(--ui-widget-background\)[^}]*color: var\(--primary-text\)/s);
+			expect(css).not.toMatch(/\.tabButton \{[^}]*(?:--tab-inactive-bg|--tab-inactive-fg)/s);
+			expect(css).toMatch(/\.tabButton:hover \{[^}]*border-color: var\(--hout, var\(--primary-text\)\)/s);
+			expect(css).toMatch(/\.tabButton\.active:hover \{[^}]*border-color: var\(--editor-background\)/s);
+		}
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		document.body.className = "beepboxEditor";
+		for (const [name, value] of [
+			["--padding-6", "6px"], ["--padding-12", "12px"],
+			["--border-radius-medium", "8px"], ["--prompt-list-item-bg", "rgb(34, 51, 68)"],
+			["--ui-widget-background", "rgb(17, 34, 51)"], ["--primary-text", "rgb(221, 238, 255)"],
+			["--secondary-text", "rgb(102, 119, 136)"], ["--cta-bg", "rgb(170, 187, 204)"],
+			["--cta-fg", "rgb(1, 2, 3)"], ["--hout", "rgb(119, 136, 153)"],
+			["--editor-background", "rgb(2, 3, 4)"],
+		] as const) document.body.style.setProperty(name, value);
+		const style = document.createElement("style");
+		style.textContent = `${buildBaseWidgetsCSS()}${buildSharedUICSS()}${buildNavigatorCSS()}`;
+		document.head.append(style);
+		const routeDoc = new SongDocument();
+		const shell = new NavigatorShell(
+			"Navigator", undefined, undefined, undefined, undefined,
+			() => routeDoc.getCurrentInstrumentObj(),
+		);
+		document.body.append(shell.container);
+		const inactive = shell.container.querySelector<HTMLButtonElement>(".navigator-route:not([disabled])");
+		const disabled = shell.container.querySelector<HTMLButtonElement>(".navigator-route[disabled]");
+		if (inactive === null || disabled === null) throw new Error("missing real route button state");
+		expect(inactive.classList.contains("pmd-hover")).toBeTrue();
+		expect(disabled.classList.contains("pmd-hover")).toBeTrue();
+		const injected = document.head.querySelector<HTMLStyleElement>('style[data-jb-style="pmd-interactions"]');
+		expect(injected?.textContent ?? "").toContain(".pmd-hover:hover");
+		expect(getComputedStyle(inactive).backgroundColor).toBe("rgb(17, 34, 51)");
+		expect(getComputedStyle(inactive).color).toBe("rgb(221, 238, 255)");
+		const activePane = document.createElement("article");
+		activePane.dataset.navigatorScope = inactive.dataset.routeId;
+		shell.attach({ element: activePane });
+		const active = shell.container.querySelector<HTMLButtonElement>(
+			`.navigator-route[data-route-id="${inactive.dataset.routeId}"]`,
+		);
+		if (active === null) throw new Error("missing active real route button");
+		expect(active.getAttribute("aria-current")).toBe("page");
+		expect(getComputedStyle(active).backgroundColor).toBe("rgb(170, 187, 204)");
+		expect(getComputedStyle(active).color).toBe("rgb(1, 2, 3)");
+		const inactiveStyle = getComputedStyle(inactive);
+		const disabledStyle = getComputedStyle(disabled);
+		expect(disabled.disabled).toBeTrue();
+		expect(disabled.getAttribute("aria-disabled")).toBe("true");
+		expect(disabledStyle.opacity).toBe("1");
+		expect(disabledStyle.backgroundColor).toBe("transparent");
+		expect(disabledStyle.color).toBe("rgb(102, 119, 136)");
+		expect(disabledStyle.borderStyle).toBe("solid");
+		expect(disabledStyle.borderWidth).toBe("2px");
+		expect(disabledStyle.outlineColor).toBe("transparent");
+		expect(disabledStyle.boxSizing).toBe(inactiveStyle.boxSizing);
+		expect(disabledStyle.padding).toBe(inactiveStyle.padding);
+		expect(disabledStyle.cursor).toBe("not-allowed");
+		const css = buildNavigatorCSS();
+		expect(css).toMatch(/\.navigator-route\.selectableRow:not\(\[disabled\]\):hover \{[^}]*outline-color: var\(--hout, var\(--primary-text\)\)/s);
+		expect(css).toMatch(/\.navigator-route\.selectableRow\.active:not\(\[disabled\]\):hover \{[^}]*outline-color: var\(--editor-background\)/s);
+		expect(css).toMatch(/\.navigator-route\.selectableRow\[disabled\],[\s\S]*\[disabled\]:hover \{[^}]*opacity: 1[^}]*background: transparent[^}]*color: var\(--secondary-text\)[^}]*border-style: solid[^}]*border-width: 2px[^}]*border-color: var\(--hout, var\(--primary-text\)\)[^}]*outline-color: transparent[^}]*cursor: not-allowed/s);
+		// happy-dom does not expose forced pseudo-state. Selector specificity is the honest hover contract here.
+		expect(css).toContain(".beepboxEditor .navigator-route.selectableRow[disabled]:hover");
+	});
+
+	test("real instrument browser keeps standalone backing and becomes transparent in both hosts", () => {
+		const parent = new Window();
+		const child = new Window();
+		Object.defineProperty(globalThis, "window", { configurable: true, value: parent });
+		Object.defineProperty(globalThis, "document", { configurable: true, value: parent.document });
+		parent.open = (() => child) as typeof parent.open;
+		document.body.className = "beepboxEditor";
+		for (const [name, value] of [
+			["--editor-background", "rgb(17, 34, 51)"], ["--prompt-list-item-bg", "rgb(34, 51, 68)"],
+			["--padding-6", "6px"], ["--padding-12", "12px"], ["--border-radius-medium", "8px"],
+		] as const) document.body.style.setProperty(name, value);
+		const style = document.createElement("style");
+		style.textContent = `${buildSharedUICSS()}${buildPromptCompactSearchCSS()}${buildNavigatorCSS()}`;
+		document.head.append(style);
+		const prompt = new InstrumentBrowserPrompt(new SongDocument());
+		document.body.append(prompt.container);
+		const pane = prompt.container.querySelector<HTMLElement>(".presetPaneContainer");
+		const category = prompt.container.querySelector<HTMLElement>(".categoryListPane");
+		const preset = prompt.container.querySelector<HTMLElement>(".presetListPane");
+		const categoryItem = prompt.container.querySelector<HTMLElement>(".categoryItem.selectableRow");
+		const presetItem = prompt.container.querySelector<HTMLElement>(".presetItem.selectableRow");
+		if (pane === null || category === null || preset === null || categoryItem === null || presetItem === null) {
+			throw new Error("missing real instrument browser cards");
+		}
+		expect(pane.style.background).toBe("");
+		expect(category.style.background).toBe("");
+		expect(preset.style.background).toBe("");
+		expect(pane.style.height).toBe("400px");
+		expect(getComputedStyle(pane).height).toBe("400px");
+		expect(getComputedStyle(pane).backgroundColor).toBe("rgb(17, 34, 51)");
+		expect(getComputedStyle(category).backgroundColor).toBe("rgb(17, 34, 51)");
+		expect(getComputedStyle(preset).backgroundColor).toBe("rgb(17, 34, 51)");
+		expect(getComputedStyle(categoryItem).backgroundColor).toBe("rgb(34, 51, 68)");
+		expect(getComputedStyle(presetItem).padding).toBe("6px 12px");
+		expect(categoryItem.textContent).toContain("Presets:");
+		expect(presetItem.textContent).toContain("Position:");
+
+		const owner = createPromptPaneOwner(
+			{ paneId: "instrumentBrowser" }, prompt,
+			() => Promise.resolve(true), () => Promise.resolve(),
+		);
+		const shell = new NavigatorShell();
+		document.body.append(shell.container);
+		owner.lifecycle.mount(shell);
+		expect(prompt.container.parentElement?.className).toBe("navigator-pane-host");
+		expect(getComputedStyle(pane).backgroundColor).toBe("transparent");
+		expect(getComputedStyle(category).backgroundColor).toBe("transparent");
+		expect(getComputedStyle(preset).backgroundColor).toBe("transparent");
+		const detached = NavigatorDetachedHost.open();
+		if (detached === null) throw new Error("detached host did not open");
+		owner.lifecycle.unmount();
+		detached.attach(owner.lifecycle.root);
+		expect(prompt.container.parentElement?.className).toBe("navigator-detached-content");
+		const childComputedStyle = child.getComputedStyle as unknown as (element: HTMLElement) => CSSStyleDeclaration;
+		expect(childComputedStyle(pane).backgroundColor).toBe("transparent");
+		expect(childComputedStyle(category).backgroundColor).toBe("transparent");
+		expect(childComputedStyle(preset).backgroundColor).toBe("transparent");
+		detached.detach(owner.lifecycle.root);
+		owner.lifecycle.dispose();
+		detached.closeEmpty();
 	});
 
 	test("PMD backdrop tracks current base00 across hue updates", () => {

@@ -166,25 +166,24 @@ export function buildPromptCompactSearchCSS(): string {
 	justify-content: center;
 	height: 32px;
 	padding: 0 var(--padding-10);
-	background: var(--tab-inactive-bg);
+	background: var(--ui-widget-background);
 	border: 2px solid transparent;
 	border-radius: 8px;
-	color: var(--tab-inactive-fg);
+	color: var(--primary-text);
 	font-size: 12px;
 	font-weight: 500;
 	line-height: 1.4;
 	cursor: pointer;
 	box-sizing: border-box;
-	outline: none;
+	outline: 2px solid transparent;
+	outline-offset: -2px;
 	box-shadow: none;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton:hover {
-	color: var(--primary-text);
 	border-color: var(--hout, var(--primary-text));
-	outline: none;
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton:focus-visible {
-	outline: none;
+	outline-color: var(--scrollbar-color, var(--secondary-text));
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton.active {
 	color: var(--cta-fg);
@@ -193,7 +192,6 @@ export function buildPromptCompactSearchCSS(): string {
 }
 .beepboxEditor .prompt.compactSearchPrompt .tabButton.active:hover {
 	border-color: var(--editor-background);
-	outline: none;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .presetsTabContent,
@@ -207,7 +205,14 @@ export function buildPromptCompactSearchCSS(): string {
 	flex-shrink: 0;
 }
 
-.beepboxEditor .navigator-pane-host > .presetSelectorPrompt {
+.beepboxEditor .prompt.compactSearchPrompt .presetPaneContainer,
+.beepboxEditor .prompt.compactSearchPrompt .categoryListPane,
+.beepboxEditor .prompt.compactSearchPrompt .presetListPane {
+	background: var(--editor-background);
+}
+
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt,
+.beepboxEditor .navigator-detached-content > .presetSelectorPrompt {
 	width: 100% !important;
 	height: 100% !important;
 	max-width: none !important;
@@ -217,7 +222,10 @@ export function buildPromptCompactSearchCSS(): string {
 
 .beepboxEditor .navigator-pane-host > .presetSelectorPrompt .presetsTabContent,
 .beepboxEditor .navigator-pane-host > .presetSelectorPrompt .tagsTabContent,
-.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .typesTabContent {
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .typesTabContent,
+.beepboxEditor .navigator-detached-content > .presetSelectorPrompt .presetsTabContent,
+.beepboxEditor .navigator-detached-content > .presetSelectorPrompt .tagsTabContent,
+.beepboxEditor .navigator-detached-content > .presetSelectorPrompt .typesTabContent {
 	flex: 1 1 0;
 	height: auto;
 	min-height: 0;
@@ -225,17 +233,22 @@ export function buildPromptCompactSearchCSS(): string {
 
 .beepboxEditor .navigator-pane-host > .presetSelectorPrompt .presetPaneContainer,
 .beepboxEditor .navigator-pane-host > .presetSelectorPrompt .tagGridContainer,
-.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .typesTabContent > :first-child {
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .typesTabContent > :first-child,
+.beepboxEditor .navigator-detached-content > .presetSelectorPrompt .presetPaneContainer,
+.beepboxEditor .navigator-detached-content > .presetSelectorPrompt .tagGridContainer,
+.beepboxEditor .navigator-detached-content > .presetSelectorPrompt .typesTabContent > :first-child {
 	flex: 1 1 0 !important;
 	height: auto !important;
 	min-height: 0 !important;
-	background: var(--editor-background);
+	background: transparent;
 }
 
 .beepboxEditor .navigator-pane-host > .presetSelectorPrompt .categoryListPane,
-.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .presetListPane {
+.beepboxEditor .navigator-pane-host > .presetSelectorPrompt .presetListPane,
+.beepboxEditor .navigator-detached-content > .presetSelectorPrompt .categoryListPane,
+.beepboxEditor .navigator-detached-content > .presetSelectorPrompt .presetListPane {
 	min-height: 0;
-	background: var(--editor-background);
+	background: transparent;
 }
 
 .beepboxEditor .prompt.compactSearchPrompt .tagGridContainer {

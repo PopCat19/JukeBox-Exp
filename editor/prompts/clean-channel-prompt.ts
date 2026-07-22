@@ -21,7 +21,7 @@ import {
 import { ChangeGroup } from "../core/change";
 import type { SongDocument } from "../song-document";
 import { actionButton, flexPane, paneContainer } from "../ui";
-import { tabButton } from "../ui/buttons/tab-button";
+import { setTabButtonActive, tabButton } from "../ui/buttons/tab-button";
 import { BasePrompt } from "./base-prompt";
 
 const { button, div, h2, span, p, table, tbody, tr, td, th } = HTML;
@@ -358,8 +358,8 @@ export class CleanChannelPrompt extends BasePrompt {
 		if (tab === this._tab) return;
 		this._tab = tab;
 
-		this._tabPatterns.className = tab === "patterns" ? "tabButton active" : "tabButton";
-		this._tabInstruments.className = tab === "instruments" ? "tabButton active" : "tabButton";
+		setTabButtonActive(this._tabPatterns, tab === "patterns");
+		setTabButtonActive(this._tabInstruments, tab === "instruments");
 
 		this._diffs = computeDiffs(this._doc, this._tab);
 		const hasChanges = this._diffs.length > 0;

@@ -38,27 +38,26 @@ export function buildCleanChannelCSS(): string {
 	justify-content: center;
 	height: 32px;
 	padding: 0 var(--padding-10);
-	background: var(--tab-inactive-bg);
+	background: var(--ui-widget-background);
 	border: 2px solid transparent;
 	border-radius: 8px;
-	color: var(--tab-inactive-fg);
+	color: var(--primary-text);
 	font-size: 12px;
 	font-weight: 500;
 	line-height: 1.4;
 	cursor: pointer;
 	box-sizing: border-box;
-	outline: none;
+	outline: 2px solid transparent;
+	outline-offset: -2px;
 	box-shadow: none;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .tabButton:hover {
-	color: var(--primary-text);
 	border-color: var(--hout, var(--primary-text));
-	outline: none;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .tabButton:focus-visible {
-	outline: none;
+	outline-color: var(--scrollbar-color, var(--secondary-text));
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .tabButton.active {
@@ -69,7 +68,6 @@ export function buildCleanChannelCSS(): string {
 
 .beepboxEditor .prompt.cleanChannelPrompt .tabButton.active:hover {
 	border-color: var(--editor-background);
-	outline: none;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt {
