@@ -173,6 +173,17 @@ const commandsByScope = new Map(
 	),
 );
 
+type AggregatePromptScope = "importExportSong" | "importExportInstrument";
+
+const aggregatePromptAliases: Readonly<Record<AggregatePromptScope, string>> = Object.freeze({
+	importExportSong: "import",
+	importExportInstrument: "importInstrument",
+});
+
+function isAggregatePromptScope(scope: string): scope is AggregatePromptScope {
+	return Object.hasOwn(aggregatePromptAliases, scope);
+}
+
 export function getCommand(commandId: string): CommandDefinition {
 	const command = commandsById.get(commandId);
 	if (command === undefined) throw new Error(`unknown command: ${commandId}`);
@@ -180,7 +191,8 @@ export function getCommand(commandId: string): CommandDefinition {
 }
 
 export function getPromptCommand(scope: string): CommandDefinition | undefined {
-	return commandsByScope.get(scope);
+	const commandScope = isAggregatePromptScope(scope) ? aggregatePromptAliases[scope] : scope;
+	return commandsByScope.get(commandScope);
 }
 
 function scoreCommand(command: CommandDefinition, query: string): number {

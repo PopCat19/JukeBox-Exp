@@ -59,6 +59,15 @@ describe("command registry", () => {
 		expect(state.visits).toEqual([]);
 	});
 
+	test("recognizes aggregate workspace aliases without duplicate visible commands", () => {
+		expect(getPromptCommand("importExportSong")?.id).toBe("song.import");
+		expect(getPromptCommand("importExportInstrument")?.id).toBe("prompt.importInstrument");
+		expect(commandRegistry.map((command) => command.scope)).not.toContain("importExportSong");
+		expect(commandRegistry.map((command) => command.scope)).not.toContain(
+			"importExportInstrument",
+		);
+	});
+
 	test("informational and editor-only scopes remain outside command metadata", () => {
 		for (const scope of [
 			"algorithm",

@@ -202,6 +202,27 @@ describe("navigator barrel", () => {
 	});
 });
 
+describe("native pane factory", () => {
+	test("supports and creates both aggregate import and export routes", () => {
+		const factory = new Navigator.NativePaneFactory(
+			new SongDocument(),
+			{} as never,
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
+		);
+		for (const paneId of ["importExportSong", "importExportInstrument"]) {
+			const route = { paneId };
+			expect(factory.supports(route)).toBeTrue();
+			const owner = factory.create(route);
+			expect(owner.identity).toBe(canonicalRouteIdentity(route));
+			expect(owner.lifecycle.root.element.dataset.navigatorScope).toBe(paneId);
+			expect(owner.lifecycle.root.element.querySelectorAll(":scope > section")).toHaveLength(2);
+			expect(owner.lifecycle.root.element.querySelector(".prompt-tip-source")).toBeNull();
+			owner.lifecycle.dispose();
+		}
+	});
+});
+
 describe("navigator route identity", () => {
 	test("sorts nested keys, preserves arrays, excludes category, and normalizes negative zero", () => {
 		const left = canonicalRouteIdentity({ paneId: "instrument", context: { z: -0, nested: { b: 2, a: 1 }, list: [2, 1] }, category: "a" });

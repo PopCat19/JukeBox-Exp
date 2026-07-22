@@ -119,6 +119,27 @@ describe("application router", () => {
 		expect(manager).toContain('case "export":');
 	});
 
+	test("routes aggregate import and export scopes unchanged without Help context", async () => {
+		const opened: PaneRoute[] = [];
+		const router = new ApplicationRouter({
+			openGlobal: () => {},
+			navigator: {
+				open: (route) => {
+					opened.push(route);
+					return Promise.resolve(true);
+				},
+				focus: () => {},
+			},
+		});
+		for (const scope of ["importExportSong", "importExportInstrument"]) {
+			await router.routePrompt(scope);
+		}
+		expect(opened).toEqual([
+			{ paneId: "importExportSong" },
+			{ paneId: "importExportInstrument" },
+		]);
+	});
+
 	test("legacy import and export actions converge while standalone prompt cases remain", () => {
 		const songIdentity = canonicalRouteIdentity({ paneId: "importExportSong" });
 		for (const scope of ["import", "export"]) {
