@@ -8,14 +8,15 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import type { SongDocument } from "../song-document";
-import { selectField } from "../ui";
+import { selectContainer } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, select, option } = HTML;
+const { div, h2, label, select, option, section } = HTML;
 
 export class ShortenerConfigPrompt extends BasePrompt {
+	private readonly _serviceLabelId = `shortener-service-${this.id}`;
 	private readonly _shortenerStrategySelect: HTMLSelectElement = select(
-		{},
+		{ id: `${this._serviceLabelId}-select` },
 		option({ value: "tinyurl" }, "tinyurl.com"),
 		option({ value: "isgd" }, "is.gd"),
 	);
@@ -23,7 +24,19 @@ export class ShortenerConfigPrompt extends BasePrompt {
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt shortenerConfigPrompt noSelection" },
 		h2("Configure Shortener"),
-		selectField("Strategy:", this._shortenerStrategySelect),
+		div(
+			{ class: "shortenerConfigIntro prompt-hint" },
+			"Choose the external service used to create shortened share links. The service receives the complete song URL, including the hash containing the encoded song data.",
+		),
+		section(
+			{ class: "shortenerConfigSection", "aria-labelledby": this._serviceLabelId },
+			div({ class: "sectionLabel", id: this._serviceLabelId }, "Shortening service"),
+			div(
+				{ class: "shortenerConfigField" },
+				label({ for: this._shortenerStrategySelect.id }, "Service"),
+				selectContainer(this._shortenerStrategySelect, { width: "100%", marginLeft: "0" }),
+			),
+		),
 		this._getOkayRow(),
 		this._cancelButton,
 	);

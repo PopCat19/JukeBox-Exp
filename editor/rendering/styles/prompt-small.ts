@@ -234,11 +234,36 @@ export function buildPromptSmallCSS(): string {
 
 /* ── Shortener Config Prompt ── */
 .beepboxEditor .prompt.shortenerConfigPrompt {
-	width: 250px;
+	width: min(420px, calc(100vw - 32px));
 }
 
-.beepboxEditor .prompt.shortenerConfigPrompt select {
+.beepboxEditor .shortenerConfigIntro {
+	line-height: 1.4;
+	text-align: left;
+}
+
+.beepboxEditor .shortenerConfigSection,
+.beepboxEditor .shortenerConfigField {
+	display: flex;
+	flex-direction: column;
+	gap: var(--gap-sm);
+	min-width: 0;
+	text-align: left;
+}
+
+.beepboxEditor .shortenerConfigSection > .sectionLabel {
+	margin: 0;
+}
+
+.beepboxEditor .shortenerConfigField > label {
+	color: var(--primary-text);
+}
+
+.beepboxEditor .shortenerConfigField > .selectContainer,
+.beepboxEditor .shortenerConfigField select {
+	box-sizing: border-box;
 	width: 100%;
+	min-width: 0;
 }
 
 /* ── Song Duration Prompt ── */

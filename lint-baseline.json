@@ -1,7 +1,7 @@
 {
 	"version": 1,
 	"counts": {
-		"eslint": 4878,
+		"eslint": 4881,
 		"biome": 296
 	},
 	"groups": [
@@ -942,8 +942,8 @@
 		},
 		{
 			"key": "eslint:editor/prompts/shortener-config-prompt.ts",
-			"count": 5,
-			"hash": "435f9472c34faf720f852a36e5eb3d1f4931752bd7d8bf2557459a7b1b9183a9"
+			"count": 8,
+			"hash": "be1cbd32220b6d3e52c9e3b282f5c6fef90e21042cd44ed11b37e14017ec849f"
 		},
 		{
 			"key": "eslint:editor/prompts/song-duration-prompt.ts",

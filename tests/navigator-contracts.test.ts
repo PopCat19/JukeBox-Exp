@@ -32,6 +32,7 @@ import { InstrumentImportPrompt } from "../editor/prompts/instrument-import-prom
 import { InstrumentExportPrompt } from "../editor/prompts/instrument-export-prompt";
 import type { Prompt } from "../editor/prompts/prompt";
 import { ThemePrompt } from "../editor/prompts/theme-prompt";
+import { ShortenerConfigPrompt } from "../editor/prompts/shortener-config-prompt";
 import { SongDocument } from "../editor/song-document";
 import { NavigatorDetachedHost } from "../editor/navigator/navigator-detached-host";
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
@@ -50,7 +51,10 @@ import {
 	createInstrumentImportExportPane,
 	createSongImportExportPane,
 } from "../editor/navigator/import-export-pane";
-import { createPromptPaneOwner } from "../editor/navigator/prompt-pane-owner";
+import {
+	createPromptPaneOwner,
+	flattenPromptRootForNavigator,
+} from "../editor/navigator/prompt-pane-owner";
 import {
 	canonicalPaneId,
 	canonicalRouteIdentity,
@@ -231,6 +235,70 @@ describe("native pane factory", () => {
 			expect(owner.lifecycle.root.element.querySelector(".prompt-tip-source")).toBeNull();
 			owner.lifecycle.dispose();
 		}
+	});
+});
+
+describe("shortener config route", () => {
+	test("explains URL disclosure with visible and accessible field hierarchy", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const prompt = new ShortenerConfigPrompt(new SongDocument());
+		const root = prompt.container;
+		const intro = root.querySelector<HTMLElement>(".shortenerConfigIntro");
+		const section = root.querySelector<HTMLElement>(".shortenerConfigSection");
+		const sectionLabel = section?.querySelector<HTMLElement>(":scope > .sectionLabel");
+		const field = section?.querySelector<HTMLElement>(":scope > .shortenerConfigField");
+		const label = field?.querySelector<HTMLLabelElement>(":scope > label");
+		const select = field?.querySelector<HTMLSelectElement>(":scope > .selectContainer > select");
+
+		expect(intro?.classList.contains("prompt-hint")).toBeTrue();
+		expect(intro?.textContent).toBe(
+			"Choose the external service used to create shortened share links. The service receives the complete song URL, including the hash containing the encoded song data.",
+		);
+		expect(sectionLabel?.textContent).toBe("Shortening service");
+		expect(section?.getAttribute("aria-labelledby")).toBe(sectionLabel?.id);
+		expect(field?.children).toHaveLength(2);
+		expect(label?.textContent).toBe("Service");
+		expect(label?.htmlFor).toBe(select?.id);
+		expect(select?.id.length).toBeGreaterThan(0);
+		expect(Array.from(select?.options ?? [], (item) => [item.value, item.text])).toEqual([
+			["tinyurl", "tinyurl.com"],
+			["isgd", "is.gd"],
+		]);
+		prompt.cleanUp();
+	});
+
+	test("loads and commits only the existing shortener strategy storage key", () => {
+		const testWindow = new Window();
+		Object.defineProperty(globalThis, "document", { configurable: true, value: testWindow.document });
+		Object.defineProperty(globalThis, "window", { configurable: true, value: testWindow });
+		window.localStorage.clear();
+		window.localStorage.setItem("shortenerStrategySelect", "isgd");
+		window.localStorage.setItem("unrelated", "preserved");
+		const doc = new SongDocument();
+		const prompt = new ShortenerConfigPrompt(doc);
+		doc.prompt = "configureShortener";
+		const select = prompt.container.querySelector<HTMLSelectElement>("select")!;
+		expect(select.value).toBe("isgd");
+		select.value = "tinyurl";
+		prompt.container.querySelector<HTMLButtonElement>(".prompt-button-row button")?.click();
+		expect(window.localStorage.getItem("shortenerStrategySelect")).toBe("tinyurl");
+		expect(window.localStorage.getItem("unrelated")).toBe("preserved");
+		expect(window.localStorage.length).toBe(2);
+		expect(doc.prompt).toBeNull();
+		prompt.cleanUp();
+	});
+
+	test("retains wide content and top spacing after Navigator flattening", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const prompt = new ShortenerConfigPrompt(new SongDocument());
+		flattenPromptRootForNavigator(prompt, "configureShortener");
+		expect(prompt.container.classList.contains("navigator-native-pane")).toBeTrue();
+		expect(prompt.container.querySelector(":scope > .prompt-titlebar")).toBeNull();
+		expect(prompt.container.querySelector(":scope > .shortenerConfigIntro")).not.toBeNull();
+		const css = buildNavigatorPanesCSS();
+		expect(css).toMatch(/\.shortenerConfigPrompt\.navigator-native-pane \{[^}]*padding-top: var\(--padding-12\) !important;/s);
+		expect(css).toMatch(/\.shortenerConfigPrompt\.navigator-native-pane > \* \{[^}]*width: min\(100%, 520px\);/s);
+		prompt.cleanUp();
 	});
 });
 

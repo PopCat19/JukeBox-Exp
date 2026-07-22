@@ -84,6 +84,16 @@ export function buildNavigatorPanesCSS(): string {
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
 }
+.beepboxEditor :is(.navigator-pane-host, .navigator-detached-content) > .shortenerConfigPrompt.navigator-native-pane {
+	box-sizing: border-box;
+	padding-top: var(--padding-12) !important;
+	overflow-y: auto;
+}
+.beepboxEditor :is(.navigator-pane-host, .navigator-detached-content) > .shortenerConfigPrompt.navigator-native-pane > * {
+	box-sizing: border-box;
+	align-self: center;
+	width: min(100%, 520px);
+}
 .beepboxEditor .navigator-pane-host > .cvvPrompt .cvvChannelTile {
 	aspect-ratio: 1;
 	min-height: 0;
