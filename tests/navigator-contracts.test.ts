@@ -2492,12 +2492,14 @@ describe("native import and export pane", () => {
 			expect(owner.lifecycle.requestClose()).toBe("close");
 			if (paneId === "importExportSong") {
 				expect(root.querySelectorAll("input[type='file']")).toHaveLength(1);
+				const fileInput = root.querySelector<HTMLInputElement>(".importPrompt input[type='file']")!;
 				const browse = root.querySelector<HTMLButtonElement>(".importBrowseButton")!;
 				const exportAction = root.querySelector<HTMLButtonElement>(".exportButton")!;
 				const format = root.querySelector<HTMLSelectElement>(".exportPrompt select")!;
 				const formatContainer = format.closest<HTMLDivElement>(".selectContainer")!;
 				const formatField = formatContainer.parentElement!;
 				const formatLabel = formatField.querySelector<HTMLLabelElement>(":scope > label");
+				expect(fileInput.style.display).toBe("none");
 				expect(browse.type).toBe("button");
 				expect(browse.dataset.pmdRole).toBe("secondary");
 				expect(browse.style.background).toBe("var(--ui-widget-background)");
@@ -2523,6 +2525,20 @@ describe("native import and export pane", () => {
 				expect(root.querySelectorAll(".exportPrompt input[type='checkbox']")).toHaveLength(4);
 				expect(root.querySelectorAll(".exportPrompt input[type='number']")).toHaveLength(3);
 				expect(root.querySelector<HTMLInputElement>(".exportPrompt input[type='text']")?.value.length).toBe(250);
+				const playbackControls = root.querySelector<HTMLElement>(".exportPlaybackControls")!;
+				const playbackSection = playbackControls.closest<HTMLElement>(".exportSection")!;
+				expect(Array.from(playbackSection.children, (child) => child.className)).toEqual([
+					"sectionLabel exportSectionLabel",
+					"exportLoopBounds",
+					"exportPlaybackControls",
+					"exportLoopDependency",
+				]);
+				expect(playbackSection.querySelector(".exportLoopDependency")?.textContent).toBe(
+					"Intro includes bars before Loop start. Outro includes bars after Loop end.",
+				);
+				expect(playbackControls.getAttribute("aria-labelledby")).toBe(
+					playbackSection.querySelector<HTMLElement>(".exportSectionLabel")!.id,
+				);
 				const keepOpen = root.querySelectorAll<HTMLInputElement>(".exportPrompt input[type='checkbox']")[3];
 				keepOpen.checked = true;
 				expect(owner.lifecycle.requestClose()).toBe("keep-open");
@@ -2572,10 +2588,20 @@ describe("native import and export pane", () => {
 		const standalone = new ExportPrompt(new SongDocument(), { autofocus: false });
 		const standaloneFormat = standalone.container.querySelector<HTMLSelectElement>("select")!;
 		const standaloneField = standaloneFormat.parentElement!;
+		const standalonePlayback = standalone.container.querySelector<HTMLElement>(
+			".exportPlaybackControls",
+		)!;
+		const standalonePlaybackSection = standalonePlayback.closest<HTMLElement>(".exportSection")!;
 		expect(standaloneField.tagName).toBe("LABEL");
 		expect(standaloneField.className).toBe("exportField");
 		expect(standaloneFormat.closest(".selectContainer")).toBeNull();
 		expect(standaloneField.querySelector(":scope > .prompt-form-row-end")).toBeNull();
+		expect(Array.from(standalonePlaybackSection.children, (child) => child.className)).toEqual([
+			"sectionLabel exportSectionLabel",
+			"exportLoopBounds",
+			"exportLoopDependency",
+			"exportPlaybackControls",
+		]);
 		standalone.cleanUp();
 	});
 
@@ -2653,7 +2679,12 @@ describe("native import and export pane", () => {
 			expect(prompt.container.querySelector(":scope > .prompt-titlebar .cancelButton")).not.toBeNull();
 			prompt.cleanUp();
 		}
-		expect(buildPromptMiscCSS()).toContain(".beepboxEditor .prompt.importPrompt {\n\twidth: 300px;");
+		const importCss = buildPromptMiscCSS();
+		expect(importCss).toContain(".beepboxEditor .prompt.importPrompt {\n\twidth: 300px;");
+		expect(importCss).toMatch(/\.navigator-import-export-surface\.importPrompt \.importFileRow \{[^}]*box-sizing: border-box;[^}]*width: 100%;/s);
+		expect(importCss).toMatch(/\.navigator-import-export-surface\.importPrompt \.importFileRow > \.importBrowseButton \{[^}]*flex: 1 1 auto;[^}]*justify-content: center;[^}]*width: 100%;/s);
+		expect(importCss).toMatch(/\.prompt\.importPrompt \.importFileRow > \.importBrowseButton,[^{]*\.prompt\.instrumentImportPrompt \.importFileRow > \.importBrowseButton \{[^}]*flex: 0 0 auto;[^}]*width: auto;/s);
+		expect(importCss).not.toMatch(/\.prompt\.importPrompt \.importFileRow > \.importBrowseButton \{[^}]*width: 100%;/s);
 		expect(buildPromptExportCSS()).toContain(".beepboxEditor .prompt.exportPrompt {\n\tbox-sizing: border-box;\n\twidth: 340px;\n\tmax-width: 340px;");
 		expect(buildPromptSmallCSS()).toContain(".beepboxEditor .prompt.instrumentImportPrompt {\n\twidth: 300px;");
 		expect(buildPromptSmallCSS()).toContain(".beepboxEditor .prompt.instrumentExportPrompt {\n\twidth: 200px;");

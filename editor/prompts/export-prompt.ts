@@ -184,7 +184,7 @@ export class ExportPrompt extends BasePrompt {
 								this._loopEndInput,
 							),
 						),
-						this._loopDependency,
+						...(this._surface === "standalone" ? [this._loopDependency] : []),
 						div(
 							{
 								class: "exportPlaybackControls",
@@ -207,6 +207,7 @@ export class ExportPrompt extends BasePrompt {
 								div({ class: "exportControlLabel" }, "Outro"),
 							),
 						),
+						...(this._surface === "navigator" ? [this._loopDependency] : []),
 					),
 					div(
 						{
