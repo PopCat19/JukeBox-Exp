@@ -79,6 +79,7 @@ export function buildPromptMiscCSS(): string {
 	width: 300px;
 }
 
+.beepboxEditor .navigator-import-export-surface.importPrompt .importFileRow,
 .beepboxEditor .prompt.importPrompt .importFileRow {
 	display: flex;
 	align-items: center;
@@ -86,6 +87,7 @@ export function buildPromptMiscCSS(): string {
 	margin-bottom: 0.5em;
 }
 
+.beepboxEditor .navigator-import-export-surface.importPrompt .importFileRow > select,
 .beepboxEditor .prompt.importPrompt .importFileRow > select {
 	flex: 1 1 auto;
 	min-width: 0;
@@ -93,6 +95,7 @@ export function buildPromptMiscCSS(): string {
 	margin-bottom: 0;
 }
 
+.beepboxEditor .navigator-import-export-surface.importPrompt .importFileRow > .importBrowseButton,
 .beepboxEditor .prompt.importPrompt .importFileRow > .importBrowseButton {
 	flex: 0 0 auto;
 	width: auto;
@@ -100,11 +103,13 @@ export function buildPromptMiscCSS(): string {
 	margin-bottom: 0;
 }
 
+.beepboxEditor .navigator-import-export-surface.importPrompt .importNote,
 .beepboxEditor .prompt.importPrompt .importNote {
 	text-align: left;
 	margin-bottom: 0.5em;
 }
 
+.beepboxEditor .navigator-import-export-surface.importPrompt .importNote2,
 .beepboxEditor .prompt.importPrompt .importNote2 {
 	text-align: left;
 	margin: 0.5em 0;

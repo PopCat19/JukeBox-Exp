@@ -7,23 +7,8 @@ import { InstrumentImportPrompt } from "../prompts/instrument-import-prompt";
 import type { SongDocument } from "../song-document";
 import type { PaneLifecycle, PaneRoute, SerializableValue } from "./contracts";
 import type { PaneOwner } from "./ownership";
-import { flattenPromptRootForNavigator, type PanePrompt } from "./prompt-pane-owner";
+import type { PanePrompt } from "./prompt-pane-owner";
 import { canonicalRouteIdentity } from "./route-identity";
-
-function createSection(title: string, prompt: PanePrompt, kind: "import" | "export"): HTMLElement {
-	flattenPromptRootForNavigator(prompt, kind);
-	prompt.container.classList.add("navigator-import-export-child");
-	prompt.container.querySelectorAll("[autofocus]").forEach((element) => {
-		element.removeAttribute("autofocus");
-	});
-	const section = document.createElement("section");
-	section.className = "navigator-import-export-section";
-	section.dataset.sectionKind = kind;
-	const heading = document.createElement("h3");
-	heading.textContent = title;
-	section.append(heading, prompt.container);
-	return section;
-}
 
 export function createImportExportPaneOwner(
 	route: PaneRoute,
@@ -42,10 +27,7 @@ export function createImportExportPaneOwner(
 	element.className = "navigator-native-pane navigator-import-export-pane";
 	element.dataset.navigatorScope = route.paneId;
 	element.tabIndex = -1;
-	element.append(
-		createSection("Import", importPrompt, "import"),
-		createSection("Export", exportPrompt, "export"),
-	);
+	element.append(importPrompt.container, exportPrompt.container);
 	const root = { element };
 	const onKeyDown = (event: KeyboardEvent): void => {
 		if (event.defaultPrevented || !(event.target instanceof Node)) return;
@@ -113,8 +95,8 @@ export function createSongImportExportPane(
 ): PaneOwner {
 	return createImportExportPaneOwner(
 		route,
-		new ImportPrompt(doc),
-		new ExportPrompt(doc, { autofocus: false }),
+		new ImportPrompt(doc, { surface: "navigator" }),
+		new ExportPrompt(doc, { surface: "navigator", autofocus: false }),
 		closePane,
 		openPane,
 	);
@@ -128,8 +110,8 @@ export function createInstrumentImportExportPane(
 ): PaneOwner {
 	return createImportExportPaneOwner(
 		route,
-		new InstrumentImportPrompt(doc),
-		new InstrumentExportPrompt(doc),
+		new InstrumentImportPrompt(doc, { surface: "navigator" }),
+		new InstrumentExportPrompt(doc, { surface: "navigator" }),
 		closePane,
 		openPane,
 	);

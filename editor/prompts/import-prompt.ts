@@ -16,9 +16,14 @@ import { ChangeReplacePatterns, ChangeSong, removeDuplicatePatterns } from "../c
 import { ChangeGroup } from "../core/change";
 import { parseMidiFile } from "../io/midi-parser";
 import type { SongDocument } from "../song-document";
-import { BasePrompt } from "./base-prompt";
+import {
+	BasePrompt,
+	createPromptSurface,
+	type PromptRenderSurface,
+	type PromptSurfaceOptions,
+} from "./base-prompt";
 
-const { div, h2, p, input, button } = HTML;
+const { div, p, input, button } = HTML;
 
 type ImportCompletion = () => unknown;
 
@@ -38,22 +43,30 @@ export class ImportPrompt extends BasePrompt {
 	private _disposed = false;
 	private _activeReader: FileReader | null = null;
 	private _initialNodes: ChildNode[] = [];
+	private readonly _surface: PromptRenderSurface;
 
-	public readonly container: HTMLDivElement = div(
-		{ class: "prompt importPrompt noSelection" },
-		h2("Import"),
-		p(
-			{ class: "importNote" },
-			"Import song JSON from BeepBox and compatible mods, or MIDI (.mid/.midi) files; short, simple MIDI files work best.",
-		),
-		div({ class: "importFileRow" }, this._browseButton),
-		this._fileInput,
-		this._cancelButton,
-	);
+	public readonly container: HTMLElement;
 
-	constructor(doc: SongDocument) {
+	constructor(doc: SongDocument, options: PromptSurfaceOptions = {}) {
 		super(doc);
-		this.buildTitlebar();
+		this._surface = options.surface ?? "standalone";
+		const children: Node[] = [
+			p(
+				{ class: "importNote" },
+				"Import song JSON from BeepBox and compatible mods, or MIDI (.mid/.midi) files; short, simple MIDI files work best.",
+			),
+			div({ class: "importFileRow" }, this._browseButton),
+			this._fileInput,
+		];
+		if (this._surface === "standalone") children.push(this._cancelButton);
+		this.container = createPromptSurface(
+			this._surface,
+			"importPrompt",
+			"Import",
+			"import",
+			...children,
+		);
+		if (this._surface === "standalone") this.buildTitlebar();
 		this._initialNodes = Array.from(this.container.childNodes);
 		this._browseButton.addEventListener("click", this._whenBrowseClicked);
 		this._fileInput.addEventListener("change", this._whenFileSelected);
@@ -269,7 +282,9 @@ export class ImportPrompt extends BasePrompt {
 
 	private _showLoading(): void {
 		this.container.replaceChildren();
-		this.container.appendChild(h2("Importing\u2026"));
+		const heading = document.createElement(this._surface === "standalone" ? "h2" : "h3");
+		heading.textContent = "Importing\u2026";
+		this.container.appendChild(heading);
 		const loadingMsg = p(
 			{ style: "text-align: center; margin-top: 1em;" },
 			"Loading song, please wait\u2026",

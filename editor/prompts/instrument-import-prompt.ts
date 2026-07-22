@@ -13,9 +13,14 @@ import type { Channel, Instrument } from "../../synth";
 import { ChangeAppendInstrument, ChangePasteInstrument, ChangeViewInstrument } from "../changes";
 import type { SongDocument } from "../song-document";
 import { selectField, setDisabled } from "../ui";
-import { BasePrompt } from "./base-prompt";
+import {
+	BasePrompt,
+	createPromptSurface,
+	type PromptRenderSurface,
+	type PromptSurfaceOptions,
+} from "./base-prompt";
 
-const { div, h2, input, select, option, code } = HTML;
+const { div, input, select, option, code } = HTML;
 
 export class InstrumentImportPrompt extends BasePrompt {
 	private readonly _importStrategySelect: HTMLSelectElement = select(
@@ -38,18 +43,30 @@ export class InstrumentImportPrompt extends BasePrompt {
 		" to change the import strategy.",
 	);
 
-	public readonly container: HTMLDivElement = div(
-		{ class: "prompt instrumentImportPrompt noSelection" },
-		h2("Import Instrument(s)"),
-		this._strategyInfoText,
-		selectField("Import:", this._importStrategySelect),
-		this._fileInput,
-		this._cancelButton,
-	);
+	private readonly _surface: PromptRenderSurface;
+	private _operation = 0;
+	private _disposed = false;
+	private _activeReader: FileReader | null = null;
 
-	constructor(doc: SongDocument) {
+	public readonly container: HTMLElement;
+
+	constructor(doc: SongDocument, options: PromptSurfaceOptions = {}) {
 		super(doc);
-		this.buildTitlebar();
+		this._surface = options.surface ?? "standalone";
+		const children: Node[] = [
+			this._strategyInfoText,
+			selectField("Import:", this._importStrategySelect),
+			this._fileInput,
+		];
+		if (this._surface === "standalone") children.push(this._cancelButton);
+		this.container = createPromptSurface(
+			this._surface,
+			"instrumentImportPrompt",
+			"Import Instrument(s)",
+			"import",
+			...children,
+		);
+		if (this._surface === "standalone") this.buildTitlebar();
 		if (!(doc.song.patternInstruments || doc.song.layeredInstruments)) {
 			setDisabled(this._importStrategySelect, true);
 			this._importStrategySelect.value = "replace";
@@ -65,6 +82,10 @@ export class InstrumentImportPrompt extends BasePrompt {
 	}
 
 	public override cleanUp(): void {
+		this._disposed = true;
+		this._operation++;
+		this._activeReader?.abort();
+		this._activeReader = null;
 		super.cleanUp();
 		this._fileInput.removeEventListener("change", this._whenFileSelected);
 	}
@@ -72,8 +93,13 @@ export class InstrumentImportPrompt extends BasePrompt {
 	private _whenFileSelected = (): void => {
 		const file: File = this._fileInput.files![0];
 		if (!file) return;
+		this._activeReader?.abort();
+		const operation = ++this._operation;
 		const reader: FileReader = new FileReader();
+		this._activeReader = reader;
 		reader.onload = (e) => {
+			if (this._disposed || operation !== this._operation) return;
+			this._activeReader = null;
 			try {
 				const fileParsed: any = JSON.parse(String(e.target?.result));
 				if (Array.isArray(fileParsed)) {

@@ -130,47 +130,28 @@ export function buildNavigatorCSS(): string {
 .beepboxEditor .navigator-import-export-pane {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 8px;
+	min-width: 0;
 }
-.beepboxEditor .navigator-import-export-section {
+.beepboxEditor .navigator-import-export-surface {
 	display: flex;
+	box-sizing: border-box;
 	flex: 0 0 auto;
 	flex-direction: column;
-	gap: 2px;
-	min-width: 0;
-	padding-bottom: 4px;
-	border-bottom: 1px solid var(--ui-widget-background);
-}
-.beepboxEditor .navigator-import-export-section:last-child {
-	padding-bottom: 0;
-	border-bottom: 0;
-}
-.beepboxEditor .navigator-import-export-section > h3 {
-	margin: 0;
-	color: var(--primary-text);
-	font-size: 14px;
-}
-.beepboxEditor .navigator-import-export-pane > .navigator-import-export-section > .navigator-import-export-child {
-	position: static;
-	inset: auto;
-	box-sizing: border-box;
-	align-self: stretch;
-	flex: 0 0 auto;
+	gap: 4px;
 	width: 100%;
 	min-width: 0;
 	max-width: 100%;
-	height: auto;
-	min-height: 0;
-	max-height: none;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-	background: transparent;
+	padding-bottom: 8px;
+	border-bottom: 1px solid var(--ui-widget-background);
 }
-.beepboxEditor .navigator-import-export-pane > .navigator-import-export-section > .importPrompt > .importNote,
-.beepboxEditor .navigator-import-export-pane > .navigator-import-export-section > .exportPrompt .exportNote {
-	display: none;
-}
+.beepboxEditor .navigator-import-export-surface:last-child { padding-bottom: 0; border-bottom: 0; }
+.beepboxEditor .navigator-import-export-surface > h3 { margin: 0; color: var(--primary-text); font-size: 14px; }
+.beepboxEditor .navigator-import-export-surface.importPrompt .importNote { margin: 0; }
+.beepboxEditor .navigator-import-export-surface.importPrompt .importFileRow { margin: 0; }
+.beepboxEditor .navigator-import-export-surface.instrumentImportPrompt > select,
+.beepboxEditor .navigator-import-export-surface.instrumentImportPrompt > input[type="file"] { box-sizing: border-box; width: 100%; min-width: 0; }
+.beepboxEditor .navigator-import-export-surface.instrumentExportPrompt .prompt-button-row { margin: 0; }
 @media (max-width: 639px) {
 	.beepboxEditor .navigator-content { display: flex; flex-direction: column; box-sizing: border-box; max-width: 100%; gap: 8px; overflow-x: hidden; }
 	.beepboxEditor .navigator-sidebar { flex: 0 0 auto; box-sizing: border-box; width: 100%; max-width: 100%; overflow: hidden; }

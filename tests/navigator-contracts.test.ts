@@ -22,7 +22,10 @@ import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
 import { buildPromptMiscCSS } from "../editor/rendering/styles/prompt-misc";
 import { buildPromptShellCSS } from "../editor/rendering/styles/prompt-shell";
 import { buildPromptSmallCSS } from "../editor/rendering/styles/prompt-small";
-import { getExportPaneAuthority } from "../editor/prompts/export-prompt";
+import { ExportPrompt, getExportPaneAuthority } from "../editor/prompts/export-prompt";
+import { ImportPrompt } from "../editor/prompts/import-prompt";
+import { InstrumentImportPrompt } from "../editor/prompts/instrument-import-prompt";
+import { InstrumentExportPrompt } from "../editor/prompts/instrument-export-prompt";
 import type { Prompt } from "../editor/prompts/prompt";
 import { ThemePrompt } from "../editor/prompts/theme-prompt";
 import { SongDocument } from "../editor/song-document";
@@ -38,7 +41,11 @@ import {
 import { buildNavigatorCSS } from "../editor/rendering/styles/prompt-navigator";
 import { buildSharedUICSS } from "../editor/rendering/styles/shared-ui";
 import { PaneOwnership, type PaneOwner } from "../editor/navigator/ownership";
-import { createImportExportPaneOwner } from "../editor/navigator/import-export-pane";
+import {
+	createImportExportPaneOwner,
+	createInstrumentImportExportPane,
+	createSongImportExportPane,
+} from "../editor/navigator/import-export-pane";
 import { createPromptPaneOwner } from "../editor/navigator/prompt-pane-owner";
 import {
 	canonicalPaneId,
@@ -1066,7 +1073,7 @@ describe("navigator shell", () => {
 		expect(css).not.toContain("navigator-workspace-tab");
 		expect(css).toMatch(/\.navigator-route-group-title \{[^}]*border-radius: 4px/s);
 		expect(css).toMatch(/\.navigator-route-group-title:hover,[\s\S]*\.navigator-route-group-title:focus-visible,[\s\S]*border-radius: 4px/);
-		expect(css).toMatch(/\.navigator-import-export-pane \{[^}]*flex-direction: column[^}]*gap: 4px/s);
+		expect(css).toMatch(/\.navigator-import-export-pane \{[^}]*flex-direction: column[^}]*gap: 8px/s);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-content \{[^}]*max-width: 100%[^}]*overflow-x: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-sidebar \{[^}]*box-sizing: border-box[^}]*max-width: 100%[^}]*overflow: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*max-width: 100%[^}]*flex-direction: row[^}]*overflow-x: auto/);
@@ -2146,16 +2153,20 @@ describe("prompt pane authority", () => {
 });
 
 
-describe("stacked import and export pane", () => {
+describe("native import and export pane", () => {
 	function compositePrompt(
 		label: string,
 		state: { leave: boolean; close: boolean },
 		effects: string[],
 	): Prompt {
-		const container = document.createElement("div");
+		const container = document.createElement("section");
+		container.className = "navigator-import-export-surface";
+		container.dataset.sectionKind = label;
+		const heading = document.createElement("h3");
+		heading.textContent = label === "import" ? "Import" : "Export";
 		const button = document.createElement("button");
 		button.textContent = label;
-		container.append(button);
+		container.append(heading, button);
 		return {
 			id: label === "import" ? 1 : 2,
 			container,
@@ -2167,95 +2178,76 @@ describe("stacked import and export pane", () => {
 		};
 	}
 
-	test("renders semantic sections in import then export order without tab DOM", () => {
+	test("both aggregate routes render one native root and complete controls", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
-		const owner = createImportExportPaneOwner(
-			{ paneId: "importExportSong" },
-			compositePrompt("import", { leave: true, close: true }, []),
-			compositePrompt("export", { leave: true, close: true }, []),
-			() => Promise.resolve(true),
-			() => Promise.resolve(),
-		);
-		const sections = owner.lifecycle.root.element.querySelectorAll(":scope > section");
-		expect(Array.from(sections, (section) => section.querySelector("h3")?.textContent)).toEqual([
-			"Import",
-			"Export",
-		]);
-		expect(Array.from(sections, (section) => (section as HTMLElement).dataset.sectionKind)).toEqual([
-			"import",
-			"export",
-		]);
-		expect(owner.lifecycle.root.element.querySelectorAll("[role='tablist'], [role='tab']")).toHaveLength(0);
+		for (const [paneId, create] of [
+			["importExportSong", createSongImportExportPane],
+			["importExportInstrument", createInstrumentImportExportPane],
+		] as const) {
+			const doc = new SongDocument();
+			doc.song.title = "x".repeat(250);
+			const owner = create(doc, { paneId }, () => Promise.resolve(true), () => Promise.resolve());
+			const root = owner.lifecycle.root.element;
+			expect(root.tagName).toBe("ARTICLE");
+			expect(root.querySelectorAll(":scope > section")).toHaveLength(2);
+			expect(Array.from(root.children, (child) => child.querySelector("h3")?.textContent)).toEqual(["Import", "Export"]);
+			expect(root.querySelectorAll(".prompt")).toHaveLength(0);
+			expect(root.querySelectorAll("[role='tablist'], [role='tab'], [role='tabpanel']")).toHaveLength(0);
+			expect(owner.identity).toBe(canonicalRouteIdentity({ paneId }));
+			expect(owner.lifecycle.requestLeave()).toBe("allow");
+			expect(owner.lifecycle.requestClose()).toBe("close");
+			if (paneId === "importExportSong") {
+				expect(root.querySelectorAll("input[type='file']")).toHaveLength(1);
+				expect(root.querySelectorAll(".exportPrompt select option")).toHaveLength(10);
+				expect(root.querySelectorAll(".exportPrompt input[type='checkbox']")).toHaveLength(4);
+				expect(root.querySelectorAll(".exportPrompt input[type='number']")).toHaveLength(3);
+				expect(root.querySelector<HTMLInputElement>(".exportPrompt input[type='text']")?.value.length).toBe(250);
+				const keepOpen = root.querySelectorAll<HTMLInputElement>(".exportPrompt input[type='checkbox']")[3];
+				keepOpen.checked = true;
+				expect(owner.lifecycle.requestClose()).toBe("keep-open");
+				keepOpen.checked = false;
+			} else {
+				expect(root.querySelectorAll(".instrumentImportPrompt select option")).toHaveLength(3);
+				expect(root.querySelectorAll(".instrumentImportPrompt input[type='file']")).toHaveLength(1);
+				expect(root.querySelectorAll(".instrumentExportPrompt input[type='checkbox']")).toHaveLength(1);
+				expect(root.querySelectorAll(".instrumentExportPrompt .exportButton")).toHaveLength(1);
+			}
+			owner.lifecycle.dispose();
+		}
 	});
 
-	test("aggregate child prompts override generic absolute geometry in normal flow", () => {
+	test("standalone prompt roots and geometry contracts remain unchanged", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
-		document.body.className = "beepboxEditor";
-		const style = document.createElement("style");
-		style.textContent = `${buildPromptShellCSS()}${buildPromptMiscCSS()}${buildPromptExportCSS()}${buildNavigatorCSS()}`;
-		document.head.append(style);
-		const pane = document.createElement("article");
-		pane.className = "navigator-import-export-pane";
-		const section = document.createElement("section");
-		section.className = "navigator-import-export-section";
-		const child = document.createElement("div");
-		child.className = "prompt importPrompt navigator-import-export-child";
-		section.append(child);
-		pane.append(section);
-		document.body.append(pane);
-
-		const computed = getComputedStyle(child);
-		expect(computed.position).toBe("static");
-		expect(computed.boxSizing).toBe("border-box");
-		expect(computed.width).toBe("100%");
-		expect(computed.maxWidth).toBe("100%");
-		expect(computed.minWidth).toBe("0");
-		expect(computed.height).toBe("auto");
-		expect(computed.overflow).toBe("hidden");
+		const prompts = [new ImportPrompt(new SongDocument()), new ExportPrompt(new SongDocument(), { autofocus: false }), new InstrumentImportPrompt(new SongDocument()), new InstrumentExportPrompt(new SongDocument())];
+		for (const prompt of prompts) {
+			expect(prompt.container.tagName).toBe("DIV");
+			expect(prompt.container.classList.contains("prompt")).toBeTrue();
+			expect(prompt.container.querySelector(":scope > .prompt-titlebar h2")).not.toBeNull();
+			expect(prompt.container.querySelector(":scope > .prompt-titlebar .cancelButton")).not.toBeNull();
+			prompt.cleanUp();
+		}
+		expect(buildPromptMiscCSS()).toContain(".beepboxEditor .prompt.importPrompt {\n\twidth: 300px;");
+		expect(buildPromptExportCSS()).toContain(".beepboxEditor .prompt.exportPrompt {\n\tbox-sizing: border-box;\n\twidth: 340px;\n\tmax-width: 340px;");
+		expect(buildPromptSmallCSS()).toContain(".beepboxEditor .prompt.instrumentImportPrompt {\n\twidth: 300px;");
+		expect(buildPromptSmallCSS()).toContain(".beepboxEditor .prompt.instrumentExportPrompt {\n\twidth: 200px;");
 	});
 
-	test("aggregate selector outranks prompt geometry and preserves standalone import geometry", () => {
-		const navigatorCss = buildNavigatorCSS();
-		const selector = ".beepboxEditor .navigator-import-export-pane > .navigator-import-export-section > .navigator-import-export-child";
-		expect(selector.match(/\.[\w-]+/g)?.length).toBe(4);
-		expect(navigatorCss).toContain(`${selector} {`);
-		expect(navigatorCss).toMatch(new RegExp(`${selector.replace(/\./g, "\\.")} \\{[^}]*position: static;[^}]*box-sizing: border-box;[^}]*width: 100%;[^}]*min-width: 0;[^}]*max-width: 100%;[^}]*overflow: hidden;`, "s"));
-		const miscCss = buildPromptMiscCSS();
-		expect(miscCss).toMatch(/\.prompt\.importPrompt \{\s*width: 300px;\s*\}/);
-		expect(miscCss).toMatch(/\.prompt\.importPrompt \.importNote \{[^}]*text-align: left;[^}]*margin-bottom: 0\.5em;/s);
-	});
-
-	test("aggregate notes compact without changing standalone note rules", () => {
-		const css = buildNavigatorCSS();
-		expect(css).toMatch(/\.navigator-import-export-pane > \.navigator-import-export-section > \.importPrompt > \.importNote,[^{]*\.navigator-import-export-pane > \.navigator-import-export-section > \.exportPrompt \.exportNote \{\s*display: none;\s*\}/s);
-		expect(buildPromptExportCSS()).toMatch(/\.prompt\.exportPrompt \.exportNote \{[^}]*font-size: 10px;[^}]*margin: 4px 0;/s);
-	});
-
-	test("aggregates both child authorities, keys, close binding, and disposal once", async () => {
+	test("aggregates lifecycle, keys, close authority, and disposal once", async () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		const effects: string[] = [];
 		const importState = { leave: true, close: true };
 		const exportState = { leave: true, close: true };
 		const importPrompt = compositePrompt("import", importState, effects);
 		const exportPrompt = compositePrompt("export", exportState, effects);
-		const owner = createImportExportPaneOwner(
-			{ paneId: "importExportSong" },
-			importPrompt,
-			exportPrompt,
-			() => Promise.resolve(true),
-			() => Promise.resolve(),
-		);
+		const owner = createImportExportPaneOwner({ paneId: "importExportSong" }, importPrompt, exportPrompt, () => Promise.resolve(true), () => Promise.resolve());
 		exportState.leave = false;
 		expect(owner.lifecycle.requestLeave()).toBe("deny");
 		exportState.leave = true;
 		importState.close = false;
 		expect(owner.lifecycle.requestClose()).toBe("keep-open");
-		importState.close = true;
-		expect(owner.lifecycle.requestLeave()).toBe("allow");
-		expect(owner.lifecycle.requestClose()).toBe("close");
 		const hostElement = document.createElement("div");
 		owner.lifecycle.mount({ attach: (root) => { hostElement.append(root.element); }, detach: (root) => { root.element.remove(); } });
-		owner.lifecycle.root.element.querySelector<HTMLButtonElement>("[data-navigator-scope='import'] button")?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true }));
+		owner.lifecycle.root.element.querySelector<HTMLButtonElement>("[data-section-kind='import'] button")?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true }));
 		expect(effects).toEqual(["key:import"]);
 		let closes = 0;
 		owner.bindCloseAuthority?.(() => { closes++; return Promise.resolve(true); });
@@ -2268,20 +2260,38 @@ describe("stacked import and export pane", () => {
 		expect(effects).toEqual(["key:import", "cleanup:import", "cleanup:export"]);
 	});
 
-	test("keeps aggregate flow scroll-free and long filenames width-bounded", () => {
-		const css = buildNavigatorCSS();
-		const aggregateRule = css.match(/\.navigator-import-export-pane \{([^}]*)\}/)?.[1] ?? "";
-		expect(aggregateRule).not.toMatch(/overflow(?:-y)?:\s*(?:auto|scroll)/);
-		const sectionRule = css.match(/\.navigator-import-export-section \{([^}]*)\}/)?.[1] ?? "";
-		expect(sectionRule).not.toMatch(/overflow(?:-y)?:\s*(?:auto|scroll)/);
-		const childRule = css.match(/\.navigator-import-export-pane > \.navigator-import-export-section > \.navigator-import-export-child \{([^}]*)\}/)?.[1] ?? "";
-		expect(childRule).not.toMatch(/overflow(?:-y)?:\s*(?:auto|scroll)/);
-		expect(childRule).toMatch(/width:\s*100%;/);
-		expect(childRule).toMatch(/min-width:\s*0;/);
-		expect(childRule).toMatch(/max-width:\s*100%;/);
-		expect(childRule).toMatch(/overflow:\s*hidden;/);
-		const exportCss = buildPromptExportCSS();
-		expect(exportCss).toMatch(/\.exportField > input\[type="text"\],[^{]*\.exportField > select \{[^}]*width: 100%;[^}]*max-width: 100%;[^}]*min-width: 0;/s);
+	test("export cleanup rejects a delayed encoder script callback", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		const prompt = new ExportPrompt(new SongDocument(), { autofocus: false });
+		const browser = window as unknown as { lamejs?: unknown };
+		const previous = browser.lamejs;
+		delete browser.lamejs;
+		const internals = prompt as unknown as { outputStarted: boolean; _exportToMp3Finish(): void };
+		internals.outputStarted = true;
+		internals._exportToMp3Finish();
+		const script = document.head.querySelector<HTMLScriptElement>("script[src*='lamejs']")!;
+		prompt.cleanUp();
+		let encoderConstructions = 0;
+		browser.lamejs = { Mp3Encoder: class { constructor() { encoderConstructions++; } } };
+		script.dispatchEvent(new Event("load"));
+		expect(encoderConstructions).toBe(0);
+		script.remove();
+		if (previous === undefined) delete browser.lamejs;
+		else browser.lamejs = previous;
+	});
+
+	test("native aggregate CSS is bounded and has no inner scrolling", () => {
+		const css = `${buildNavigatorCSS()}${buildPromptExportCSS()}`;
+		expect(css).not.toContain("navigator-import-export-child");
+		for (const selector of [".navigator-import-export-pane", ".navigator-import-export-surface"]) {
+			const rule = css.match(new RegExp(`${selector.replace(/\./g, "\\.")} \\{([^}]*)\\}`))?.[1] ?? "";
+			expect(rule).not.toMatch(/overflow(?:-y)?:\s*(?:auto|scroll)/);
+		}
+		const surfaceRule = css.match(/\.navigator-import-export-surface \{([^}]*)\}/)?.[1] ?? "";
+		expect(surfaceRule).toMatch(/width:\s*100%;/);
+		expect(surfaceRule).toMatch(/min-width:\s*0;/);
+		expect(surfaceRule).toMatch(/max-width:\s*100%;/);
+		expect(css).toContain("grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);");
 	});
 });
 

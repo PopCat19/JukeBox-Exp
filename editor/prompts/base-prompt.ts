@@ -17,6 +17,35 @@ import type { Prompt } from "./prompt";
 
 const { div } = HTML;
 
+export type PromptRenderSurface = "standalone" | "navigator";
+
+export interface PromptSurfaceOptions {
+	readonly surface?: PromptRenderSurface;
+}
+
+export function createPromptSurface(
+	surface: PromptRenderSurface,
+	promptClass: string,
+	standaloneTitle: string,
+	navigatorKind: "import" | "export",
+	...children: Node[]
+): HTMLElement {
+	const standalone = surface === "standalone";
+	const container = document.createElement(standalone ? "div" : "section");
+	container.className = standalone
+		? `prompt ${promptClass} noSelection`
+		: `navigator-import-export-surface ${promptClass} noSelection`;
+	if (!standalone) container.dataset.sectionKind = navigatorKind;
+	const heading = document.createElement(standalone ? "h2" : "h3");
+	heading.textContent = standalone
+		? standaloneTitle
+		: navigatorKind === "import"
+			? "Import"
+			: "Export";
+	container.append(heading, ...children);
+	return container;
+}
+
 export function buildPromptTitlebar(container: HTMLElement): void {
 	if (container.querySelector(".prompt-titlebar")) return;
 

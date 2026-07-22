@@ -274,6 +274,7 @@ export function buildPromptSmallCSS(): string {
 	width: 300px;
 }
 
+.beepboxEditor .navigator-import-export-surface.instrumentImportPrompt select,
 .beepboxEditor .prompt.instrumentImportPrompt select {
 	width: 100%;
 }
@@ -283,12 +284,14 @@ export function buildPromptSmallCSS(): string {
 	width: 200px;
 }
 
+.beepboxEditor .navigator-import-export-surface.instrumentExportPrompt input[type="text"],
 .beepboxEditor .prompt.instrumentExportPrompt input[type="text"] {
 	flex: 1;
 	min-width: 0;
 	width: auto;
 }
 
+.beepboxEditor .navigator-import-export-surface.instrumentExportPrompt .rowBetween,
 .beepboxEditor .prompt.instrumentExportPrompt .rowBetween {
 	display: flex;
 	flex-direction: row;

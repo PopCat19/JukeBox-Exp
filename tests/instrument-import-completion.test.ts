@@ -21,4 +21,36 @@ describe("instrument import completion", () => {
 		expect(doc.prompt).toBeNull();
 		prompt.cleanUp();
 	});
+
+	test("cleanup aborts and invalidates a pending file reader", () => {
+		const OriginalFileReader = globalThis.FileReader;
+		let reader: {
+			onload: ((event: { target: { result: string } }) => void) | null;
+			aborted: boolean;
+		} | null = null;
+		class DeferredFileReader {
+			public onload: ((event: { target: { result: string } }) => void) | null = null;
+			public aborted = false;
+			constructor() { reader = this; }
+			readAsText(): void {}
+			abort(): void { this.aborted = true; }
+		}
+		Object.defineProperty(globalThis, "FileReader", { configurable: true, value: DeferredFileReader });
+		try {
+			const doc = new SongDocument();
+			const prompt = new InstrumentImportPrompt(doc);
+			let closes = 0;
+			prompt.closeCallback = () => { closes++; };
+			const fileInput = prompt.container.querySelector<HTMLInputElement>("input[type='file']")!;
+			Object.defineProperty(fileInput, "files", { configurable: true, value: [new File(["{}"], "instrument.json")] });
+			(prompt as unknown as { _whenFileSelected(): void })._whenFileSelected();
+			const pending = reader as unknown as { onload: ((event: { target: { result: string } }) => void) | null; aborted: boolean };
+			prompt.cleanUp();
+			pending.onload?.({ target: { result: "{}" } });
+			expect(pending.aborted).toBeTrue();
+			expect(closes).toBe(0);
+		} finally {
+			Object.defineProperty(globalThis, "FileReader", { configurable: true, value: OriginalFileReader });
+		}
+	});
 });

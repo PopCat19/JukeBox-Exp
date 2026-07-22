@@ -14,12 +14,17 @@ import { toJukeboxExpJson, toJukeboxExpV2Json, toLegacyCompatJson } from "../../
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
 import { setDisabled } from "../ui";
-import { BasePrompt } from "./base-prompt";
+import {
+	BasePrompt,
+	createPromptSurface,
+	type PromptRenderSurface,
+	type PromptSurfaceOptions,
+} from "./base-prompt";
 import { exportToMidi } from "./export-midi";
 import type { Prompt } from "./prompt";
 import { save } from "./save";
 
-const { div, h2, input, label, option, output, select } = HTML;
+const { div, input, label, option, output, select } = HTML;
 
 let nextExportPromptLabelId: number = 0;
 
@@ -109,106 +114,121 @@ export class ExportPrompt extends BasePrompt {
 	private _observedLoopStart: number = -1;
 	private _observedLoopLength: number = -1;
 
-	public readonly container: HTMLDivElement = div(
-		{ class: "prompt exportPrompt noSelection" },
-		h2("Export Options"),
-		div(
-			{ class: "exportPromptContent" },
-			div(
-				{ class: "exportPromptBody" },
-				div(
-					{ class: "exportSection", role: "group", "aria-label": "File" },
-					div({ class: "sectionLabel exportSectionLabel" }, "File"),
-					label(
-						{ class: "exportField" },
-						div({ class: "exportFieldLabel" }, "File name:"),
-						this._fileName,
-					),
-					label(
-						{ class: "exportField" },
-						div({ class: "exportFieldLabel" }, "Format:"),
-						this._formatSelect,
-					),
-					label(
-						{ class: "exportField exportLengthField" },
-						div({ class: "exportFieldLabel" }, "Length:"),
-						this._computedSamplesLabel,
-					),
-				),
-				div(
-					{ class: "exportSection" },
-					div(
-						{ class: "sectionLabel exportSectionLabel", id: this._playbackLabelId },
-						"Playback",
-					),
-					div(
-						{ class: "exportLoopBounds" },
-						label(
-							{ class: "exportLoopBoundaryControl" },
-							div({ class: "exportControlLabel" }, "Loop start"),
-							this._loopStartInput,
-						),
-						label(
-							{ class: "exportLoopBoundaryControl" },
-							div({ class: "exportControlLabel" }, "Loop end"),
-							this._loopEndInput,
-						),
-					),
-					this._loopDependency,
-					div(
-						{
-							class: "exportPlaybackControls",
-							"aria-labelledby": this._playbackLabelId,
-							role: "group",
-						},
-						label(
-							{ class: "exportCheckControl" },
-							this._enableIntro,
-							div({ class: "exportControlLabel" }, "Intro"),
-						),
-						label(
-							{ class: "exportLoopControl" },
-							div({ class: "exportControlLabel" }, "Loop"),
-							this._loopDropDown,
-						),
-						label(
-							{ class: "exportCheckControl" },
-							this._enableOutro,
-							div({ class: "exportControlLabel" }, "Outro"),
-						),
-					),
-				),
-				div(
-					{ class: "exportSection", role: "group", "aria-label": "Options" },
-					div({ class: "sectionLabel exportSectionLabel" }, "Options"),
-					div(
-						{ class: "exportOptionControls" },
-						label(
-							{ class: "exportCheckControl" },
-							this._removeWhitespace,
-							div({ class: "exportControlLabel" }, "Remove Whitespace"),
-						),
-						label(
-							{ class: "exportCheckControl" },
-							this._keepOpen,
-							div({ class: "exportControlLabel" }, "Keep Open"),
-						),
-					),
-				),
-				this._oggWarning,
-				div(
-					{ class: "exportNote" },
-					"Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient.",
-				),
-				this._outputProgressContainer,
-			),
-			div({ class: "exportPromptFooter" }, this._getOkayRow(), this._cancelButton),
-		),
-	);
+	private readonly _surface: PromptRenderSurface;
+	private _disposed = false;
 
-	constructor(doc: SongDocument, options: { readonly autofocus?: boolean } = {}) {
+	public readonly container: HTMLElement;
+
+	constructor(
+		doc: SongDocument,
+		options: PromptSurfaceOptions & { readonly autofocus?: boolean } = {},
+	) {
 		super(doc);
-		this.buildTitlebar();
+		this._surface = options.surface ?? "standalone";
+		this.container = createPromptSurface(
+			this._surface,
+			"exportPrompt",
+			"Export Options",
+			"export",
+			div(
+				{ class: "exportPromptContent" },
+				div(
+					{ class: "exportPromptBody" },
+					div(
+						{ class: "exportSection", role: "group", "aria-label": "File" },
+						div({ class: "sectionLabel exportSectionLabel" }, "File"),
+						label(
+							{ class: "exportField" },
+							div({ class: "exportFieldLabel" }, "File name:"),
+							this._fileName,
+						),
+						label(
+							{ class: "exportField" },
+							div({ class: "exportFieldLabel" }, "Format:"),
+							this._formatSelect,
+						),
+						label(
+							{ class: "exportField exportLengthField" },
+							div({ class: "exportFieldLabel" }, "Length:"),
+							this._computedSamplesLabel,
+						),
+					),
+					div(
+						{ class: "exportSection" },
+						div(
+							{ class: "sectionLabel exportSectionLabel", id: this._playbackLabelId },
+							"Playback",
+						),
+						div(
+							{ class: "exportLoopBounds" },
+							label(
+								{ class: "exportLoopBoundaryControl" },
+								div({ class: "exportControlLabel" }, "Loop start"),
+								this._loopStartInput,
+							),
+							label(
+								{ class: "exportLoopBoundaryControl" },
+								div({ class: "exportControlLabel" }, "Loop end"),
+								this._loopEndInput,
+							),
+						),
+						this._loopDependency,
+						div(
+							{
+								class: "exportPlaybackControls",
+								"aria-labelledby": this._playbackLabelId,
+								role: "group",
+							},
+							label(
+								{ class: "exportCheckControl" },
+								this._enableIntro,
+								div({ class: "exportControlLabel" }, "Intro"),
+							),
+							label(
+								{ class: "exportLoopControl" },
+								div({ class: "exportControlLabel" }, "Loop"),
+								this._loopDropDown,
+							),
+							label(
+								{ class: "exportCheckControl" },
+								this._enableOutro,
+								div({ class: "exportControlLabel" }, "Outro"),
+							),
+						),
+					),
+					div(
+						{ class: "exportSection", role: "group", "aria-label": "Options" },
+						div({ class: "sectionLabel exportSectionLabel" }, "Options"),
+						div(
+							{ class: "exportOptionControls" },
+							label(
+								{ class: "exportCheckControl" },
+								this._removeWhitespace,
+								div({ class: "exportControlLabel" }, "Remove Whitespace"),
+							),
+							label(
+								{ class: "exportCheckControl" },
+								this._keepOpen,
+								div({ class: "exportControlLabel" }, "Keep Open"),
+							),
+						),
+					),
+					this._oggWarning,
+					div(
+						{ class: "exportNote" },
+						"Exporting can be slow. Reloading the page or clicking the X will cancel it. Please be patient.",
+					),
+					this._outputProgressContainer,
+				),
+				div(
+					{ class: "exportPromptFooter" },
+					this._getOkayRow(),
+					...(this._surface === "standalone" ? [this._cancelButton] : []),
+				),
+			),
+		);
+		if (this._surface === "standalone") this.buildTitlebar();
+		else this._fileName.removeAttribute("autofocus");
 		this._okayButton.classList.add("exportButton");
 		this._okayButton.textContent = "Export";
 
@@ -232,10 +252,10 @@ export class ExportPrompt extends BasePrompt {
 
 		this._updateWarnings();
 
-		if (options.autofocus !== false) {
+		if (this._surface === "standalone" && options.autofocus !== false) {
 			this._fileName.select();
 			setTimeout(() => {
-				this._fileName.focus();
+				if (!this._disposed) this._fileName.focus();
 			});
 		}
 
@@ -249,9 +269,7 @@ export class ExportPrompt extends BasePrompt {
 		this._formatSelect.addEventListener("change", this._updateWarnings);
 		this._doc.notifier.watch(this._whenDocumentChanged);
 		// Save "Keep Open" preference immediately so closing the prompt doesn't discard it
-		this._keepOpen.addEventListener("change", () => {
-			window.localStorage.setItem("exportKeepOpen", String(this._keepOpen.checked));
-		});
+		this._keepOpen.addEventListener("change", this._whenKeepOpenChanged);
 
 		this._updateSamplesLabel();
 	}
@@ -266,6 +284,10 @@ export class ExportPrompt extends BasePrompt {
 			this._doc.song.loopStart + this._doc.song.loopLength < this._doc.song.barCount;
 		this._updateLoopDependencies();
 	}
+
+	private _whenKeepOpenChanged = (): void => {
+		window.localStorage.setItem("exportKeepOpen", String(this._keepOpen.checked));
+	};
 
 	private _whenDocumentChanged = (): void => {
 		if (
@@ -397,6 +419,7 @@ export class ExportPrompt extends BasePrompt {
 	}
 
 	public override cleanUp(): void {
+		this._disposed = true;
 		super.cleanUp();
 		this._cancelRendering();
 		this._doc.notifier.unwatch(this._whenDocumentChanged);
@@ -404,6 +427,11 @@ export class ExportPrompt extends BasePrompt {
 		this._loopStartInput.removeEventListener("change", this._whenLoopStartChanged);
 		this._loopEndInput.removeEventListener("change", this._whenLoopEndChanged);
 		this._loopDropDown.removeEventListener("blur", ExportPrompt._validateNumber);
+		this._enableOutro.removeEventListener("click", this._updateSamplesLabel);
+		this._enableIntro.removeEventListener("click", this._updateSamplesLabel);
+		this._loopDropDown.removeEventListener("change", this._updateSamplesLabel);
+		this._formatSelect.removeEventListener("change", this._updateWarnings);
+		this._keepOpen.removeEventListener("change", this._whenKeepOpenChanged);
 	}
 
 	protected override _saveChanges(): void {
@@ -571,6 +599,7 @@ export class ExportPrompt extends BasePrompt {
 
 	private _exportToMp3Finish(): void {
 		const whenEncoderIsAvailable = (): void => {
+			if (this._disposed || !this.outputStarted) return;
 			const lamejs: any = (<any>window).lamejs;
 			const mp3encoder: any = new lamejs.Mp3Encoder(2, this.synth.samplesPerSecond, 192);
 			const mp3Data: any[] = [];
@@ -604,8 +633,10 @@ export class ExportPrompt extends BasePrompt {
 
 	private _exportToOggFinish(): void {
 		const whenEncoderIsAvailable = (): void => {
+			if (this._disposed || !this.outputStarted) return;
 			const WasmMediaEncoder: any = (<any>window).WasmMediaEncoder;
 			WasmMediaEncoder.createOggEncoder().then((oggEncoder: any) => {
+				if (this._disposed || !this.outputStarted) return;
 				oggEncoder.configure({
 					channels: 2,
 					sampleRate: this.synth.samplesPerSecond,
@@ -638,6 +669,7 @@ export class ExportPrompt extends BasePrompt {
 
 	private _exportToOpusFinish(): void {
 		const whenEncoderIsAvailable = (): void => {
+			if (this._disposed || !this.outputStarted) return;
 			const OggOpusEncoder: any = (<any>window).OggOpusEncoder;
 			const OpusEncoderLib: any = (<any>window).OpusEncoderLib;
 			OggOpusEncoder.prototype.getOpusControl = function (control: number): number | null {

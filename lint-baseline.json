@@ -1,7 +1,7 @@
 {
 	"version": 1,
 	"counts": {
-		"eslint": 4882,
+		"eslint": 4878,
 		"biome": 296
 	},
 	"groups": [
@@ -83,7 +83,7 @@
 		{
 			"key": "biome:editor/prompts/base-prompt.ts",
 			"count": 1,
-			"hash": "8839528083a76885c5d49e67ebed1097dbc2511cc3513e95c94e86113ce1079f"
+			"hash": "afc48f7de4e0b402ec8c1f49a350d3bbed7577c18c1535f03dbe737be637c8bf"
 		},
 		{
 			"key": "biome:editor/prompts/channel-volume-visualizer-prompt.ts",
@@ -98,7 +98,7 @@
 		{
 			"key": "biome:editor/prompts/export-prompt.ts",
 			"count": 20,
-			"hash": "545b553f6be4d3cdb350d7fc4f12b367170cc27c74ff7a25e77fb4b57a7c1c59"
+			"hash": "585c8726eab9d4ce26aa61bbe9bed4c198944315a3af20d44e143f43642b8dbc"
 		},
 		{
 			"key": "biome:editor/prompts/instrument-browser-prompt.ts",
@@ -108,12 +108,12 @@
 		{
 			"key": "biome:editor/prompts/instrument-export-prompt.ts",
 			"count": 3,
-			"hash": "c27bc30d82160d4f7f980c093d43197b66519ad922f1dfc69be8dbd0b8e0dc28"
+			"hash": "b43bce391eeae700bc1ba15f535a6b632fce9eaca897995c15d72b5b356821c7"
 		},
 		{
 			"key": "biome:editor/prompts/instrument-import-prompt.ts",
 			"count": 3,
-			"hash": "c0e3e688beab0bff4b270c0b72430d6343482f383109fad9e592425afa770f01"
+			"hash": "05a6ccf0e76a8ce5ded077c95dbde7a848902cee8e9e430af7cabb5d463937b1"
 		},
 		{
 			"key": "biome:editor/prompts/layout-prompt.ts",
@@ -798,7 +798,7 @@
 		{
 			"key": "eslint:editor/prompts/base-prompt.ts",
 			"count": 9,
-			"hash": "0ebca92c632ed8a8956b92b98ec502573b5547a2802c16cfdd4e290c7328dbd0"
+			"hash": "9f398269d4b7b9f638afbc6e9c9dbf7311e9528f4c564e24aea6953c5721c897"
 		},
 		{
 			"key": "eslint:editor/prompts/beats-per-bar-prompt.ts",
@@ -867,13 +867,13 @@
 		},
 		{
 			"key": "eslint:editor/prompts/export-prompt.ts",
-			"count": 140,
-			"hash": "5a0a6bf1cd88e9c3e96477be026df92237327f7d5aab178164eb91c9738ea34e"
+			"count": 139,
+			"hash": "21ffa934f0e56e8ab656787556a927d8cc6e4ece6d6e8497ade599fe2dc5b5ff"
 		},
 		{
 			"key": "eslint:editor/prompts/import-prompt.ts",
-			"count": 6,
-			"hash": "0cf5d5eec711108fe1bb6b7db6ea6847fd4c9e69d65ee83df282c9bab5968a16"
+			"count": 5,
+			"hash": "5f697842d3ce28711e605140b9a16b454bceb93174963cdd38198b96e6135c0a"
 		},
 		{
 			"key": "eslint:editor/prompts/input-helpers.ts",
@@ -887,13 +887,13 @@
 		},
 		{
 			"key": "eslint:editor/prompts/instrument-export-prompt.ts",
-			"count": 10,
-			"hash": "89773059c7b52510d22f61c7fee4829dc24721af99d996810aa10072ea4d3cbb"
+			"count": 9,
+			"hash": "7c23ffcb25767dd4d7e15b9e834a62d857878b5ad9663caababf717517a16a43"
 		},
 		{
 			"key": "eslint:editor/prompts/instrument-import-prompt.ts",
-			"count": 11,
-			"hash": "7a44730bb40aa6db644297fb02a9aa4468caa5a380bdd333bb2c2b6ba333739e"
+			"count": 10,
+			"hash": "9131ea9a4e8ef104524c4f1889d383168bc01fff8239de7308a3660c6ba8b37f"
 		},
 		{
 			"key": "eslint:editor/prompts/keyboard-shortcuts-prompt.ts",

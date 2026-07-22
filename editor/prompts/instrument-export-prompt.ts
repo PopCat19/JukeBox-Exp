@@ -13,9 +13,14 @@ import type { Channel, Instrument } from "../../synth";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
 import { labelRow } from "../ui";
-import { BasePrompt } from "./base-prompt";
+import {
+	BasePrompt,
+	createPromptSurface,
+	type PromptRenderSurface,
+	type PromptSurfaceOptions,
+} from "./base-prompt";
 
-const { div, h2, input, br } = HTML;
+const { div, input, br } = HTML;
 
 export class InstrumentExportPrompt extends BasePrompt {
 	private readonly _exportMultipleBox: HTMLInputElement = input({
@@ -34,18 +39,28 @@ export class InstrumentExportPrompt extends BasePrompt {
 		autofocus: "autofocus",
 	});
 
-	public readonly container: HTMLDivElement = div(
-		{ class: "prompt instrumentExportPrompt noSelection" },
-		h2("Export Instruments Options"),
-		div({ class: "rowBetween" }, "File name:", this._fileName),
-		labelRow("Export all instruments", br(), "in channel:", this._exportMultipleBox),
-		this._getOkayRow(),
-		this._cancelButton,
-	);
+	private readonly _surface: PromptRenderSurface;
 
-	constructor(doc: SongDocument) {
+	public readonly container: HTMLElement;
+
+	constructor(doc: SongDocument, options: PromptSurfaceOptions = {}) {
 		super(doc);
-		this.buildTitlebar();
+		this._surface = options.surface ?? "standalone";
+		const children: Node[] = [
+			div({ class: "rowBetween" }, "File name:", this._fileName),
+			labelRow("Export all instruments", br(), "in channel:", this._exportMultipleBox),
+			this._getOkayRow(),
+		];
+		if (this._surface === "standalone") children.push(this._cancelButton);
+		this.container = createPromptSurface(
+			this._surface,
+			"instrumentExportPrompt",
+			"Export Instruments Options",
+			"export",
+			...children,
+		);
+		if (this._surface === "standalone") this.buildTitlebar();
+		else this._fileName.removeAttribute("autofocus");
 		this._okayButton.classList.add("exportButton");
 		this._okayButton.textContent = "Export";
 		this._fileName.addEventListener("input", InstrumentExportPrompt._validateFileName);
