@@ -52,9 +52,9 @@ export function buildPromptLimiterCSS(): string {
 }
 .beepboxEditor .prompt.limiterPrompt .limiterPreview,
 .beepboxEditor .navigator-native-pane.limiterPrompt .limiterPreview {
-	display: grid;
-	grid-template-columns: fit-content(100%) minmax(0, 1fr);
-	align-items: start;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
 	gap: var(--gap-md);
 	box-sizing: border-box;
 	width: 100%;
@@ -68,10 +68,11 @@ export function buildPromptLimiterCSS(): string {
 .beepboxEditor .prompt.limiterPrompt .limiterGraph,
 .beepboxEditor .navigator-native-pane.limiterPrompt .limiterGraph {
 	box-sizing: border-box;
-	width: 100%;
+	align-self: center;
+	width: min(100%, 480px);
 	min-width: 0;
 	margin: 0;
-	padding: 0 var(--padding-12) 0 18px;
+	padding: 0 18px;
 }
 .beepboxEditor .prompt.limiterPrompt .limiterGraphCanvas,
 .beepboxEditor .navigator-native-pane.limiterPrompt .limiterGraphCanvas {
@@ -215,10 +216,6 @@ export function buildPromptLimiterCSS(): string {
 	.beepboxEditor .prompt.limiterPrompt {
 		width: min(100%, calc(100vw - ${LIMITER_NARROW_INSET}px));
 		max-width: 100%;
-	}
-	.beepboxEditor .prompt.limiterPrompt .limiterPreview,
-	.beepboxEditor .navigator-native-pane.limiterPrompt .limiterPreview {
-		grid-template-columns: minmax(0, 1fr);
 	}
 	.beepboxEditor .prompt.limiterPrompt .limiterColumnHeaders,
 	.beepboxEditor .navigator-native-pane.limiterPrompt .limiterColumnHeaders {

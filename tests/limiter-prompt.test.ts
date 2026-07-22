@@ -358,7 +358,8 @@ describe("LimiterPrompt", () => {
 			// happy-dom has no layout engine: browser pixel overflow remains an integration risk.
 			expect(fixture.getBoundingClientRect().width).toBe(0);
 			const css = buildPromptLimiterCSS();
-			expect(css).toContain("grid-template-columns: fit-content(100%) minmax(0, 1fr)");
+			expect(css).toMatch(/\.limiterPreview \{[^}]*display: flex[^}]*flex-direction: column[^}]*align-items: stretch/s);
+			expect(css).toMatch(/\.limiterGraph \{[^}]*align-self: center[^}]*width: min\(100%, 480px\)/s);
 			expect(css).toContain("height: clamp(96px, 18vw, 112px)");
 			expect(css).toContain("margin-bottom: clamp(68px, 13vw, 80px)");
 			expect(css).not.toContain("min-height: 44px");
