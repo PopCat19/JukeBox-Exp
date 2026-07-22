@@ -1066,7 +1066,7 @@ describe("navigator shell", () => {
 		expect(css).not.toContain("navigator-workspace-tab");
 		expect(css).toMatch(/\.navigator-route-group-title \{[^}]*border-radius: 4px/s);
 		expect(css).toMatch(/\.navigator-route-group-title:hover,[\s\S]*\.navigator-route-group-title:focus-visible,[\s\S]*border-radius: 4px/);
-		expect(css).toMatch(/\.navigator-import-export-pane \{[^}]*flex-direction: column[^}]*gap: 8px/s);
+		expect(css).toMatch(/\.navigator-import-export-pane \{[^}]*flex-direction: column[^}]*gap: 4px/s);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-content \{[^}]*max-width: 100%[^}]*overflow-x: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-sidebar \{[^}]*box-sizing: border-box[^}]*max-width: 100%[^}]*overflow: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*max-width: 100%[^}]*flex-direction: row[^}]*overflow-x: auto/);
@@ -2188,6 +2188,49 @@ describe("stacked import and export pane", () => {
 		expect(owner.lifecycle.root.element.querySelectorAll("[role='tablist'], [role='tab']")).toHaveLength(0);
 	});
 
+	test("aggregate child prompts override generic absolute geometry in normal flow", () => {
+		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		document.body.className = "beepboxEditor";
+		const style = document.createElement("style");
+		style.textContent = `${buildPromptShellCSS()}${buildPromptMiscCSS()}${buildPromptExportCSS()}${buildNavigatorCSS()}`;
+		document.head.append(style);
+		const pane = document.createElement("article");
+		pane.className = "navigator-import-export-pane";
+		const section = document.createElement("section");
+		section.className = "navigator-import-export-section";
+		const child = document.createElement("div");
+		child.className = "prompt importPrompt navigator-import-export-child";
+		section.append(child);
+		pane.append(section);
+		document.body.append(pane);
+
+		const computed = getComputedStyle(child);
+		expect(computed.position).toBe("static");
+		expect(computed.boxSizing).toBe("border-box");
+		expect(computed.width).toBe("100%");
+		expect(computed.maxWidth).toBe("100%");
+		expect(computed.minWidth).toBe("0");
+		expect(computed.height).toBe("auto");
+		expect(computed.overflow).toBe("hidden");
+	});
+
+	test("aggregate selector outranks prompt geometry and preserves standalone import geometry", () => {
+		const navigatorCss = buildNavigatorCSS();
+		const selector = ".beepboxEditor .navigator-import-export-pane > .navigator-import-export-section > .navigator-import-export-child";
+		expect(selector.match(/\.[\w-]+/g)?.length).toBe(4);
+		expect(navigatorCss).toContain(`${selector} {`);
+		expect(navigatorCss).toMatch(new RegExp(`${selector.replace(/\./g, "\\.")} \\{[^}]*position: static;[^}]*box-sizing: border-box;[^}]*width: 100%;[^}]*min-width: 0;[^}]*max-width: 100%;[^}]*overflow: hidden;`, "s"));
+		const miscCss = buildPromptMiscCSS();
+		expect(miscCss).toMatch(/\.prompt\.importPrompt \{\s*width: 300px;\s*\}/);
+		expect(miscCss).toMatch(/\.prompt\.importPrompt \.importNote \{[^}]*text-align: left;[^}]*margin-bottom: 0\.5em;/s);
+	});
+
+	test("aggregate notes compact without changing standalone note rules", () => {
+		const css = buildNavigatorCSS();
+		expect(css).toMatch(/\.navigator-import-export-pane > \.navigator-import-export-section > \.importPrompt > \.importNote,[^{]*\.navigator-import-export-pane > \.navigator-import-export-section > \.exportPrompt \.exportNote \{\s*display: none;\s*\}/s);
+		expect(buildPromptExportCSS()).toMatch(/\.prompt\.exportPrompt \.exportNote \{[^}]*font-size: 10px;[^}]*margin: 4px 0;/s);
+	});
+
 	test("aggregates both child authorities, keys, close binding, and disposal once", async () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		const effects: string[] = [];
@@ -2225,12 +2268,20 @@ describe("stacked import and export pane", () => {
 		expect(effects).toEqual(["key:import", "cleanup:import", "cleanup:export"]);
 	});
 
-	test("keeps aggregate roots free of inner scroll CSS", () => {
+	test("keeps aggregate flow scroll-free and long filenames width-bounded", () => {
 		const css = buildNavigatorCSS();
 		const aggregateRule = css.match(/\.navigator-import-export-pane \{([^}]*)\}/)?.[1] ?? "";
 		expect(aggregateRule).not.toMatch(/overflow(?:-y)?:\s*(?:auto|scroll)/);
 		const sectionRule = css.match(/\.navigator-import-export-section \{([^}]*)\}/)?.[1] ?? "";
 		expect(sectionRule).not.toMatch(/overflow(?:-y)?:\s*(?:auto|scroll)/);
+		const childRule = css.match(/\.navigator-import-export-pane > \.navigator-import-export-section > \.navigator-import-export-child \{([^}]*)\}/)?.[1] ?? "";
+		expect(childRule).not.toMatch(/overflow(?:-y)?:\s*(?:auto|scroll)/);
+		expect(childRule).toMatch(/width:\s*100%;/);
+		expect(childRule).toMatch(/min-width:\s*0;/);
+		expect(childRule).toMatch(/max-width:\s*100%;/);
+		expect(childRule).toMatch(/overflow:\s*hidden;/);
+		const exportCss = buildPromptExportCSS();
+		expect(exportCss).toMatch(/\.exportField > input\[type="text"\],[^{]*\.exportField > select \{[^}]*width: 100%;[^}]*max-width: 100%;[^}]*min-width: 0;/s);
 	});
 });
 

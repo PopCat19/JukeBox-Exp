@@ -130,15 +130,15 @@ export function buildNavigatorCSS(): string {
 .beepboxEditor .navigator-import-export-pane {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 4px;
 }
 .beepboxEditor .navigator-import-export-section {
 	display: flex;
 	flex: 0 0 auto;
 	flex-direction: column;
-	gap: 4px;
+	gap: 2px;
 	min-width: 0;
-	padding-bottom: 6px;
+	padding-bottom: 4px;
 	border-bottom: 1px solid var(--ui-widget-background);
 }
 .beepboxEditor .navigator-import-export-section:last-child {
@@ -150,13 +150,26 @@ export function buildNavigatorCSS(): string {
 	color: var(--primary-text);
 	font-size: 14px;
 }
-.beepboxEditor .navigator-import-export-child {
+.beepboxEditor .navigator-import-export-pane > .navigator-import-export-section > .navigator-import-export-child {
+	position: static;
+	inset: auto;
 	box-sizing: border-box;
+	align-self: stretch;
+	flex: 0 0 auto;
 	width: 100%;
-	max-width: none;
+	min-width: 0;
+	max-width: 100%;
+	height: auto;
+	min-height: 0;
+	max-height: none;
 	margin: 0;
 	padding: 0;
+	overflow: hidden;
 	background: transparent;
+}
+.beepboxEditor .navigator-import-export-pane > .navigator-import-export-section > .importPrompt > .importNote,
+.beepboxEditor .navigator-import-export-pane > .navigator-import-export-section > .exportPrompt .exportNote {
+	display: none;
 }
 @media (max-width: 639px) {
 	.beepboxEditor .navigator-content { display: flex; flex-direction: column; box-sizing: border-box; max-width: 100%; gap: 8px; overflow-x: hidden; }
