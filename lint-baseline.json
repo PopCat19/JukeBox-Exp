@@ -158,7 +158,7 @@
 		{
 			"key": "biome:editor/song-editor.ts",
 			"count": 1,
-			"hash": "33ad63e5971d3b29c5208a4c37ce6a16c0cbd96edcaa4dfc9fc1cd5514214764"
+			"hash": "20eb8cb3afbd4d6d8831bcd421f2f256bf47bcb75f0975d9e0aa517534c22fb8"
 		},
 		{
 			"key": "biome:editor/ui/array-buffer-writer.ts",
@@ -718,7 +718,7 @@
 		{
 			"key": "eslint:editor/core/prompt-manager.ts",
 			"count": 23,
-			"hash": "02d23b8dc941168fda10aed620f4849ebf6b5b586112f0888be25337143ce25e"
+			"hash": "7e2087dbe1a1d94a8f72637212cb0343a09e62299514f04135449f83ec5d2d90"
 		},
 		{
 			"key": "eslint:editor/core/selection.ts",
@@ -763,7 +763,7 @@
 		{
 			"key": "eslint:editor/navigator/command-registry.ts",
 			"count": 2,
-			"hash": "b8937e4fa764120cbccef022347375956c225f053e6be2a424aab0bfa47a2033"
+			"hash": "7e1811b907040708d71e4496715b4259b6e397351e7761e8351c81d1fbdcfdee"
 		},
 		{
 			"key": "eslint:editor/navigator/contracts.ts",
@@ -773,7 +773,7 @@
 		{
 			"key": "eslint:editor/navigator/navigator-shell.ts",
 			"count": 1,
-			"hash": "e80a84511b75b4def993f68511cc2ec07f9234d69303485284119fb2dc20a963"
+			"hash": "92cd3d0366eb5f793cb610a9d65c700fbd9c11253b384bcd506f59a5f2f9ec0d"
 		},
 		{
 			"key": "eslint:editor/navigator/ownership.ts",
@@ -968,7 +968,7 @@
 		{
 			"key": "eslint:editor/prompts/tip-prompt.ts",
 			"count": 11,
-			"hash": "b65cc6f83860f15491e309b782059f05761ebcb1f3dbdb9588616b167a4c3d99"
+			"hash": "ad32c8ba66c924d92b74be7729900d3f83750eefc87d0d1b61895dc3be3d3d23"
 		},
 		{
 			"key": "eslint:editor/prompts/visual-loop-controls-handle.ts",
@@ -1033,7 +1033,7 @@
 		{
 			"key": "eslint:editor/song-editor.ts",
 			"count": 51,
-			"hash": "cf052785ebfc135438652e77d77d6fcde83e4fd055508fc765ac5d06d4f62dd2"
+			"hash": "38a414ee0d8840d3c349a54426625d19ecb2c27a3cd678727b63c78b7aca490d"
 		},
 		{
 			"key": "eslint:editor/ui/array-buffer-reader.ts",

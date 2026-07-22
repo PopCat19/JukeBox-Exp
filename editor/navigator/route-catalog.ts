@@ -131,12 +131,6 @@ export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.fr
 				"hasLoopControls",
 				capability("hasLoopControls"),
 			),
-			routeItem(
-				"stringSustain",
-				"String sustain",
-				"hasStringSustain",
-				capability("hasStringSustain"),
-			),
 			routeItem("drumsetSettings", "Drumset settings", "isDrumset", capability("isDrumset")),
 		],
 	},

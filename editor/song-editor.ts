@@ -4006,6 +4006,10 @@ export class SongEditor
 
 	private _openPrompt(promptName: string): void {
 		log.log("_openPrompt", promptName, { docPrompt: this.doc.prompt });
+		if (promptName === "stringSustain" || promptName === "sampleLoadingStatus") {
+			this._promptManager.open(promptName);
+			return;
+		}
 		void this._applicationRouter.routePrompt(promptName);
 	}
 

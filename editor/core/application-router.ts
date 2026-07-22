@@ -76,7 +76,11 @@ export class ApplicationRouter {
 		const isTipScope = command === undefined && scope !== "tipPromptScope";
 		const paneId = isTipScope ? "tipPromptScope" : scope;
 		const routeContext = isTipScope
-			? { tipName: scope, ...(context === undefined ? {} : { source: context }) }
+			? {
+					tipName: scope,
+					sourceScope: scope,
+					...(context === undefined ? {} : { source: context }),
+				}
 			: context;
 		return this.route({
 			presentation: "navigator",

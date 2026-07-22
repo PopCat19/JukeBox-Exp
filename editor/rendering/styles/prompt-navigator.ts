@@ -79,11 +79,16 @@ export function buildNavigatorCSS(): string {
 	font-weight: 600;
 	text-align: left;
 	text-transform: uppercase;
-	background: var(--ui-widget-background);
+	background: transparent;
 	border: 0;
-	border-radius: var(--border-radius-medium);
+	border-bottom: 1px solid var(--ui-widget-background);
+	border-radius: 0;
+	cursor: pointer;
 }
+.beepboxEditor .navigator-route-group-title::before { display: inline-block; width: 1.25em; content: "▸"; }
+.beepboxEditor .navigator-route-group-title[aria-expanded="true"]::before { content: "▾"; }
 .beepboxEditor .navigator-route-group-content { display: flex; flex-direction: column; gap: 4px; }
+.beepboxEditor .navigator-route-group-content[hidden] { display: none; }
 .beepboxEditor .navigator-route[disabled] { opacity: 0.24; cursor: not-allowed; }
 .beepboxEditor .navigator-route.selectableRow:not(.active) { background: var(--ui-widget-background); }
 .beepboxEditor .navigator-route {
@@ -106,6 +111,24 @@ export function buildNavigatorCSS(): string {
 	min-width: 0;
 	min-height: 0;
 	overflow: hidden;
+}
+.beepboxEditor .navigator-workspace-tabs {
+	display: flex;
+	gap: 4px;
+	padding: 8px 12px 0;
+	border-bottom: 2px solid var(--ui-widget-background);
+}
+.beepboxEditor .navigator-workspace-tabs[hidden] { display: none; }
+.beepboxEditor .navigator-workspace-tab {
+	padding: 6px 12px;
+	color: var(--secondary-text);
+	background: var(--ui-widget-background);
+	border: 0;
+	border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
+}
+.beepboxEditor .navigator-workspace-tab[aria-selected="true"] {
+	color: var(--cta-fg);
+	background: var(--cta-bg);
 }
 .beepboxEditor .navigator-pane-host {
 	display: flex;

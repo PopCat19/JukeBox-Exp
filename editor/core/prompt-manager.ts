@@ -142,6 +142,7 @@ export class PromptManager {
 	private _userInitiatedOpen: boolean = false;
 	private _openingForNavigator: boolean = false;
 	private _navigatorTipName: string | null = null;
+	private _navigatorTipSourceScope: string | null = null;
 	// Cursor position and target element rect at last click before a
 	// prompt opens. Used by _spawnNearCursor for desktop desktop
 	// (near cursor) vs mobile (centered) spawning.
@@ -266,19 +267,21 @@ export class PromptManager {
 	}
 
 	public openForNavigator(promptName: string, context?: unknown): void {
-		this._navigatorTipName =
-			promptName === "tipPromptScope" &&
-			context !== null &&
-			typeof context === "object" &&
-			typeof (context as { tipName?: unknown }).tipName === "string"
-				? (context as { tipName: string }).tipName
+		const tipContext =
+			promptName === "tipPromptScope" && context !== null && typeof context === "object"
+				? (context as { tipName?: unknown; sourceScope?: unknown })
 				: null;
+		this._navigatorTipName =
+			typeof tipContext?.tipName === "string" ? tipContext.tipName : null;
+		this._navigatorTipSourceScope =
+			typeof tipContext?.sourceScope === "string" ? tipContext.sourceScope : null;
 		this._openingForNavigator = true;
 		try {
 			this.open(promptName);
 		} finally {
 			this._openingForNavigator = false;
 			this._navigatorTipName = null;
+			this._navigatorTipSourceScope = null;
 		}
 	}
 
@@ -661,9 +664,11 @@ export class PromptManager {
 			case "keyboardShortcuts":
 				newPrompt = new KeyboardShortcutsPrompt(doc);
 				break;
-			case "tipPromptScope":
-				newPrompt = new TipPrompt(doc, this._navigatorTipName ?? "tipPromptScope");
+			case "tipPromptScope": {
+				const tipName = this._navigatorTipName ?? "tipPromptScope";
+				newPrompt = new TipPrompt(doc, tipName, this._navigatorTipSourceScope ?? tipName);
 				break;
+			}
 			default:
 				newPrompt = new TipPrompt(doc, promptName);
 				break;

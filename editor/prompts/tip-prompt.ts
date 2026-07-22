@@ -127,24 +127,34 @@ export class TipPrompt extends BasePrompt {
 
 	public readonly container: HTMLDivElement;
 
-	private _getTipTitle(): string {
-		if (this._tipName.indexOf("modSetInfo") >= 0) {
-			const modNum: number = +this._tipName[this._tipName.length - 1];
-			const modulator: number = this._doc.getCurrentInstrumentObj().modulators[modNum];
-			return Config.modulators[modulator].promptName;
+	private _getTipTitle(scope = this._tipName): string {
+		const modSetMatch = /^modSetInfo(\d+)$/.exec(scope);
+		if (modSetMatch !== null) {
+			const modNum = Number(modSetMatch[1]);
+			const modulator = this._doc.getCurrentInstrumentObj().modulators[modNum];
+			const modulatorConfig = Config.modulators.at(modulator);
+			if (modulatorConfig !== undefined) return modulatorConfig.promptName;
 		}
-		return this._tipTitles[this._tipName] || this._tipName;
+		return this._tipTitles[scope] || scope || "Unknown editor control";
 	}
 
 	constructor(
 		doc: SongDocument,
 		private _tipName: string,
+		private readonly _sourceScope: string = _tipName,
 	) {
 		super(doc);
 		this.container = div(
 			{ class: "prompt tipPrompt noSelection" },
 			h2(this._getTipTitle()),
-			div({ class: "prompt-tip-content" }, this._renderTip()),
+			div(
+				{ class: "prompt-tip-content" },
+				h3(
+					{ class: "prompt-tip-source" },
+					`Help source: ${this._getTipTitle(this._sourceScope)}`,
+				),
+				this._renderTip(),
+			),
 			this._cancelButton,
 		);
 		this.buildTitlebar();
@@ -1032,40 +1042,33 @@ export class TipPrompt extends BasePrompt {
 					p("Click and drag on the canvas to draw."),
 					p("Use the [ and ] keys to navigate through bars while the editor is open."),
 				);
-			default:
-				// Check for modSetInfo#
-				if (this._tipName.indexOf("modSetInfo") >= 0) {
-					const modNum: number = +this._tipName[this._tipName.length - 1];
-					const modulator: number =
-						this._doc.getCurrentInstrumentObj().modulators[modNum];
-					const pList: HTMLParagraphElement[] = [];
-					for (
-						let s: number = 0;
-						s < Config.modulators[modulator].promptDesc.length;
-						s++
-					) {
-						pList.push(
+			default: {
+				const modSetMatch = /^modSetInfo(\d+)$/.exec(this._tipName);
+				if (modSetMatch !== null) {
+					const modNum = Number(modSetMatch[1]);
+					const modulator = this._doc.getCurrentInstrumentObj().modulators[modNum];
+					const modulatorConfig = Config.modulators.at(modulator);
+					if (modulatorConfig !== undefined) {
+						const pList = modulatorConfig.promptDesc.map((description) =>
 							p(
-								Config.modulators[modulator].promptDesc[s]
-									.replace(
-										"$LO",
-										`${Config.modulators[modulator].convertRealFactor}`,
-									)
+								description
+									.replace("$LO", `${modulatorConfig.convertRealFactor}`)
 									.replace(
 										"$MID",
-										`${Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol / 2}`,
+										`${modulatorConfig.convertRealFactor + modulatorConfig.maxRawVol / 2}`,
 									)
 									.replace(
 										"$HI",
-										`${Config.modulators[modulator].convertRealFactor + Config.modulators[modulator].maxRawVol}`,
+										`${modulatorConfig.convertRealFactor + modulatorConfig.maxRawVol}`,
 									),
 							),
 						);
+						pList.at(-1)?.style.setProperty("color", "var(--secondary-text)");
+						return div(...pList);
 					}
-					pList[pList.length - 1].style.setProperty("color", "var(--secondary-text)");
-					return div(...pList);
 				}
-				return div(p(`This is a tip about ${this._tipName}.`));
+				return div(p(`This is a tip about ${this._getTipTitle()}.`));
+			}
 		}
 	}
 }

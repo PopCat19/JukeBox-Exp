@@ -59,10 +59,20 @@ describe("command registry", () => {
 		expect(state.visits).toEqual([]);
 	});
 
-	test("unknown legacy prompt scopes remain outside stable command metadata", () => {
-		expect(getPromptCommand("algorithm")).toBeUndefined();
-		expect(getPromptCommand("pitchRange")).toBeUndefined();
-		expect(getPromptCommand("modChannel")).toBeUndefined();
+	test("informational and editor-only scopes remain outside command metadata", () => {
+		for (const scope of [
+			"algorithm",
+			"pitchRange",
+			"modChannel",
+			"stringSustain",
+			"sampleLoadingStatus",
+		]) {
+			expect(getPromptCommand(scope)).toBeUndefined();
+		}
+		expect(commandRegistry.map((command) => command.id)).not.toContain("prompt.stringSustain");
+		expect(commandRegistry.map((command) => command.id)).not.toContain(
+			"prompt.sampleLoadingStatus",
+		);
 	});
 
 	test("goToBar converts one-based input exactly once", async () => {

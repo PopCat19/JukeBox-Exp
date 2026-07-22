@@ -47,6 +47,7 @@ export class NavigatorShell implements PaneHost {
 	private readonly sidebar: HTMLElement;
 	private readonly sidebarToggleButton: HTMLButtonElement;
 	private readonly workspace: HTMLElement;
+	private readonly workspaceTabs: HTMLDivElement;
 	private readonly detachButton: HTMLButtonElement | null;
 	private readonly routes: readonly NavigatorRoute[];
 	private readonly onRoute: ((id: string) => void) | undefined;
@@ -139,9 +140,12 @@ export class NavigatorShell implements PaneHost {
 		this.workspace = document.createElement("section");
 		this.workspace.className = "navigator-workspace";
 		this.workspace.setAttribute("aria-labelledby", this.titleHeading.id);
+		this.workspaceTabs = document.createElement("div");
+		this.workspaceTabs.className = "navigator-workspace-tabs";
+		this.workspaceTabs.hidden = true;
 		this.body = document.createElement("div");
 		this.body.className = "navigator-pane-host";
-		this.workspace.append(this.body);
+		this.workspace.append(this.workspaceTabs, this.body);
 		content.append(this.sidebar, this.workspace);
 		this.container.append(content);
 		this.renderRoutes(routes);
@@ -214,11 +218,15 @@ export class NavigatorShell implements PaneHost {
 				this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
 			for (let index = 0; index < routeButtons.length; index++) {
 				const button = routeButtons[index];
-				const active = button.dataset.routeId === routeId;
+				const routeIds = button.dataset.routeIds?.split(" ") ?? [
+					button.dataset.routeId ?? "",
+				];
+				const active = routeIds.includes(routeId);
 				setSelectableRowActive(button, active);
 				button.setAttribute("aria-current", active ? "page" : "false");
 			}
 		}
+		this.renderWorkspaceTabs(route, routeId);
 		this.updateVisibility(true);
 		this.body.append(root.element);
 	}
@@ -326,36 +334,58 @@ export class NavigatorShell implements PaneHost {
 		}
 	}
 
-	private createRouteButton(route: NavigatorRoute): HTMLElement {
-		if (route.tabs !== undefined) {
-			const family = document.createElement("div");
-			family.className = "navigator-route-family";
-			family.setAttribute("role", "tablist");
-			for (const tab of route.tabs) family.append(this.createTabButton(tab, route.title));
-			return family;
-		}
-		return this.createTabButton({ id: route.id, title: route.title }, route.title);
+	private createRouteButton(route: NavigatorRoute): HTMLButtonElement {
+		const memberIds = route.tabs?.map((tab) => tab.id) ?? [route.id];
+		const button = this.createNavigationButton(route.id, route.title, "navigator-route");
+		button.dataset.routeIds = memberIds.join(" ");
+		selectableRow(button, memberIds.includes(this.activeRouteId ?? ""));
+		button.setAttribute(
+			"aria-current",
+			memberIds.includes(this.activeRouteId ?? "") ? "page" : "false",
+		);
+		return button;
 	}
 
-	private createTabButton(
-		tab: { readonly id: string; readonly title: string },
-		familyTitle: string,
+	private renderWorkspaceTabs(route: NavigatorRoute | undefined, routeId: string): void {
+		this.workspaceTabs.replaceChildren();
+		if (route?.tabs === undefined) {
+			this.workspaceTabs.hidden = true;
+			this.workspaceTabs.removeAttribute("role");
+			this.workspaceTabs.removeAttribute("aria-label");
+			return;
+		}
+		this.workspaceTabs.hidden = false;
+		this.workspaceTabs.setAttribute("role", "tablist");
+		this.workspaceTabs.setAttribute("aria-label", route.title);
+		for (const tab of route.tabs) {
+			const button = this.createNavigationButton(
+				tab.id,
+				tab.title,
+				"navigator-workspace-tab",
+			);
+			const active = tab.id === routeId;
+			button.setAttribute("role", "tab");
+			button.setAttribute("aria-selected", String(active));
+			button.tabIndex = active ? 0 : -1;
+			this.workspaceTabs.append(button);
+		}
+	}
+
+	private createNavigationButton(
+		routeId: string,
+		label: string,
+		className: string,
 	): HTMLButtonElement {
 		const button = document.createElement("button");
 		button.type = "button";
-		button.className = "navigator-route";
-		button.dataset.routeId = tab.id;
-		button.textContent = familyTitle === tab.title ? tab.title : `${familyTitle}: ${tab.title}`;
-		button.title = button.textContent;
-		if (familyTitle !== tab.title) button.setAttribute("role", "tab");
-		const availability = getNavigatorRouteAvailability(tab.id, this.getFocusedInstrument?.());
+		button.className = className;
+		button.dataset.routeId = routeId;
+		button.textContent = label;
+		button.title = label;
+		const availability = getNavigatorRouteAvailability(routeId, this.getFocusedInstrument?.());
 		button.disabled = !availability.available;
 		button.setAttribute("aria-disabled", String(!availability.available));
 		if (!availability.available) button.title = availability.error ?? button.title;
-		const active = tab.id === this.activeRouteId;
-		selectableRow(button, active);
-		button.setAttribute("aria-selected", String(active));
-		button.setAttribute("aria-current", active ? "page" : "false");
 		let primaryPress = false;
 		let suppressClick = false;
 		button.addEventListener("mousedown", (event) => {
@@ -369,7 +399,7 @@ export class NavigatorShell implements PaneHost {
 			if (!availability.available || !primaryPress || event.button !== 0) return;
 			primaryPress = false;
 			suppressClick = true;
-			this.onRoute?.(tab.id);
+			this.onRoute?.(routeId);
 		});
 		button.addEventListener("click", (event) => {
 			if (!availability.available) return;
@@ -377,7 +407,7 @@ export class NavigatorShell implements PaneHost {
 				suppressClick = false;
 				return;
 			}
-			this.onRoute?.(tab.id);
+			this.onRoute?.(routeId);
 		});
 		return button;
 	}

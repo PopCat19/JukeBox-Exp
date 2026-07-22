@@ -81,7 +81,7 @@ describe("application router", () => {
 		expect(committed).toEqual([{ paneId: "instrumentBrowser" }]);
 	});
 
-	test("routes every legacy PromptManager scope and default tip through Navigator", async () => {
+	test("routes Navigator prompts while informational controls keep standalone fallback", async () => {
 		const opened: PaneRoute[] = [];
 		const globals: GlobalApplicationRoute[] = [];
 		let focusCount = 0;
@@ -93,13 +93,24 @@ describe("application router", () => {
 			},
 		});
 		const manager = readFileSync("editor/core/prompt-manager.ts", "utf8");
+		const standaloneScopes = new Set(["stringSustain", "sampleLoadingStatus"]);
 		const namedScopes = Array.from(manager.matchAll(/case "([^"]+)":/g), (match) => match[1]);
-		const scopes = [...namedScopes, "tipPromptScope"];
+		const scopes = [
+			...namedScopes.filter((scope) => !standaloneScopes.has(scope)),
+			"tipPromptScope",
+		];
 		for (const scope of scopes) await router.routePrompt(scope, { channel: 4 });
 		expect(opened.map((route) => route.paneId)).toEqual(scopes);
 		expect(opened[0].context).toEqual({ channel: 4 });
 		expect(focusCount).toBe(scopes.length);
 		expect(globals).toEqual([]);
+		expect(manager).toContain('case "stringSustain":');
+		expect(manager).toContain('case "sampleLoadingStatus":');
+		const songEditor = readFileSync("editor/song-editor.ts", "utf8");
+		expect(songEditor).toContain(
+			'promptName === "stringSustain" || promptName === "sampleLoadingStatus"',
+		);
+		expect(songEditor).toContain("this._promptManager.open(promptName);");
 		expect(manager).not.toContain('case "instrumentTags":');
 		expect(manager).not.toContain('case "instrumentBrowser":');
 		expect(manager).not.toContain('case "addExternal":');
@@ -120,10 +131,38 @@ describe("application router", () => {
 			await router.routePrompt(scope);
 		}
 		expect(opened).toEqual([
-			{ paneId: "tipPromptScope", context: { tipName: "algorithm" } },
-			{ paneId: "tipPromptScope", context: { tipName: "pitchRange" } },
-			{ paneId: "tipPromptScope", context: { tipName: "modChannel" } },
+			{
+				paneId: "tipPromptScope",
+				context: { tipName: "algorithm", sourceScope: "algorithm" },
+			},
+			{
+				paneId: "tipPromptScope",
+				context: { tipName: "pitchRange", sourceScope: "pitchRange" },
+			},
+			{
+				paneId: "tipPromptScope",
+				context: { tipName: "modChannel", sourceScope: "modChannel" },
+			},
 		]);
+	});
+
+	test("Help content visibly names known and unknown source scopes", async () => {
+		const ownsDom = typeof document === "undefined";
+		if (ownsDom) GlobalRegistrator.register();
+		try {
+			const { TipPrompt } = await import("../editor/prompts/tip-prompt");
+			const known = new TipPrompt({} as never, "scale", "scale");
+			expect(known.container.querySelector(".prompt-tip-source")?.textContent).toBe(
+				"Help source: Scale",
+			);
+			const unknown = new TipPrompt({} as never, "unknownScope", "unknownScope");
+			expect(unknown.container.querySelector(".prompt-tip-source")?.textContent).toBe(
+				"Help source: unknownScope",
+			);
+			expect(unknown.container.textContent).toContain("This is a tip about unknownScope.");
+		} finally {
+			if (ownsDom) GlobalRegistrator.unregister();
+		}
 	});
 
 	test("key, menu, label, and context funnels converge on routePrompt", () => {

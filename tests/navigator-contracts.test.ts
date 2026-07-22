@@ -30,6 +30,7 @@ import { NavigatorDetachedHost } from "../editor/navigator/navigator-detached-ho
 import { NavigatorRuntime, type DetachedPane } from "../editor/navigator/navigator-runtime";
 import { NavigatorShell } from "../editor/navigator/navigator-shell";
 import {
+	catalogItemRoutes,
 	getNavigatorRouteAvailability,
 	navigatorOtherRoutes,
 	navigatorRouteCatalog,
@@ -960,6 +961,9 @@ describe("navigator shell", () => {
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("instrumentTags");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("tipPromptScope");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("stringSustain");
+		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("sampleLoadingStatus");
+		expect(navigatorRouteCatalog.flatMap((group) => group.items.flatMap(catalogItemRoutes)).map((route) => route.id)).not.toContain("stringSustain");
+		expect(navigatorRouteCatalog.flatMap((group) => group.items.flatMap(catalogItemRoutes)).map((route) => route.id)).not.toContain("sampleLoadingStatus");
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("keyboardShortcuts");
 	});
 
@@ -1148,8 +1152,12 @@ describe("navigator shell", () => {
 		expect(second.element.parentElement?.classList.contains("navigator-pane-host")).toBeTrue();
 	});
 
-	test("persists collapse state independently for each section", () => {
+	test("persists real pointer and keyboard disclosure visibility per section", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
+		document.body.className = "beepboxEditor";
+		const style = document.createElement("style");
+		style.textContent = buildNavigatorCSS();
+		document.head.append(style);
 		const expanded: Record<string, boolean> = {};
 		const createShell = (): NavigatorShell =>
 			new NavigatorShell(
@@ -1163,19 +1171,37 @@ describe("navigator shell", () => {
 				(section, value) => { expanded[section] = value; },
 			);
 		const shell = createShell();
+		const parent = document.createElement("div");
+		parent.className = "promptContainer";
+		document.body.append(parent);
+		parent.append(shell.container);
+		const pane = document.createElement("article");
+		pane.dataset.navigatorScope = "addExternal";
+		shell.attach({ element: pane });
 		const headings = shell.container.querySelectorAll<HTMLButtonElement>(
 			".navigator-route-group-title",
 		);
-		headings[0].click();
+		const firstContent = headings[0].nextElementSibling as HTMLElement;
+		headings[0].dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+		headings[0].dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
+		headings[0].dispatchEvent(new MouseEvent("click", { bubbles: true, button: 0, detail: 1 }));
 		expect(expanded).toEqual({ "Project Data": false });
 		expect(headings[0].getAttribute("aria-expanded")).toBe("false");
+		expect(getComputedStyle(firstContent).display).toBe("none");
 		expect(headings[1].getAttribute("aria-expanded")).toBe("true");
+		headings[1].click();
+		expect(expanded["Song Config"]).toBeFalse();
+		expect(getComputedStyle(headings[1].nextElementSibling as HTMLElement).display).toBe("none");
 		const restored = createShell();
+		parent.append(restored.container);
 		const restoredHeadings = restored.container.querySelectorAll<HTMLButtonElement>(
 			".navigator-route-group-title",
 		);
 		expect(restoredHeadings[0].getAttribute("aria-expanded")).toBe("false");
-		expect(restoredHeadings[1].getAttribute("aria-expanded")).toBe("true");
+		expect(restoredHeadings[1].getAttribute("aria-expanded")).toBe("false");
+		expect(getComputedStyle(restoredHeadings[0].nextElementSibling as HTMLElement).display).toBe(
+			"none",
+		);
 	});
 
 	test("stores typed per-section collapse preferences", () => {
@@ -1219,12 +1245,14 @@ describe("navigator shell", () => {
 			"Project Data", "Song Config", "Pattern Config", "Focused Instrument Config", "Preferences", "Help",
 		]);
 		const groups = shell.container.querySelectorAll(".navigator-route-group");
-		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toContain("Import/Export Song: Import");
+		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toContain("Import/Export Song");
+		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent).filter((label) => label === "Import/Export Song")).toHaveLength(1);
+		expect(Array.from(groups[3].querySelectorAll(".navigator-route"), (button) => button.textContent).filter((label) => label === "Import/Export Instrument")).toHaveLength(1);
 		expect(Array.from(groups[0].querySelectorAll(".navigator-route"), (button) => button.textContent)).toContain("Add Samples");
 		expect(Array.from(groups[4].querySelectorAll(".navigator-route"), (button) => button.textContent)).toContain("Channel Visualizer");
 		expect(Array.from(groups[5].querySelectorAll(".navigator-route"), (button) => button.textContent)).toContain("Keyboard shortcuts");
-		expect(shell.container.querySelectorAll("[role='tablist']").length).toBe(2);
-		expect(shell.container.querySelectorAll("[role='tab']").length).toBe(4);
+		expect(shell.container.querySelectorAll(".navigator-sidebar [role='tablist']")).toHaveLength(0);
+		expect(shell.container.querySelectorAll(".navigator-sidebar [role='tab']")).toHaveLength(0);
 		const routeLabels = Array.from(shell.container.querySelectorAll(".navigator-route"), (route) => route.textContent ?? "");
 		expect(routeLabels).toContain("Custom Chip Settings");
 		expect(routeLabels).toContain("Custom EQ Filter Settings");
@@ -1244,7 +1272,7 @@ describe("navigator shell", () => {
 				shell.container.querySelectorAll<HTMLButtonElement>(".navigator-route"),
 				(button) => button.dataset.routeId,
 			),
-		).toEqual(["importInstrument", "exportInstrument"]);
+		).toEqual(["importInstrument"]);
 		search.value = "sample";
 		search.dispatchEvent(new Event("input"));
 		const route = shell.container.querySelector<HTMLButtonElement>(".navigator-route");
@@ -1256,6 +1284,23 @@ describe("navigator shell", () => {
 		shell.attach({ element: pane });
 		expect(shell.container.querySelector(".prompt-titlebar > h2")?.textContent).toBe("Add Samples");
 		expect(route?.getAttribute("aria-current")).toBe("page");
+		search.value = "";
+		search.dispatchEvent(new Event("input"));
+		const songFamily = shell.container.querySelector<HTMLButtonElement>(
+			".navigator-route[data-route-id='import']",
+		);
+		songFamily?.click();
+		expect(opened).toBe("import");
+		const importPane = document.createElement("article");
+		importPane.dataset.navigatorScope = "import";
+		shell.attach({ element: importPane });
+		const workspaceTabs = shell.container.querySelectorAll<HTMLButtonElement>(
+			".navigator-workspace-tabs [role='tab']",
+		);
+		expect(workspaceTabs).toHaveLength(2);
+		expect(Array.from(workspaceTabs, (tab) => tab.dataset.routeId)).toEqual(["import", "export"]);
+		workspaceTabs[1].click();
+		expect(opened).toBe("export");
 		expect(route?.classList.contains("selectableRow")).toBeTrue();
 		expect(route?.classList.contains("pmd-hover")).toBeTrue();
 		expect(route?.classList.contains("pmd-focus")).toBeTrue();
@@ -1375,7 +1420,7 @@ describe("navigator shell", () => {
 		pane.dataset.navigatorScope = "addExternal";
 		shell.attach({ element: pane });
 		expect(shell.container.querySelector(".prompt-titlebar > h2")?.textContent).toBe("Add Samples");
-		expect(shell.container.querySelectorAll("[role='tablist']").length).toBe(2);
+		expect(shell.container.querySelectorAll("[role='tablist']").length).toBe(0);
 		expect(shell.container.querySelector("[data-route-id='addExternal']")?.getAttribute("aria-current")).toBe("page");
 	});
 
@@ -2094,8 +2139,9 @@ describe("flattened Navigator routes", () => {
 		const shell = new NavigatorShell("Navigator", undefined, undefined, (paneId) => { void runtime.open({ paneId }); });
 		runtime = new NavigatorRuntime(shell, (route) => makeOwner(route, events));
 		for (const [id, label] of routes) {
-			const text = shell.container.querySelector(`[data-route-id='${id}']`)?.textContent;
-			expect(text === label || text?.endsWith(`: ${label}`)).toBeTrue();
+			const direct = shell.container.querySelector(`[data-route-id='${id}']`)?.textContent;
+			const family = shell.container.querySelector(`[data-route-ids~='${id}']`)?.textContent;
+			expect(direct === label || family === "Import/Export Song" || family === "Import/Export Instrument").toBeTrue();
 		}
 		shell.container.querySelector<HTMLButtonElement>("[data-route-id='import']")?.click();
 		await new Promise((resolve) => setTimeout(resolve, 0));
