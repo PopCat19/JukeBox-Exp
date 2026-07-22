@@ -2,7 +2,7 @@
 
 import type { Prompt } from "../prompts/prompt";
 import type { PaneLifecycle, PaneRoute, SerializableValue } from "./contracts";
-import type { PaneOwner } from "./ownership";
+import { PaneHostOwnership, type PaneOwner } from "./ownership";
 import { canonicalRouteIdentity } from "./route-identity";
 
 export interface PanePrompt extends Prompt {
@@ -46,20 +46,24 @@ export function createPromptPaneOwner(
 	prompt.openAlongsideCallback = (scope) => void openPane(scope);
 	flattenPromptRootForNavigator(prompt, route.paneId);
 	const root = { element: prompt.container };
+	const hostOwnership = new PaneHostOwnership();
 	const onKeyDown = (event: KeyboardEvent): void => {
 		if (!event.defaultPrevented) prompt.whenKeyPressed?.(event);
 	};
 	const lifecycle: PaneLifecycle = {
 		root,
-		mount: (nextHost) => {
-			nextHost.attach(root);
+		mount: (host) => {
+			hostOwnership.mount(host, root);
 			prompt.container.addEventListener("keydown", onKeyDown);
+		},
+		transferHost: (host) => {
+			hostOwnership.transfer(host);
 		},
 		suspend: () => prompt.suspendPane?.(),
 		resume: () => prompt.resumePane?.(),
 		unmount: () => {
 			prompt.container.removeEventListener("keydown", onKeyDown);
-			prompt.container.remove();
+			hostOwnership.unmount(root);
 		},
 		dispose: () => {
 			prompt.closeCallback = undefined;

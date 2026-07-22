@@ -6,7 +6,7 @@ import { InstrumentExportPrompt } from "../prompts/instrument-export-prompt";
 import { InstrumentImportPrompt } from "../prompts/instrument-import-prompt";
 import type { SongDocument } from "../song-document";
 import type { PaneLifecycle, PaneRoute, SerializableValue } from "./contracts";
-import type { PaneOwner } from "./ownership";
+import { PaneHostOwnership, type PaneOwner } from "./ownership";
 import type { PanePrompt } from "./prompt-pane-owner";
 import { canonicalRouteIdentity } from "./route-identity";
 
@@ -29,6 +29,7 @@ export function createImportExportPaneOwner(
 	element.tabIndex = -1;
 	element.append(importPrompt.container, exportPrompt.container);
 	const root = { element };
+	const hostOwnership = new PaneHostOwnership();
 	const onKeyDown = (event: KeyboardEvent): void => {
 		if (event.defaultPrevented || !(event.target instanceof Node)) return;
 		if (importPrompt.container.contains(event.target)) importPrompt.whenKeyPressed?.(event);
@@ -38,8 +39,11 @@ export function createImportExportPaneOwner(
 	const lifecycle: PaneLifecycle = {
 		root,
 		mount: (host) => {
-			host.attach(root);
+			hostOwnership.mount(host, root);
 			element.addEventListener("keydown", onKeyDown);
+		},
+		transferHost: (host) => {
+			hostOwnership.transfer(host);
 		},
 		suspend: () => {
 			importPrompt.suspendPane?.();
@@ -51,7 +55,7 @@ export function createImportExportPaneOwner(
 		},
 		unmount: () => {
 			element.removeEventListener("keydown", onKeyDown);
-			element.remove();
+			hostOwnership.unmount(root);
 		},
 		dispose: () => {
 			if (disposed) return;

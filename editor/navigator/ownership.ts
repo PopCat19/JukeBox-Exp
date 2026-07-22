@@ -16,6 +16,24 @@ export interface OwnershipToken {
 	readonly identity: PaneIdentity;
 }
 
+export class PaneHostOwnership {
+	private host: PaneHost | null = null;
+
+	mount(host: PaneHost, root: PaneLifecycle["root"]): void {
+		host.attach(root);
+		this.host = host;
+	}
+
+	transfer(host: PaneHost): void {
+		this.host = host;
+	}
+
+	unmount(root: PaneLifecycle["root"]): void {
+		this.host?.detach(root);
+		this.host = null;
+	}
+}
+
 export class PaneOwnership {
 	private generation = 0;
 	private owner: PaneOwner | null = null;
@@ -93,10 +111,12 @@ export class PaneOwnership {
 			oldHost.detach(root);
 			try {
 				newHost.attach(root);
+				lifecycle.transferHost?.(newHost);
 				lifecycle.resume();
 			} catch (error) {
 				newHost.detach(root);
 				oldHost.attach(root);
+				lifecycle.transferHost?.(oldHost);
 				this.host = oldHost;
 				try {
 					lifecycle.resume();

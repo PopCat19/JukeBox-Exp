@@ -7,7 +7,11 @@ import { describe, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { Window } from "happy-dom";
 import { Preferences } from "../editor/core/preferences";
-import { PromptPlaybackOwnership, PromptRootOwnership } from "../editor/core/prompt-manager";
+import {
+	closePromptFromContextMenu,
+	PromptPlaybackOwnership,
+	PromptRootOwnership,
+} from "../editor/core/prompt-manager";
 import { PopoutDocumentSync } from "../editor/core/popout-document-sync";
 import { PromptPopout } from "../editor/core/prompt-popout";
 import { PromptFocusController } from "../editor/core/prompt-focus-controller";
@@ -1947,6 +1951,55 @@ describe("Navigator detached host theme sync", () => {
 		host.closeEmpty();
 	});
 
+	test("detached close gestures are single-flight and retry after denial", async () => {
+		const { child, host } = openDetached();
+		const element = child.document.createElement("article");
+		const input = child.document.createElement("input");
+		element.append(input);
+		host.attach({ element: element as unknown as HTMLElement });
+		let allowClose = false;
+		let closeRequests = 0;
+		const closeResolution: { resolve: ((closed: boolean) => void) | null } = {
+			resolve: null,
+		};
+		const owner = detachedOwner();
+		host.bind(
+			owner,
+			() => {
+				closeRequests++;
+				if (allowClose) return Promise.resolve(true);
+				return new Promise((resolve) => {
+					closeResolution.resolve = resolve;
+				});
+			},
+			() => Promise.resolve(),
+		);
+		element.dispatchEvent(
+			new child.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+		);
+		element.dispatchEvent(
+			new child.MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
+		);
+		expect(closeRequests).toBe(1);
+		input.dispatchEvent(
+			new child.MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
+		);
+		expect(closeRequests).toBe(1);
+		closeResolution.resolve?.(false);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(element.parentElement).not.toBeNull();
+		allowClose = true;
+		element.dispatchEvent(
+			new child.MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
+		);
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(closeRequests).toBe(2);
+		element.dispatchEvent(
+			new child.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }),
+		);
+		expect(closeRequests).toBe(2);
+	});
+
 	test("normal close disposal stops later theme updates", async () => {
 		const { parent, child, host } = openDetached();
 		const pane = host.bind(
@@ -2068,16 +2121,21 @@ describe("branded owner operations", () => {
 	});
 });
 
-describe("Navigator Escape authority", () => {
-	test("child consumes first Escape before parent closes second", async () => {
-		const shell = new NavigatorShell();
-		document.body.append(shell.container);
+describe("Navigator close gestures", () => {
+	const settleClose = async (): Promise<void> => {
+		await new Promise((resolve) => setTimeout(resolve, 0));
+	};
+
+	test("consumed prompt Escape wins before the shell fallback", async () => {
 		let consume = true;
-		let parentCloses = 0;
+		let closeRequests = 0;
 		let runtime: NavigatorRuntime;
+		const shell = new NavigatorShell("Navigator", undefined, () => {
+			closeRequests++;
+			void runtime.closeNavigator();
+		});
 		const prompt: Prompt = {
 			id: 4401,
-			name: "escape-child",
 			container: document.createElement("div"),
 			discard: () => {},
 			cleanUp: () => {},
@@ -2086,39 +2144,157 @@ describe("Navigator Escape authority", () => {
 			},
 		};
 		runtime = new NavigatorRuntime(shell, (route) =>
-			createPromptPaneOwner(
-				route,
-				prompt,
-				() => runtime.closeNavigator(),
-				() => Promise.resolve(),
-			),
+			createPromptPaneOwner(route, prompt, () => runtime.closeNavigator(), () => Promise.resolve()),
 		);
-		shell.container.addEventListener("keydown", (event) => {
-			if (event.key === "Escape" && !event.defaultPrevented) {
-				parentCloses++;
-				void runtime.closeNavigator();
-			}
+		expect(await runtime.open({ paneId: "escape-child" })).toBeTrue();
+		prompt.container.dispatchEvent(new KeyboardEvent("keydown", {
+			key: "Escape", bubbles: true, cancelable: true,
+		}));
+		expect(closeRequests).toBe(0);
+		consume = false;
+		prompt.container.dispatchEvent(new KeyboardEvent("keydown", {
+			key: "Escape", bubbles: true, cancelable: true,
+		}));
+		await settleClose();
+		expect(closeRequests).toBe(1);
+	});
+
+	test("native Escape denial retains root, active route, and prompt state", async () => {
+		let runtime: NavigatorRuntime;
+		const doc = { prompt: "channelVolumeVisualizer" as string | null };
+		const shell = new NavigatorShell("Navigator", undefined, () => {
+			void (async () => {
+				if (await runtime.closeNavigator()) doc.prompt = null;
+			})();
 		});
-		try {
-			expect(await runtime.open({ paneId: "escape-child" })).toBeTrue();
-			prompt.container.dispatchEvent(new KeyboardEvent("keydown", {
-				key: "Escape",
-				bubbles: true,
-				cancelable: true,
+		runtime = new NavigatorRuntime(shell, (route) => {
+			const element = document.createElement("article");
+			element.dataset.navigatorScope = route.paneId;
+			return {
+				identity: canonicalRouteIdentity(route),
+				lifecycle: {
+					root: { element }, mount: (paneHost) => { paneHost.attach({ element }); },
+					suspend: () => {}, resume: () => {}, unmount: () => { element.remove(); }, dispose: () => {},
+					requestLeave: () => "allow", requestClose: () => "keep-open", captureRetainedState: () => null,
+				},
+				focus: () => {},
+			};
+		});
+		await runtime.open({ paneId: "channelVolumeVisualizer" });
+		const pane = shell.container.querySelector<HTMLElement>("[data-navigator-scope='channelVolumeVisualizer']")!;
+		pane.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+		await settleClose();
+		expect(pane.parentElement).not.toBeNull();
+		expect(shell.container.querySelector("[data-route-id='channelVolumeVisualizer']")?.getAttribute("aria-current")).toBe("page");
+		expect(doc.prompt).toBe("channelVolumeVisualizer");
+	});
+
+	test("aggregate Import/Export context menu closes once and clears authority", async () => {
+		for (const paneId of ["importExportSong", "importExportInstrument"]) {
+			let runtime: NavigatorRuntime;
+			let factoryCalls = 0;
+			let cleanups = 0;
+			const doc = { prompt: paneId as string | null };
+			const shell = new NavigatorShell("Navigator", undefined, () => {
+				void (async () => {
+					if (await runtime.closeNavigator()) doc.prompt = null;
+				})();
+			});
+			const prompts = [0, 1].map((id) => ({
+				id,
+				container: document.createElement("section"),
+				discard: () => {},
+				cleanUp: () => { cleanups++; },
+				closeCallback: undefined as Prompt["closeCallback"],
 			}));
-			expect(parentCloses).toBe(0);
-			consume = false;
-			prompt.container.dispatchEvent(new KeyboardEvent("keydown", {
-				key: "Escape",
-				bubbles: true,
-				cancelable: true,
-			}));
-			await Promise.resolve();
-			expect(parentCloses).toBe(1);
-		} finally {
+			runtime = new NavigatorRuntime(shell, (route) => {
+				factoryCalls++;
+				return createImportExportPaneOwner(route, prompts[0], prompts[1], () => runtime.closeNavigator(), () => Promise.resolve());
+			});
+			await runtime.open({ paneId });
+			const pane = shell.container.querySelector<HTMLElement>(`[data-navigator-scope='${paneId}']`)!;
+			pane.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+			await settleClose();
+			expect(cleanups).toBe(2);
+			expect(doc.prompt).toBeNull();
+			expect(prompts.map((prompt) => prompt.closeCallback)).toEqual([undefined, undefined]);
+			expect(shell.container.querySelector(".navigator-pane-host")?.childElementCount).toBe(0);
+			expect(shell.container.querySelector(`[data-route-id='${paneId}']`)?.getAttribute("aria-current")).toBe("false");
+			await runtime.open({ paneId });
+			expect(factoryCalls).toBe(2);
 			await runtime.closeNavigator();
-			shell.container.remove();
 		}
+	});
+
+	test("context menu preserves controls and honors default prevention", async () => {
+		let closeRequests = 0;
+		let runtime: NavigatorRuntime;
+		const shell = new NavigatorShell("Navigator", undefined, () => {
+			closeRequests++;
+			void runtime.closeNavigator();
+		});
+		runtime = new NavigatorRuntime(shell, (route) => {
+			const element = document.createElement("article");
+			element.dataset.navigatorScope = route.paneId;
+			const input = document.createElement("input");
+			input.type = "range";
+			const textarea = document.createElement("textarea");
+			const select = document.createElement("select");
+			const button = document.createElement("button");
+			button.append(document.createElement("span"));
+			const editable = document.createElement("div");
+			editable.contentEditable = "true";
+			editable.append(document.createElement("span"));
+			const slider = document.createElement("div");
+			slider.className = "slider";
+			slider.append(document.createElement("span"));
+			element.append(input, textarea, select, button, editable, slider);
+			return {
+				identity: canonicalRouteIdentity(route),
+				lifecycle: { root: { element }, mount: (host) => { host.attach({ element }); }, suspend: () => {}, resume: () => {}, unmount: () => { element.remove(); }, dispose: () => {}, requestLeave: () => "allow", requestClose: () => "close", captureRetainedState: () => null },
+				focus: () => {},
+			};
+		});
+		await runtime.open({ paneId: "native-controls" });
+		const pane = shell.container.querySelector<HTMLElement>("[data-navigator-scope='native-controls']")!;
+		const controls = pane.querySelectorAll<HTMLElement>(
+			"input, textarea, select, button span, [contenteditable] span, .slider span",
+		);
+		for (let index = 0; index < controls.length; index++)
+			controls[index].dispatchEvent(
+				new MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
+			);
+		const prevented = new MouseEvent("contextmenu", { bubbles: true, cancelable: true });
+		prevented.preventDefault();
+		pane.dispatchEvent(prevented);
+		expect(closeRequests).toBe(0);
+		pane.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+		await settleClose();
+		expect(closeRequests).toBe(1);
+	});
+
+	test("legacy manager context close honors prevented bubbling", () => {
+		const calls: string[] = [];
+		const prompt: Prompt = {
+			id: 1,
+			container: document.createElement("div"),
+			discard: () => {},
+			cleanUp: () => {},
+		};
+		const child = document.createElement("span");
+		prompt.container.append(child);
+		const handleContextMenu = (event: MouseEvent): void => {
+			closePromptFromContextMenu(event, prompt, () => calls.push("manager"));
+		};
+		document.body.append(prompt.container);
+		document.addEventListener("contextmenu", handleContextMenu);
+		child.addEventListener("contextmenu", (event) => { event.preventDefault(); }, { once: true });
+		child.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+		expect(calls).toEqual([]);
+		child.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+		expect(calls).toEqual(["manager"]);
+		document.removeEventListener("contextmenu", handleContextMenu);
+		prompt.container.remove();
 	});
 });
 
@@ -2167,6 +2343,59 @@ describe("prompt pane authority", () => {
 		await Promise.resolve();
 		expect(events).toEqual(["true", "true"]);
 		expect(prompt.closeCallback).toBeUndefined();
+	});
+
+	test("transferred prompt adapters unmount from the current host", async () => {
+		const prompt = promptWithAuthority(undefined, undefined);
+		const aggregatePrompt = (): Prompt => ({
+			id: 2,
+			container: document.createElement("section"),
+			discard: () => {},
+			cleanUp: () => {},
+		});
+		const owners = [
+			createPromptPaneOwner(
+				{ paneId: "single" },
+				prompt,
+				() => Promise.resolve(true),
+				() => Promise.resolve(),
+			),
+			createImportExportPaneOwner(
+				{ paneId: "aggregate" },
+				aggregatePrompt(),
+				aggregatePrompt(),
+				() => Promise.resolve(true),
+				() => Promise.resolve(),
+			),
+		];
+		for (const paneOwner of owners) {
+			const docked = document.createElement("div");
+			const detached = document.createElement("div");
+			let dockedDetaches = 0;
+			let detachedDetaches = 0;
+			const dockedHost: PaneHost = {
+				attach: (root) => { docked.append(root.element); },
+				detach: (root) => {
+					dockedDetaches++;
+					root.element.remove();
+				},
+			};
+			const detachedHost: PaneHost = {
+				attach: (root) => { detached.append(root.element); },
+				detach: (root) => {
+					detachedDetaches++;
+					root.element.remove();
+				},
+			};
+			const ownership = new PaneOwnership();
+			const token = ownership.open(paneOwner);
+			const lease = ownership.mount(token, dockedHost)!;
+			const detachedLease = ownership.transferHost(token, lease, detachedHost);
+			expect(await ownership.close(token, detachedLease)).toBeTrue();
+			expect(dockedDetaches).toBe(1);
+			expect(detachedDetaches).toBe(1);
+			expect(detached.childElementCount).toBe(0);
+		}
 	});
 
 	test("native prompt adapter defaults missing authority to allow and close", () => {

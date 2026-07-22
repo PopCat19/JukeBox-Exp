@@ -33,6 +33,7 @@ export type CloseDecision = "close" | "keep-open";
 export interface PaneLifecycle<State extends SerializableValue = SerializableValue> {
 	readonly root: PaneRoot;
 	mount(host: PaneHost): void;
+	transferHost?(host: PaneHost): void;
 	suspend(): void;
 	resume(): void;
 	unmount(): void;

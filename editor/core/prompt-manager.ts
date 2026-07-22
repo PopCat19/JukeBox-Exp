@@ -76,6 +76,19 @@ export interface PromptHost {
 // disabled until pane extraction supplies a Navigator-owned detached host.
 const _popoutCapablePrompts: ReadonlySet<object> = new Set();
 
+export function closePromptFromContextMenu(
+	event: MouseEvent,
+	prompt: Prompt,
+	closeLegacyPrompt: (prompt: Prompt) => void,
+): void {
+	if (event.defaultPrevented) return;
+	if (prompt.closeCallback !== undefined) {
+		prompt.closeCallback(prompt);
+		return;
+	}
+	closeLegacyPrompt(prompt);
+}
+
 export class PromptPlaybackOwnership {
 	private readonly pausingPrompts = new Set<Prompt>();
 	private wasPlaying = false;
@@ -191,21 +204,22 @@ export class PromptManager {
 		// Excludes input, button, select, textarea, and slider elements
 		// so their native context menu still works.
 		document.addEventListener("contextmenu", (e: MouseEvent) => {
+			if (e.defaultPrevented) return;
 			const target = e.target as HTMLElement;
 			const tc = this._host.promptContainer;
 			if (!tc.contains(target)) return;
 			if (
-				target instanceof HTMLInputElement ||
-				target instanceof HTMLButtonElement ||
-				target instanceof HTMLSelectElement ||
-				target instanceof HTMLTextAreaElement ||
-				target.closest(".slider")
+				target.closest(
+					'input, textarea, select, button, a[href], summary, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="link"], [role="slider"], .slider',
+				) !== null
 			)
 				return;
 			e.preventDefault();
 			for (const p of this._prompts) {
 				if (p.container.contains(target)) {
-					this.close(p);
+					closePromptFromContextMenu(e, p, (legacyPrompt) => {
+						this.close(legacyPrompt);
+					});
 					return;
 				}
 			}

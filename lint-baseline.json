@@ -53,7 +53,7 @@
 		{
 			"key": "biome:editor/core/prompt-manager.ts",
 			"count": 1,
-			"hash": "3143c850aa470557490ace8a30ea0a714d527fd37271d28214a8dfa02daae0af"
+			"hash": "cbec8f5a181cb19aae13a85122ff1858dafba35e8a01240d5eb94e1acc5640e7"
 		},
 		{
 			"key": "biome:editor/core/selection.ts",
@@ -718,7 +718,7 @@
 		{
 			"key": "eslint:editor/core/prompt-manager.ts",
 			"count": 23,
-			"hash": "7e2087dbe1a1d94a8f72637212cb0343a09e62299514f04135449f83ec5d2d90"
+			"hash": "6a15dd93298019f5a6816bf7cc3b2e6766f03409286dfc5929d4100d527a57d7"
 		},
 		{
 			"key": "eslint:editor/core/selection.ts",
@@ -768,17 +768,17 @@
 		{
 			"key": "eslint:editor/navigator/contracts.ts",
 			"count": 1,
-			"hash": "9e6a83412393220446cc8a621ba92ec2b73ddefc8c9effcd2541df6eefbfa244"
+			"hash": "4165fc879493d457135e2dd5c101db151be38c1737ccc3b2730cb8d932e1b9ca"
 		},
 		{
 			"key": "eslint:editor/navigator/navigator-shell.ts",
 			"count": 1,
-			"hash": "d16f3fe444f53bb7699fb587dbb497516fcc57c4eaab9271c1296f1c4577b17b"
+			"hash": "20868849396f8cb75d1b2c649133ea233cf3cdc292f630125429d8354293aced"
 		},
 		{
 			"key": "eslint:editor/navigator/ownership.ts",
 			"count": 14,
-			"hash": "4c1dc6743a35747a72d1769c95218f57ffd8394e132d3fdce9cd9802229f6c1a"
+			"hash": "0e635f25d102d086955c870ec241edfdf625db075d1e1be3af2db5abe49ed8a4"
 		},
 		{
 			"key": "eslint:editor/navigator/route-identity.ts",

@@ -14,11 +14,37 @@ export class NavigatorDetachedHost implements PaneHost {
 	private disposed = false;
 	private readonly documentSync: PopoutDocumentSync;
 	private closeClick: (() => void) | null = null;
+	private closeRequest: (() => Promise<boolean>) | null = null;
 	private readonly pagehide = (event: PageTransitionEvent): void => {
 		if (event.persisted || this.disposed) return;
 		const forceClose = this.forceClose;
 		this.dispose();
 		if (!this.closing) void forceClose?.();
+	};
+	private readonly handleCloseKey = (event: KeyboardEvent): void => {
+		if (event.key !== "Escape" || event.defaultPrevented || this.closeRequest === null) return;
+		event.preventDefault();
+		event.stopPropagation();
+		void this.closeRequest();
+	};
+	private readonly handleCloseContextMenu = (event: MouseEvent): void => {
+		if (event.defaultPrevented || this.closeRequest === null) return;
+		const target = event.target as Element | null;
+		if (
+			target === null ||
+			typeof target.closest !== "function" ||
+			!this.content.contains(target)
+		)
+			return;
+		if (
+			target.closest(
+				'input, textarea, select, button, a[href], summary, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="link"], [role="slider"], .slider',
+			) !== null
+		)
+			return;
+		event.preventDefault();
+		event.stopPropagation();
+		void this.closeRequest();
 	};
 
 	private constructor(private readonly win: Window) {
@@ -42,6 +68,8 @@ export class NavigatorDetachedHost implements PaneHost {
 		this.content.className = "navigator-detached-content";
 		this.body.append(titlebar, this.content);
 		this.win.document.body.append(this.body);
+		this.content.addEventListener("keydown", this.handleCloseKey);
+		this.content.addEventListener("contextmenu", this.handleCloseContextMenu);
 		this.win.addEventListener("pagehide", this.pagehide);
 	}
 
@@ -83,21 +111,35 @@ export class NavigatorDetachedHost implements PaneHost {
 		forceClose: () => Promise<void>,
 	): DetachedPane {
 		this.forceClose = forceClose;
+		let closeFlight: Promise<boolean> | null = null;
 		const pane: DetachedPane = {
 			identity: owner.identity,
 			focus: () => {
 				this.win.focus();
 			},
-			close: async () => {
-				const closed = await close();
-				if (closed && !this.win.closed) {
-					this.closing = true;
-					this.dispose();
-					this.win.close();
-				}
-				return closed;
+			close: () => {
+				if (closeFlight !== null) return closeFlight;
+				closeFlight = (async () => {
+					const closed = await close();
+					if (closed && !this.win.closed) {
+						this.closing = true;
+						this.dispose();
+						this.win.close();
+					}
+					return closed;
+				})();
+				void closeFlight.then(
+					(closed) => {
+						if (!closed) closeFlight = null;
+					},
+					() => {
+						closeFlight = null;
+					},
+				);
+				return closeFlight;
 			},
 		};
+		this.closeRequest = () => pane.close();
 		this.closeClick = (): void => {
 			void pane.close();
 		};
@@ -115,11 +157,14 @@ export class NavigatorDetachedHost implements PaneHost {
 		if (this.disposed) return;
 		this.disposed = true;
 		this.documentSync.dispose();
+		this.content.removeEventListener("keydown", this.handleCloseKey);
+		this.content.removeEventListener("contextmenu", this.handleCloseContextMenu);
 		this.win.removeEventListener("pagehide", this.pagehide);
 		if (this.closeClick !== null) {
 			this.closeButton.removeEventListener("click", this.closeClick);
 			this.closeClick = null;
 		}
 		this.forceClose = null;
+		this.closeRequest = null;
 	}
 }

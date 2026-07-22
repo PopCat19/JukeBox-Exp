@@ -40,6 +40,7 @@ export class NavigatorShell implements PaneHost {
 	private readonly workspace: HTMLElement;
 	private readonly detachButton: HTMLButtonElement | null;
 	private readonly routes: readonly NavigatorRoute[];
+	private readonly onClose: (() => void) | undefined;
 	private readonly onRoute: ((id: string) => void) | undefined;
 	private readonly getFocusedInstrument: (() => Instrument | null) | undefined;
 	private readonly getSectionExpanded: ((section: string) => boolean) | undefined;
@@ -66,6 +67,7 @@ export class NavigatorShell implements PaneHost {
 		this.container.hidden = true;
 		this.container.tabIndex = -1;
 		this.routes = routes;
+		this.onClose = onClose;
 		this.onRoute = onRoute;
 		this.getFocusedInstrument = getFocusedInstrument;
 		this.getSectionExpanded = getSectionExpanded;
@@ -135,7 +137,34 @@ export class NavigatorShell implements PaneHost {
 		this.workspace.append(this.body);
 		content.append(this.sidebar, this.workspace);
 		this.container.append(content);
+		this.container.addEventListener("keydown", this.handleCloseKey);
+		this.container.addEventListener("contextmenu", this.handleCloseContextMenu);
 		this.renderRoutes(routes);
+	}
+
+	private handleCloseKey = (event: KeyboardEvent): void => {
+		if (event.key !== "Escape" || event.defaultPrevented || this.onClose === undefined) return;
+		event.preventDefault();
+		event.stopPropagation();
+		this.onClose();
+	};
+
+	private handleCloseContextMenu = (event: MouseEvent): void => {
+		if (event.defaultPrevented || this.onClose === undefined) return;
+		const target = event.target;
+		if (!(target instanceof Element) || !this.body.contains(target)) return;
+		if (this.isInteractiveContextTarget(target)) return;
+		event.preventDefault();
+		event.stopPropagation();
+		this.onClose();
+	};
+
+	private isInteractiveContextTarget(target: Element): boolean {
+		return (
+			target.closest(
+				'input, textarea, select, button, a[href], summary, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="link"], [role="slider"], .slider',
+			) !== null
+		);
 	}
 
 	private toggleSidebar = (): void => {
@@ -214,6 +243,13 @@ export class NavigatorShell implements PaneHost {
 	detach(root: PaneRoot): void {
 		if (root.element.parentNode === this.body) root.element.remove();
 		if (this.body.childElementCount === 0) {
+			this.activeRouteId = undefined;
+			const routeButtons =
+				this.routeList.querySelectorAll<HTMLButtonElement>(".navigator-route");
+			for (let index = 0; index < routeButtons.length; index++) {
+				setSelectableRowActive(routeButtons[index], false);
+				routeButtons[index].setAttribute("aria-current", "false");
+			}
 			this.dragDispose?.();
 			this.dragDispose = null;
 			const generation = ++this.visibilityGeneration;

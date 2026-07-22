@@ -2,7 +2,7 @@
 
 import type { Prompt } from "../prompts/prompt";
 import type { PaneLifecycle, PaneRoute, SerializableValue } from "./contracts";
-import type { PaneOwner } from "./ownership";
+import { PaneHostOwnership, type PaneOwner } from "./ownership";
 import { flattenPromptRootForNavigator } from "./prompt-pane-owner";
 import { guardNavigatorRoute } from "./route-catalog";
 import { canonicalRouteIdentity } from "./route-identity";
@@ -41,7 +41,7 @@ export class LegacyPromptPaneFactory {
 	private createOwner(route: PaneRoute, prompt: Prompt): PaneOwner {
 		const element = prompt.container;
 		flattenPromptRootForNavigator(prompt, route.paneId);
-		let host: { detach(root: { readonly element: HTMLElement }): void } | null = null;
+		const hostOwnership = new PaneHostOwnership();
 		const releaseOwnership = this.prompts.claimNavigatorOwnership(prompt);
 		const root = { element };
 		const onKeyDown = (event: KeyboardEvent): void => {
@@ -49,17 +49,18 @@ export class LegacyPromptPaneFactory {
 		};
 		const lifecycle: PaneLifecycle = {
 			root,
-			mount: (nextHost) => {
-				host = nextHost;
-				nextHost.attach(root);
+			mount: (host) => {
+				hostOwnership.mount(host, root);
 				element.addEventListener("keydown", onKeyDown);
+			},
+			transferHost: (host) => {
+				hostOwnership.transfer(host);
 			},
 			suspend: () => undefined,
 			resume: () => undefined,
 			unmount: () => {
 				element.removeEventListener("keydown", onKeyDown);
-				host?.detach(root);
-				host = null;
+				hostOwnership.unmount(root);
 			},
 			dispose: () => {
 				releaseOwnership();
