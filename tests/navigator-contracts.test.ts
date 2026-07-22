@@ -1422,6 +1422,7 @@ describe("navigator shell", () => {
 			["--ui-widget-background", "rgb(17, 34, 51)"], ["--primary-text", "rgb(221, 238, 255)"],
 			["--secondary-text", "rgb(102, 119, 136)"], ["--cta-bg", "rgb(170, 187, 204)"],
 			["--cta-fg", "rgb(1, 2, 3)"], ["--hout", "rgb(119, 136, 153)"],
+			["--tab-inactive-fg", "rgb(116, 92, 52)"],
 			["--editor-background", "rgb(2, 3, 4)"],
 		] as const) document.body.style.setProperty(name, value);
 		const style = document.createElement("style");
@@ -1458,9 +1459,10 @@ describe("navigator shell", () => {
 		expect(disabled.getAttribute("aria-disabled")).toBe("true");
 		expect(disabledStyle.opacity).toBe("1");
 		expect(disabledStyle.backgroundColor).toBe("transparent");
-		expect(disabledStyle.color).toBe("rgb(102, 119, 136)");
+		expect(disabledStyle.color).toBe("rgb(116, 92, 52)");
 		expect(disabledStyle.borderStyle).toBe("solid");
 		expect(disabledStyle.borderWidth).toBe("2px");
+		expect(disabledStyle.borderColor).toBe("rgb(116, 92, 52)");
 		expect(disabledStyle.outlineColor).toBe("transparent");
 		expect(disabledStyle.boxSizing).toBe(inactiveStyle.boxSizing);
 		expect(disabledStyle.padding).toBe(inactiveStyle.padding);
@@ -1468,7 +1470,7 @@ describe("navigator shell", () => {
 		const css = buildNavigatorCSS();
 		expect(css).toMatch(/\.navigator-route\.selectableRow:not\(\[disabled\]\):hover \{[^}]*outline-color: var\(--hout, var\(--primary-text\)\)/s);
 		expect(css).toMatch(/\.navigator-route\.selectableRow\.active:not\(\[disabled\]\):hover \{[^}]*outline-color: var\(--editor-background\)/s);
-		expect(css).toMatch(/\.navigator-route\.selectableRow\[disabled\],[\s\S]*\[disabled\]:hover \{[^}]*opacity: 1[^}]*background: transparent[^}]*color: var\(--secondary-text\)[^}]*border-style: solid[^}]*border-width: 2px[^}]*border-color: var\(--hout, var\(--primary-text\)\)[^}]*outline-color: transparent[^}]*cursor: not-allowed/s);
+		expect(css).toMatch(/\.navigator-route\.selectableRow\[disabled\],[\s\S]*\[disabled\]:hover \{[^}]*opacity: 1[^}]*background: transparent[^}]*color: var\(--tab-inactive-fg\)[^}]*border-style: solid[^}]*border-width: 2px[^}]*border-color: var\(--tab-inactive-fg\)[^}]*outline-color: transparent[^}]*cursor: not-allowed/s);
 		// happy-dom does not expose forced pseudo-state. Selector specificity is the honest hover contract here.
 		expect(css).toContain(".beepboxEditor .navigator-route.selectableRow[disabled]:hover");
 	});

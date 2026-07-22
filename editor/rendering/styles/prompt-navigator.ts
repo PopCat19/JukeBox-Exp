@@ -170,10 +170,10 @@ export function buildNavigatorCSS(): string {
 .beepboxEditor .navigator-route.selectableRow[disabled]:hover {
 	opacity: 1;
 	background: transparent;
-	color: var(--secondary-text);
+	color: var(--tab-inactive-fg);
 	border-style: solid;
 	border-width: 2px;
-	border-color: var(--hout, var(--primary-text));
+	border-color: var(--tab-inactive-fg);
 	outline-color: transparent;
 	cursor: not-allowed;
 }
