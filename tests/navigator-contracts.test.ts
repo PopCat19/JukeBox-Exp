@@ -941,6 +941,64 @@ describe("native navigator extraction", () => {
 		expect(css).toContain(".navigator-detached-content > .navigator-native-pane");
 	});
 
+	test("native Import/Export select containers use primary text without recoloring copy or standalone prompts", () => {
+		const navigatorCSS = buildNavigatorCSS();
+		expect(navigatorCSS).toMatch(
+			/\.navigator-import-export-surface \.selectContainer \{ color: var\(--primary-text\); \}/,
+		);
+		expect(navigatorCSS).toMatch(
+			/\.navigator-pane-host \{[^}]*color: var\(--secondary-text\);/s,
+		);
+		expect(navigatorCSS).not.toMatch(
+			/\.prompt(?:\.instrumentImportPrompt|\.exportPrompt) \.selectContainer \{[^}]*color:/,
+		);
+		expect(buildPromptExportCSS()).toMatch(
+			/\.navigator-import-export-surface\.exportPrompt \.exportNote,[^{]*\.prompt\.exportPrompt \.exportNote \{[^}]*color: var\(--secondary-text\);/s,
+		);
+
+		Object.defineProperty(globalThis, "document", {
+			configurable: true,
+			value: new Window().document,
+		});
+		const songOwner = createSongImportExportPane(
+			new SongDocument(),
+			{ paneId: "importExportSong" },
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
+		);
+		const instrumentOwner = createInstrumentImportExportPane(
+			new SongDocument(),
+			{ paneId: "importExportInstrument" },
+			() => Promise.resolve(true),
+			() => Promise.resolve(),
+		);
+		const songRoot = songOwner.lifecycle.root.element;
+		const instrumentRoot = instrumentOwner.lifecycle.root.element;
+		const formatContainer = songRoot
+			.querySelector<HTMLSelectElement>(".exportPrompt select")!
+			.closest(".selectContainer");
+		const strategyContainer = instrumentRoot
+			.querySelector<HTMLSelectElement>(".instrumentImportPrompt select")!
+			.closest(".selectContainer");
+		expect(formatContainer?.closest(".navigator-import-export-surface.exportPrompt")).not.toBeNull();
+		expect(strategyContainer?.closest(".navigator-import-export-surface.instrumentImportPrompt")).not.toBeNull();
+		expect(songRoot.querySelector(".exportNote")?.closest(".selectContainer")).toBeNull();
+		const strategyCopy = Array.from(
+			instrumentRoot.querySelector(".instrumentImportPrompt")!.children,
+		).find((child) => child.textContent?.startsWith("You must enable either"));
+		expect(strategyCopy).not.toBeUndefined();
+		expect(strategyCopy?.closest(".selectContainer")).toBeNull();
+
+		const standaloneSong = new ExportPrompt(new SongDocument(), { autofocus: false });
+		const standaloneInstrument = new InstrumentImportPrompt(new SongDocument());
+		expect(standaloneSong.container.querySelector("select")?.closest(".navigator-import-export-surface")).toBeNull();
+		expect(standaloneInstrument.container.querySelector("select")?.closest(".navigator-import-export-surface")).toBeNull();
+		standaloneSong.cleanUp();
+		standaloneInstrument.cleanUp();
+		songOwner.lifecycle.dispose();
+		instrumentOwner.lifecycle.dispose();
+	});
+
 	test("Export Song keeps standalone geometry and fills the attached pane width", () => {
 		const css = buildPromptExportCSS();
 		expect(css).toMatch(/\.prompt\.exportPrompt \{[^}]*box-sizing: border-box;[^}]*width: 340px;[^}]*max-width: 340px;/s);

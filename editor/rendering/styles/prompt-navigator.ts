@@ -146,6 +146,7 @@ export function buildNavigatorCSS(): string {
 	border-bottom: 1px solid var(--ui-widget-background);
 }
 .beepboxEditor .navigator-import-export-surface:last-child { padding-bottom: 0; border-bottom: 0; }
+.beepboxEditor .navigator-import-export-surface .selectContainer { color: var(--primary-text); }
 .beepboxEditor .navigator-import-export-surface > h3 { margin: 0; color: var(--primary-text); font-size: 14px; }
 .beepboxEditor .navigator-import-export-surface.importPrompt .importNote { margin: 0; }
 .beepboxEditor .navigator-import-export-surface.importPrompt .importFileRow { margin: 0; }
