@@ -81,7 +81,6 @@ export function buildNavigatorCSS(): string {
 	text-transform: uppercase;
 	background: transparent;
 	border: 0;
-	border-bottom: 1px solid var(--ui-widget-background);
 	border-radius: 4px;
 	cursor: pointer;
 }
@@ -220,9 +219,8 @@ export function buildNavigatorCSS(): string {
 	min-width: 0;
 	max-width: 100%;
 	padding-bottom: 8px;
-	border-bottom: 1px solid var(--ui-widget-background);
 }
-.beepboxEditor .navigator-import-export-surface:last-child { padding-bottom: 0; border-bottom: 0; }
+.beepboxEditor .navigator-import-export-surface:last-child { padding-bottom: 0; }
 .beepboxEditor .navigator-import-export-surface .selectContainer { color: var(--primary-text); }
 .beepboxEditor .navigator-import-export-surface > h3 { margin: 0; color: var(--primary-text); font-size: 14px; }
 .beepboxEditor .navigator-import-export-surface.importPrompt .importNote { margin: 0; }

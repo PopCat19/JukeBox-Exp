@@ -228,7 +228,6 @@ export function buildCleanChannelCSS(): string {
 	align-items: baseline;
 	gap: var(--gap-md);
 	padding: var(--padding-4) 0 var(--padding-8);
-	border-bottom: 1px solid var(--ui-widget-background);
 	margin-bottom: var(--padding-8);
 }
 
@@ -272,7 +271,6 @@ export function buildCleanChannelCSS(): string {
 	font-size: 10px;
 	font-weight: 500;
 	color: var(--secondary-text);
-	border-bottom: 1px solid var(--ui-widget-background);
 }
 
 /* ── Table data — body tier: 80x @ 100%, 12px/500 ── */

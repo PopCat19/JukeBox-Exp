@@ -1293,9 +1293,12 @@ describe("navigator shell", () => {
 		expect(css).not.toContain("navigator-route-tab");
 		expect(css).not.toContain("navigator-workspace-tab");
 		expect(css).toMatch(/\.navigator-route-group-title \{[^}]*border-radius: 4px/s);
+		expect(css).not.toMatch(/\.navigator-route-group-title \{[^}]*border-bottom:/s);
 		expect(css).toMatch(/\.navigator-route-group-title:hover \{[^}]*color: var\(--primary-text\)[^}]*box-shadow: none[^}]*outline: none/s);
 		expect(css).toMatch(/\.navigator-route-group-title:focus-visible \{[^}]*color: var\(--primary-text\)[^}]*outline: 2px solid/s);
 		expect(css).toMatch(/\.navigator-import-export-pane \{[^}]*flex-direction: column[^}]*gap: 8px/s);
+		expect(css).not.toMatch(/\.navigator-import-export-surface \{[^}]*border-bottom:/s);
+		expect(buildCleanChannelCSS()).not.toMatch(/\.(?:ccpDetailSummary|ccpTableLabel|cleanChannelPrompt th) \{[^}]*border-bottom:/s);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-content \{[^}]*max-width: 100%[^}]*overflow-x: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-sidebar \{[^}]*box-sizing: border-box[^}]*max-width: 100%[^}]*overflow: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*max-width: 100%[^}]*flex-direction: row[^}]*overflow-x: auto/);
