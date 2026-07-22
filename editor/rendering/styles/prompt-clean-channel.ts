@@ -77,20 +77,37 @@ export function buildCleanChannelCSS(): string {
 }
 
 /* ── Left pane — mirrors sbpLeftPane / sbpListContainer / sbpList ── */
-.beepboxEditor .prompt.cleanChannelPrompt .ccpPaneContainer {
+.beepboxEditor .prompt.cleanChannelPrompt .paneContainer {
 	display: flex;
 	flex-direction: row;
 	height: 400px;
 	gap: 0;
 }
 
-/* Mirror .prompt.docked.fill-y .paneContainer so the clean-channel
- * prompt's custom .ccpPaneContainer grows to fill the dock slot
- * vertically when the prompt is docked. */
-.beepboxEditor .prompt.cleanChannelPrompt.docked.fill-y .ccpPaneContainer {
+.beepboxEditor .prompt.cleanChannelPrompt.docked.fill-y .paneContainer {
 	height: auto !important;
 	flex: 1 1 auto;
 	min-height: 0;
+}
+.beepboxEditor .navigator-pane-host > .cleanChannelPrompt.navigator-native-pane .paneContainer,
+.beepboxEditor .navigator-detached-content > .cleanChannelPrompt.navigator-native-pane .paneContainer {
+	flex: 1 1 0;
+	height: auto !important;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden !important;
+}
+.beepboxEditor .navigator-pane-host > .cleanChannelPrompt.navigator-native-pane .ccpLeftPane,
+.beepboxEditor .navigator-detached-content > .cleanChannelPrompt.navigator-native-pane .ccpLeftPane,
+.beepboxEditor .navigator-pane-host > .cleanChannelPrompt.navigator-native-pane .ccpDetailPane,
+.beepboxEditor .navigator-detached-content > .cleanChannelPrompt.navigator-native-pane .ccpDetailPane {
+	box-sizing: border-box;
+	min-width: 0;
+	min-height: 0;
+}
+.beepboxEditor .navigator-pane-host > .cleanChannelPrompt.navigator-native-pane .ccpDetailPane,
+.beepboxEditor .navigator-detached-content > .cleanChannelPrompt.navigator-native-pane .ccpDetailPane {
+	overflow: auto;
 }
 
 .beepboxEditor .prompt.cleanChannelPrompt .ccpLeftPane {
@@ -310,6 +327,34 @@ export function buildCleanChannelCSS(): string {
 	flex: none;
 	padding: 0 var(--padding-12);
 	white-space: nowrap;
+}
+
+@media (max-width: 639px) {
+	.beepboxEditor .navigator-pane-host > .cleanChannelPrompt.navigator-native-pane,
+	.beepboxEditor .navigator-detached-content > .cleanChannelPrompt.navigator-native-pane {
+		max-width: 100% !important;
+		overflow-x: hidden;
+	}
+	.beepboxEditor .navigator-pane-host > .cleanChannelPrompt.navigator-native-pane .paneContainer,
+	.beepboxEditor .navigator-detached-content > .cleanChannelPrompt.navigator-native-pane .paneContainer {
+		flex-direction: column !important;
+	}
+	.beepboxEditor .navigator-pane-host > .cleanChannelPrompt.navigator-native-pane .ccpLeftPane,
+	.beepboxEditor .navigator-detached-content > .cleanChannelPrompt.navigator-native-pane .ccpLeftPane,
+	.beepboxEditor .navigator-pane-host > .cleanChannelPrompt.navigator-native-pane .ccpDetailPane,
+	.beepboxEditor .navigator-detached-content > .cleanChannelPrompt.navigator-native-pane .ccpDetailPane {
+		width: 100%;
+		max-width: 100%;
+	}
+	.beepboxEditor .navigator-pane-host > .cleanChannelPrompt.navigator-native-pane .ccpLeftPane,
+	.beepboxEditor .navigator-detached-content > .cleanChannelPrompt.navigator-native-pane .ccpLeftPane {
+		flex: 1 1 45%;
+		max-height: 50%;
+	}
+	.beepboxEditor .navigator-pane-host > .cleanChannelPrompt.navigator-native-pane .ccpDetailPane,
+	.beepboxEditor .navigator-detached-content > .cleanChannelPrompt.navigator-native-pane .ccpDetailPane {
+		flex: 1 1 55% !important;
+	}
 }
 `;
 }

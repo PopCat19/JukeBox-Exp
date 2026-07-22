@@ -15,6 +15,26 @@ export function buildSampleBrowserCSS(): string {
 	width: 800px;
 	max-height: calc(100% - 80px);
 }
+.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt.navigator-native-pane .paneContainer,
+.beepboxEditor .navigator-detached-content > .sampleBrowserPrompt.navigator-native-pane .paneContainer {
+	flex: 1 1 0;
+	height: auto !important;
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden !important;
+}
+.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt.navigator-native-pane .sbpLeftPane,
+.beepboxEditor .navigator-detached-content > .sampleBrowserPrompt.navigator-native-pane .sbpLeftPane,
+.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt.navigator-native-pane .sbpRightPane,
+.beepboxEditor .navigator-detached-content > .sampleBrowserPrompt.navigator-native-pane .sbpRightPane {
+	box-sizing: border-box;
+	min-width: 0;
+	min-height: 0;
+}
+.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt.navigator-native-pane .sbpRightPane,
+.beepboxEditor .navigator-detached-content > .sampleBrowserPrompt.navigator-native-pane .sbpRightPane {
+	overflow: auto;
+}
 
 .beepboxEditor .prompt.sampleBrowserPrompt .sbpBtnRow {
 	flex-shrink: 0;
@@ -448,6 +468,34 @@ export function buildSampleBrowserCSS(): string {
 }
 .beepboxEditor .prompt.sampleBrowserPrompt select:active {
 	box-shadow: inset 0 0 0 2px var(--indicator-primary, #4444ff);
+}
+
+@media (max-width: 639px) {
+	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt.navigator-native-pane,
+	.beepboxEditor .navigator-detached-content > .sampleBrowserPrompt.navigator-native-pane {
+		max-width: 100% !important;
+		overflow-x: hidden;
+	}
+	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt.navigator-native-pane .paneContainer,
+	.beepboxEditor .navigator-detached-content > .sampleBrowserPrompt.navigator-native-pane .paneContainer {
+		flex-direction: column !important;
+	}
+	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt.navigator-native-pane .sbpLeftPane,
+	.beepboxEditor .navigator-detached-content > .sampleBrowserPrompt.navigator-native-pane .sbpLeftPane,
+	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt.navigator-native-pane .sbpRightPane,
+	.beepboxEditor .navigator-detached-content > .sampleBrowserPrompt.navigator-native-pane .sbpRightPane {
+		width: 100%;
+		max-width: 100%;
+	}
+	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt.navigator-native-pane .sbpLeftPane,
+	.beepboxEditor .navigator-detached-content > .sampleBrowserPrompt.navigator-native-pane .sbpLeftPane {
+		flex: 1 1 45%;
+		max-height: 50%;
+	}
+	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt.navigator-native-pane .sbpRightPane,
+	.beepboxEditor .navigator-detached-content > .sampleBrowserPrompt.navigator-native-pane .sbpRightPane {
+		flex: 1 1 55% !important;
+	}
 }
 `;
 }

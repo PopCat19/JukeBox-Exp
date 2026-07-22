@@ -162,12 +162,6 @@ export function buildNavigatorCSS(): string {
 	.beepboxEditor .navigator-route { flex: 0 0 auto; }
 	.beepboxEditor .navigator-workspace,
 	.beepboxEditor .navigator-pane-host { box-sizing: border-box; max-width: 100%; }
-	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt .paneContainer { flex: 1 1 0 !important; flex-direction: column !important; height: auto !important; min-width: 0; min-height: 320px; overflow: hidden !important; }
-	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt .sbpLeftPane,
-	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt .sbpRightPane { box-sizing: border-box; width: 100%; min-width: 0; min-height: 0; }
-	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt .sbpLeftPane { flex: 1 1 45%; max-height: 50%; overflow-x: hidden; overflow-y: auto; }
-	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt .sbpListContainer { flex: 1 1 0; min-height: 0; }
-	.beepboxEditor .navigator-pane-host > .sampleBrowserPrompt .sbpRightPane { flex: 1 1 55%; overflow-y: auto; }
 	.beepboxEditor .navigator-pane-host > .keyboardShortcutsPrompt .shortcutRow { align-items: flex-start; gap: 8px; }
 	.beepboxEditor .navigator-pane-host > .keyboardShortcutsPrompt .shortcutKeys { flex: 0 1 auto; min-width: 0; }
 	.beepboxEditor .navigator-pane-host > .keyboardShortcutsPrompt .shortcutDesc { min-width: 0; }

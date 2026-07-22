@@ -26,6 +26,10 @@ import { buildPromptExportCSS } from "../editor/rendering/styles/prompt-export";
 import { buildPromptMiscCSS } from "../editor/rendering/styles/prompt-misc";
 import { buildPromptShellCSS } from "../editor/rendering/styles/prompt-shell";
 import { buildPromptSmallCSS } from "../editor/rendering/styles/prompt-small";
+import { buildCleanChannelCSS } from "../editor/rendering/styles/prompt-clean-channel";
+import { buildSampleBrowserCSS } from "../editor/rendering/styles/prompt-sample-browser";
+import { AddSamplesPrompt } from "../editor/prompts/add-samples-prompt";
+import { CleanChannelPrompt } from "../editor/prompts/clean-channel-prompt";
 import { ExportPrompt, getExportPaneAuthority } from "../editor/prompts/export-prompt";
 import { ImportPrompt } from "../editor/prompts/import-prompt";
 import { InstrumentImportPrompt } from "../editor/prompts/instrument-import-prompt";
@@ -1007,6 +1011,63 @@ describe("native navigator extraction", () => {
 		expect(getComputedStyle(shell).outlineWidth).toBe("2px");
 	});
 
+	test("Add Samples and Clean LSDJ panes stretch in attached and detached Navigator hosts", () => {
+		const testWindow = new Window();
+		Object.defineProperty(globalThis, "document", { configurable: true, value: testWindow.document });
+		Object.defineProperty(globalThis, "window", { configurable: true, value: testWindow });
+		document.body.className = "beepboxEditor";
+		const style = document.createElement("style");
+		style.textContent = `${buildPromptShellCSS()}${buildNavigatorPanesCSS()}${buildSampleBrowserCSS()}${buildCleanChannelCSS()}`;
+		document.head.append(style);
+
+		for (const prompt of [new AddSamplesPrompt(new SongDocument()), new CleanChannelPrompt(new SongDocument())]) {
+			const pane = prompt.container.querySelector<HTMLElement>(".paneContainer");
+			if (pane === null) throw new Error("missing browser pane container");
+			document.body.append(prompt.container);
+			expect(pane.style.height).toBe("400px");
+			expect(getComputedStyle(pane).height).toBe("400px");
+
+			flattenPromptRootForNavigator(prompt, prompt.container.classList.contains("sampleBrowserPrompt") ? "addExternal" : "cleanLsdj");
+			const attachedHost = document.createElement("div");
+			attachedHost.className = "navigator-pane-host";
+			attachedHost.append(prompt.container);
+			document.body.append(attachedHost);
+			const attached = getComputedStyle(pane);
+			expect(attached.height).toBe("auto");
+			expect(attached.flexGrow).toBe("1");
+			expect(attached.flexShrink).toBe("1");
+			expect(["0", "0px"]).toContain(attached.minHeight);
+			expect(["0", "0px"]).toContain(attached.minWidth);
+			expect(attached.overflow).toBe("hidden");
+
+			const detachedHost = document.createElement("div");
+			detachedHost.className = "navigator-detached-content";
+			detachedHost.append(prompt.container);
+			document.body.append(detachedHost);
+			const detached = getComputedStyle(pane);
+			expect(detached.height).toBe("auto");
+			expect(detached.flexGrow).toBe("1");
+			expect(detached.flexShrink).toBe("1");
+			expect(detached.overflow).toBe("hidden");
+			prompt.cleanUp();
+		}
+	});
+
+	test("browser pane CSS owns scrolling and narrow stacking only inside Navigator", () => {
+		const samples = buildSampleBrowserCSS();
+		const clean = buildCleanChannelCSS();
+		for (const css of [samples, clean]) {
+			expect(css).toContain(".navigator-pane-host");
+			expect(css).toContain(".navigator-detached-content");
+			expect(css).toMatch(/\.navigator-native-pane \.paneContainer \{[^}]*flex: 1 1 0;[^}]*height: auto !important;[^}]*min-width: 0;[^}]*min-height: 0;[^}]*overflow: hidden !important;/s);
+			expect(css).toMatch(/@media \(max-width: 639px\) \{[\s\S]*\.navigator-native-pane \.paneContainer \{[^}]*flex-direction: column !important;/);
+			expect(css).not.toMatch(/@media \(max-width: 639px\)[\s\S]*min-height: 320px/);
+		}
+		expect(samples).toMatch(/\.sampleBrowserPrompt\.navigator-native-pane \.sbpRightPane \{[^}]*overflow: auto;/s);
+		expect(clean).toMatch(/\.cleanChannelPrompt\.navigator-native-pane \.ccpDetailPane \{[^}]*overflow: auto;/s);
+		expect(clean).not.toContain(".ccpPaneContainer");
+	});
+
 	test("domain CSS gives detached panes a thin title wrapper", () => {
 		const css = buildNavigatorPanesCSS();
 		expect(css).toContain(".navigator-detached-titlebar");
@@ -1210,11 +1271,6 @@ describe("navigator shell", () => {
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-sidebar \{[^}]*box-sizing: border-box[^}]*max-width: 100%[^}]*overflow: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*max-width: 100%[^}]*flex-direction: row[^}]*overflow-x: auto/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-workspace,[^{]*\.navigator-pane-host \{[^}]*box-sizing: border-box[^}]*max-width: 100%/);
-		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-pane-host > \.sampleBrowserPrompt \.paneContainer \{[^}]*flex: 1 1 0 !important[^}]*flex-direction: column !important[^}]*height: auto !important[^}]*min-height: 320px[^}]*overflow: hidden !important/);
-		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-pane-host > \.sampleBrowserPrompt \.sbpLeftPane,[^{]*\.sbpRightPane \{[^}]*box-sizing: border-box[^}]*width: 100%[^}]*min-width: 0[^}]*min-height: 0/);
-		expect(css).toMatch(/\.navigator-pane-host > \.sampleBrowserPrompt \.sbpLeftPane \{[^}]*flex: 1 1 45%[^}]*max-height: 50%[^}]*overflow-x: hidden[^}]*overflow-y: auto/);
-		expect(css).toMatch(/\.navigator-pane-host > \.sampleBrowserPrompt \.sbpListContainer \{[^}]*flex: 1 1 0[^}]*min-height: 0/);
-		expect(css).toMatch(/\.navigator-pane-host > \.sampleBrowserPrompt \.sbpRightPane \{[^}]*flex: 1 1 55%[^}]*overflow-y: auto/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-pane-host > \.keyboardShortcutsPrompt \.shortcutDescText,[^{]*\.shortcutDetail \{[^}]*overflow: visible[^}]*white-space: normal[^}]*overflow-wrap: anywhere/);
 		expect(css).not.toMatch(/box-shadow|linear-gradient|radial-gradient/);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: hidden/s);
