@@ -98,7 +98,7 @@
 		{
 			"key": "biome:editor/prompts/export-prompt.ts",
 			"count": 20,
-			"hash": "da69243b2b422a6762b9699da441e43f96159abecfe9688c6248074b538b5709"
+			"hash": "2c15d1752569355afad61cafed42944bd55fd50862c911cd057fd3fcdc99eca2"
 		},
 		{
 			"key": "biome:editor/prompts/instrument-browser-prompt.ts",
@@ -868,7 +868,7 @@
 		{
 			"key": "eslint:editor/prompts/export-prompt.ts",
 			"count": 139,
-			"hash": "74785c6fe8642d436024f01a68209435f240384ea383d1532c695ef8b2ebb8f4"
+			"hash": "691d53ec8ed5e8fb55b42374ca348c5565ded2d6674c48886be80628fb550601"
 		},
 		{
 			"key": "eslint:editor/prompts/import-prompt.ts",

@@ -87,7 +87,7 @@ export class InstrumentExportPrompt extends BasePrompt {
 		if (this._surface === "standalone") this.buildTitlebar();
 		else {
 			this._fileName.removeAttribute("autofocus");
-			applyActionButtonSurface(this._okayButton, "primary");
+			applyActionButtonSurface(this._okayButton, "secondary");
 		}
 		this._okayButton.classList.add("exportButton");
 		this._okayButton.textContent = "Export";

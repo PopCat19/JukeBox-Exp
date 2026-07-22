@@ -2206,18 +2206,25 @@ describe("native import and export pane", () => {
 				expect(root.querySelectorAll("input[type='file']")).toHaveLength(1);
 				const browse = root.querySelector<HTMLButtonElement>(".importBrowseButton")!;
 				const exportAction = root.querySelector<HTMLButtonElement>(".exportButton")!;
+				const format = root.querySelector<HTMLSelectElement>(".exportPrompt select")!;
+				const formatRow = format.closest(".selectContainer")?.parentElement;
+				const formatLabel = formatRow?.querySelector<HTMLLabelElement>("label");
 				expect(browse.type).toBe("button");
 				expect(browse.dataset.pmdRole).toBe("secondary");
 				expect(browse.style.background).toBe("var(--ui-widget-background)");
 				expect(browse.classList.contains("pmd-hover")).toBeTrue();
 				expect(browse.classList.contains("pmd-focus")).toBeTrue();
-				expect(exportAction.dataset.pmdRole).toBe("primary");
-				expect(exportAction.getAttribute("style") ?? "").toContain(
-					"background: var(--cta-bg, var(--prompt-titlebar-text));",
-				);
+				expect(exportAction.dataset.pmdRole).toBe("secondary");
+				expect(exportAction.style.background).toBe("var(--ui-widget-background)");
+				expect(exportAction.getAttribute("style") ?? "").not.toContain("--cta-bg");
 				expect(exportAction.classList.contains("pmd-hover")).toBeTrue();
 				expect(exportAction.classList.contains("pmd-focus")).toBeTrue();
-				expect(root.querySelectorAll(".exportPrompt select option")).toHaveLength(10);
+				expect(formatRow?.classList.contains("prompt-form-row-end")).toBeTrue();
+				expect(format.closest(".selectContainer")).not.toBeNull();
+				expect(formatLabel?.textContent).toBe("Format:");
+				expect(formatLabel?.htmlFor).toBe(format.id);
+				expect(format.id.length).toBeGreaterThan(0);
+				expect(format.options).toHaveLength(10);
 				expect(root.querySelectorAll(".exportPrompt input[type='checkbox']")).toHaveLength(4);
 				expect(root.querySelectorAll(".exportPrompt input[type='number']")).toHaveLength(3);
 				expect(root.querySelector<HTMLInputElement>(".exportPrompt input[type='text']")?.value.length).toBe(250);
@@ -2239,6 +2246,12 @@ describe("native import and export pane", () => {
 					".instrumentExportPrompt .exportButton",
 				)!;
 				expect(strategy.tagName).toBe("SELECT");
+				expect(strategy.closest(".selectContainer")).not.toBeNull();
+				expect(
+					strategy
+						.closest(".selectContainer")
+						?.parentElement?.classList.contains("prompt-form-row-end"),
+				).toBeTrue();
 				expect(strategy.options).toHaveLength(3);
 				expect(strategy.disabled).toBeTrue();
 				expect(strategy.classList.contains("pmd-disabled")).toBeTrue();
@@ -2252,10 +2265,9 @@ describe("native import and export pane", () => {
 				expect(channelCheckbox.type).toBe("checkbox");
 				expect(channelCheckbox.closest(".exportCheckControl")).not.toBeNull();
 				expect(root.querySelector(".instrumentExportPrompt .exportField input[type='text']")).not.toBeNull();
-				expect(exportAction.dataset.pmdRole).toBe("primary");
-				expect(exportAction.getAttribute("style") ?? "").toContain(
-					"background: var(--cta-bg, var(--prompt-titlebar-text));",
-				);
+				expect(exportAction.dataset.pmdRole).toBe("secondary");
+				expect(exportAction.style.background).toBe("var(--ui-widget-background)");
+				expect(exportAction.getAttribute("style") ?? "").not.toContain("--cta-bg");
 				expect(exportAction.classList.contains("pmd-hover")).toBeTrue();
 				expect(exportAction.classList.contains("pmd-focus")).toBeTrue();
 			}
@@ -2406,12 +2418,9 @@ describe("native import and export pane", () => {
 			expect(source).not.toContain("focusReveal");
 		}
 		for (const source of [songExport, instrumentExport]) {
-			expect(source).toContain('applyActionButtonSurface(this._okayButton, "primary")');
+			expect(source).toContain('applyActionButtonSurface(this._okayButton, "secondary")');
 			expect(source).not.toContain("hoverReveal");
 			expect(source).not.toContain("focusReveal");
-		}
-		for (const source of [songImport, songExport, instrumentImport, instrumentExport]) {
-			expect(source).not.toMatch(/pmd-(?:primary|secondary)/);
 		}
 	});
 

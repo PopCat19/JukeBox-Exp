@@ -13,7 +13,7 @@ import { Song, Synth } from "../../synth";
 import { toJukeboxExpJson, toJukeboxExpV2Json, toLegacyCompatJson } from "../../synth/formats";
 import { Config } from "../../synth/synth-config";
 import type { SongDocument } from "../song-document";
-import { applyActionButtonSurface, setDisabled } from "../ui";
+import { applyActionButtonSurface, selectField, setDisabled } from "../ui";
 import {
 	BasePrompt,
 	createPromptSurface,
@@ -125,6 +125,21 @@ export class ExportPrompt extends BasePrompt {
 	) {
 		super(doc);
 		this._surface = options.surface ?? "standalone";
+		const formatField =
+			this._surface === "standalone"
+				? label(
+						{ class: "exportField" },
+						div({ class: "exportFieldLabel" }, "Format:"),
+						this._formatSelect,
+					)
+				: selectField("Format:", this._formatSelect);
+		if (this._surface === "navigator") {
+			const formatSelectId = `${this._playbackLabelId}-format`;
+			this._formatSelect.id = formatSelectId;
+			formatField.prepend(
+				label({ class: "exportFieldLabel", for: formatSelectId }, "Format:"),
+			);
+		}
 		this.container = createPromptSurface(
 			this._surface,
 			"exportPrompt",
@@ -142,11 +157,7 @@ export class ExportPrompt extends BasePrompt {
 							div({ class: "exportFieldLabel" }, "File name:"),
 							this._fileName,
 						),
-						label(
-							{ class: "exportField" },
-							div({ class: "exportFieldLabel" }, "Format:"),
-							this._formatSelect,
-						),
+						formatField,
 						label(
 							{ class: "exportField exportLengthField" },
 							div({ class: "exportFieldLabel" }, "Length:"),
@@ -237,7 +248,7 @@ export class ExportPrompt extends BasePrompt {
 		if (this._surface === "standalone") this.buildTitlebar();
 		else {
 			this._fileName.removeAttribute("autofocus");
-			applyActionButtonSurface(this._okayButton, "primary");
+			applyActionButtonSurface(this._okayButton, "secondary");
 		}
 		this._okayButton.classList.add("exportButton");
 		this._okayButton.textContent = "Export";

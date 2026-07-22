@@ -50,6 +50,7 @@ export default tseslint.config(
             "tests/import-prompt-external-delivery.test.ts",
             "tests/instrument-import-completion.test.ts",
             "tests/visual-prompt-dirty-rollback.test.ts",
+            "tests/action-button.test.ts",
             "tests/navigator-contracts.test.ts",
             "tests/navigator-dock.test.ts",
             "tests/stress-pane-lifecycle.test.ts",

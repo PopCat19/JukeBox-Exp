@@ -18,26 +18,34 @@ export interface ActionButtonOptions {
 	surface?: SurfaceRole;
 }
 
+interface OwnedActionSurface {
+	readonly baseStyle: string | null;
+	role: SurfaceRole;
+}
+
+const ownedActionSurfaces = new WeakMap<HTMLButtonElement, OwnedActionSurface>();
+
 export function applyActionButtonSurface(
 	button: HTMLButtonElement,
 	role: SurfaceRole,
 ): HTMLButtonElement {
-	if (button.dataset.pmdRole === role) return button;
+	const owned = ownedActionSurfaces.get(button);
+	if (owned?.role === role) return button;
+	const baseStyle = owned === undefined ? button.getAttribute("style") : owned.baseStyle;
 	button.setAttribute(
 		"style",
-		`${interactiveSurface(role)} ${button.getAttribute("style") ?? ""}`,
+		baseStyle === null ? interactiveSurface(role) : `${baseStyle} ${interactiveSurface(role)}`,
 	);
+	if (owned === undefined) ownedActionSurfaces.set(button, { baseStyle, role });
+	else owned.role = role;
 	hoverReveal(button, { role });
 	focusReveal(button, { role });
 	return button;
 }
 
 export function actionButton(label: string, options?: ActionButtonOptions): HTMLButtonElement {
-	const baseStyle = options?.surface
-		? `padding:0 var(--padding-12); ${interactiveSurface(options.surface)}`
-		: `padding:0 var(--padding-12);`;
 	const button = createButton(
-		baseStyle,
+		`padding:0 var(--padding-12);`,
 		{
 			class: options?.class,
 			title: options?.title ?? label,
@@ -46,9 +54,6 @@ export function actionButton(label: string, options?: ActionButtonOptions): HTML
 		},
 		label,
 	);
-	if (options?.surface !== undefined) {
-		hoverReveal(button, { role: options.surface });
-		focusReveal(button, { role: options.surface });
-	}
+	if (options?.surface !== undefined) applyActionButtonSurface(button, options.surface);
 	return button;
 }
