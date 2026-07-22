@@ -5,4 +5,4 @@
 - `player-controls.ts`, Manages playback, volume, loop, zoom state and event handling
 - `player-keyboard.ts`, Binds keyboard shortcuts to player actions
 - `player-timeline.ts`, Renders song timeline with notes and playhead
-- `player-ui.ts`, Constructs all DOM elements and injects CSS styles for the song player
+- `player-ui.ts`, Constructs player DOM/CSS and applies validated parent theme updates for embeds

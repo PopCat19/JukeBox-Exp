@@ -9,6 +9,7 @@ Purpose: Shared kernel — code no single domain owns but multiple domains use.
 - `events.ts`, Provides a simple publish-subscribe event system for cross-module communication
 - `pmd-adapter.ts`, Maps PMD-generated Base16 palettes to JukeBox-Exp CSS custom properties
 - `pmd-hue.ts`, Defines pure local-clock hue, modulo, signed-offset, and minute-boundary policies
+- `player-theme-sync.ts`, Defines validated same-origin messages for live embedded player theme updates
 - `spectrum.ts`, Renders real-time audio as a smooth bezier-curve spectrum analyzer
 
 ## Subdirectories

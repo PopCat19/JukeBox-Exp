@@ -637,6 +637,7 @@ export class NavigatorShell implements PaneHost {
 		const button = this.createNavigationButton(route.id, route.title, "navigator-route");
 		const active = canonicalPaneId(route.id) === this.activeRouteId;
 		selectableRow(button, active);
+		if (button.disabled) button.classList.remove("pmd-hover", "pmd-focus");
 		button.setAttribute("aria-current", active ? "page" : "false");
 		return button;
 	}

@@ -76,9 +76,9 @@ export function buildPromptLimiterCSS(): string {
 .beepboxEditor .prompt.limiterPrompt .limiterGraphCanvas,
 .beepboxEditor .navigator-native-pane.limiterPrompt .limiterGraphCanvas {
 	width: 100%;
-	height: clamp(120px, 24vw, 160px);
+	height: clamp(96px, 18vw, 112px);
 	min-width: 0;
-	margin-bottom: clamp(86px, 17.28vw, 116px);
+	margin-bottom: clamp(68px, 13vw, 80px);
 }
 .beepboxEditor .prompt.limiterPrompt .limiterGraphCanvas > svg,
 .beepboxEditor .navigator-native-pane.limiterPrompt .limiterGraphCanvas > svg {

@@ -162,14 +162,56 @@ export function buildPromptMiscCSS(): string {
 
 .beepboxEditor .prompt.themePrompt .pmdControlGroup {
 	display: flex;
+	box-sizing: border-box;
 	flex-direction: column;
-	gap: 8px;
+	gap: 12px;
+	width: 100%;
 	min-width: 0;
+	padding: 12px;
+	border: 2px solid var(--ui-widget-background);
+	border-radius: var(--border-radius-medium);
+}
+
+.beepboxEditor .prompt.themePrompt .pmdRealtimeRow,
+.beepboxEditor .prompt.themePrompt .pmdEffectiveRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-width: 0;
+	color: var(--primary-text);
 }
 
 .beepboxEditor .prompt.themePrompt .pmdControlGroup > .selectRow {
+	display: grid;
+	grid-template-columns: minmax(110px, 0.35fr) minmax(0, 1fr);
+	gap: 12px;
+	width: 100%;
+	height: auto;
+	min-width: 0;
+	margin: 0;
+}
+
+.beepboxEditor .prompt.themePrompt .pmdControlGroup > .selectRow > :last-child {
 	width: 100%;
 	min-width: 0;
+	flex-shrink: 1;
+}
+
+.beepboxEditor .prompt.themePrompt .pmdHueExplanation {
+	margin: 0;
+	line-height: 1.4;
+}
+
+.beepboxEditor .prompt.themePrompt .pmdEffectiveRow > input {
+	width: 6em;
+	margin-left: auto;
+	text-align: center;
+}
+
+.beepboxEditor .prompt.themePrompt .pmdEffectiveRow > button {
+	flex: 0 0 auto;
+	padding: 0 var(--padding-12);
 }
 
 .beepboxEditor .prompt.themePrompt [role="slider"]:focus-visible {

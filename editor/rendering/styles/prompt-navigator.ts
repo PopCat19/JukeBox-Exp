@@ -85,10 +85,17 @@ export function buildNavigatorCSS(): string {
 	border-radius: 4px;
 	cursor: pointer;
 }
-.beepboxEditor .navigator-route-group-title:hover,
-.beepboxEditor .navigator-route-group-title:focus-visible,
-.beepboxEditor .navigator-route-group-title.pmd-hover,
-.beepboxEditor .navigator-route-group-title.pmd-focus { border-radius: 4px; }
+.beepboxEditor .navigator-route-group-title:hover {
+	color: var(--primary-text);
+	box-shadow: none;
+	outline: none;
+}
+.beepboxEditor .navigator-route-group-title:focus-visible {
+	color: var(--primary-text);
+	box-shadow: none;
+	outline: 2px solid var(--scrollbar-color, var(--subtext));
+	outline-offset: -2px;
+}
 .beepboxEditor .navigator-route-group-title::before { display: inline-block; width: 1.25em; content: "▸"; }
 .beepboxEditor .navigator-route-group-title[aria-expanded="true"]::before { content: "▾"; }
 .beepboxEditor .navigator-route-group-content { display: flex; flex-direction: column; gap: 4px; }
@@ -175,6 +182,7 @@ export function buildNavigatorCSS(): string {
 	border-width: 2px;
 	border-color: var(--tab-inactive-fg);
 	outline-color: transparent;
+	box-shadow: none;
 	cursor: not-allowed;
 }
 .beepboxEditor .navigator-workspace {

@@ -359,7 +359,8 @@ describe("LimiterPrompt", () => {
 			expect(fixture.getBoundingClientRect().width).toBe(0);
 			const css = buildPromptLimiterCSS();
 			expect(css).toContain("grid-template-columns: fit-content(100%) minmax(0, 1fr)");
-			expect(css).toContain("height: clamp(120px, 24vw, 160px)");
+			expect(css).toContain("height: clamp(96px, 18vw, 112px)");
+			expect(css).toContain("margin-bottom: clamp(68px, 13vw, 80px)");
 			expect(css).not.toContain("min-height: 44px");
 			expect(css).not.toContain("flex: 0 0 120px");
 			const mobile = getLimiterLayoutContract(320, 551);

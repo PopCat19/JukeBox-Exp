@@ -11,10 +11,11 @@
 
 import { PlayerControls } from "./player-controls";
 import { bindPlayerKeys } from "./player-keyboard";
-import { buildPlayerUI, injectPlayerStyles } from "./player-ui";
+import { bindParentThemeSync, buildPlayerUI, injectPlayerStyles } from "./player-ui";
 
 injectPlayerStyles();
 const ui = buildPlayerUI();
+bindParentThemeSync();
 const controls = new PlayerControls(ui);
 bindPlayerKeys(controls);
 controls.init();

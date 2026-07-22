@@ -958,7 +958,7 @@
 		{
 			"key": "eslint:editor/prompts/song-recovery-prompt.ts",
 			"count": 12,
-			"hash": "e418e656ae92f80aa3f585f46dc05f53c11fbbfda0c1b307ab43abc7a3485ac7"
+			"hash": "8ec4948094cdb645c20e012095c1cc10141bddc624593c6543c1edfed6ea2611"
 		},
 		{
 			"key": "eslint:editor/prompts/sustain-prompt.ts",
@@ -1143,7 +1143,7 @@
 		{
 			"key": "eslint:player/player-ui.ts",
 			"count": 10,
-			"hash": "a3a667e6932a3912b036e7dca1c953544e0f0896e76b032720ab01f932e0cc2d"
+			"hash": "84b77c988d2e781dce80a4b644c786f8d576b567de299dd8cc134edc9de5a4ef"
 		},
 		{
 			"key": "eslint:shared/color-config.ts",

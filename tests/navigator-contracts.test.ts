@@ -70,6 +70,7 @@ import {
 import { events } from "../shared/events";
 import { InstrumentType } from "../synth/config/instrument-registry";
 import type { Instrument } from "../synth/instruments/instrument";
+import { EffectType } from "../synth/synth-config";
 import * as Navigator from "../editor/navigator";
 
 if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
@@ -295,7 +296,7 @@ describe("shortener config route", () => {
 		prompt.cleanUp();
 	});
 
-	test("retains wide content and top spacing after Navigator flattening", () => {
+	test("retains wide content without duplicate pane padding after Navigator flattening", () => {
 		Object.defineProperty(globalThis, "document", { configurable: true, value: new Window().document });
 		const prompt = new ShortenerConfigPrompt(new SongDocument());
 		flattenPromptRootForNavigator(prompt, "configureShortener");
@@ -303,7 +304,7 @@ describe("shortener config route", () => {
 		expect(prompt.container.querySelector(":scope > .prompt-titlebar")).toBeNull();
 		expect(prompt.container.querySelector(":scope > .shortenerConfigIntro")).not.toBeNull();
 		const css = buildNavigatorPanesCSS();
-		expect(css).toMatch(/\.shortenerConfigPrompt\.navigator-native-pane \{[^}]*padding-top: var\(--padding-12\) !important;/s);
+		expect(css).not.toMatch(/\.shortenerConfigPrompt\.navigator-native-pane \{[^}]*padding(?:-top)?:/s);
 		expect(css).toMatch(/\.shortenerConfigPrompt\.navigator-native-pane > \* \{[^}]*width: min\(100%, 520px\);/s);
 		prompt.cleanUp();
 	});
@@ -1211,6 +1212,30 @@ describe("navigator shell", () => {
 		expect(navigatorOtherRoutes.map((route) => route.id)).not.toContain("keyboardShortcuts");
 	});
 
+	test("focused routes require both capability and active editor state", () => {
+		const instrument = {
+			type: InstrumentType.chip,
+			effects: 0,
+			isUsingAdvancedLoopControls: false,
+		} as Instrument;
+		expect(getNavigatorRouteAvailability("visualLoopControls", instrument)).toEqual({
+			available: false,
+			error: "Visual Loop Controls requires Loop Controls to be enabled.",
+		});
+		expect(getNavigatorRouteAvailability("customNoteFilterSettings", instrument)).toEqual({
+			available: false,
+			error: "Custom note filter settings requires the note filter effect to be enabled.",
+		});
+		instrument.isUsingAdvancedLoopControls = true;
+		instrument.effects |= 1 << EffectType.noteFilter;
+		expect(getNavigatorRouteAvailability("visualLoopControls", instrument)).toEqual({
+			available: true,
+		});
+		expect(getNavigatorRouteAvailability("customNoteFilterSettings", instrument)).toEqual({
+			available: true,
+		});
+	});
+
 	test("drumset settings follow the canonical drumset capability", () => {
 		const drumset = { type: InstrumentType.drumset } as Instrument;
 		const chip = { type: InstrumentType.chip } as Instrument;
@@ -1268,14 +1293,20 @@ describe("navigator shell", () => {
 		expect(css).not.toContain("navigator-route-tab");
 		expect(css).not.toContain("navigator-workspace-tab");
 		expect(css).toMatch(/\.navigator-route-group-title \{[^}]*border-radius: 4px/s);
-		expect(css).toMatch(/\.navigator-route-group-title:hover,[\s\S]*\.navigator-route-group-title:focus-visible,[\s\S]*border-radius: 4px/);
+		expect(css).toMatch(/\.navigator-route-group-title:hover \{[^}]*color: var\(--primary-text\)[^}]*box-shadow: none[^}]*outline: none/s);
+		expect(css).toMatch(/\.navigator-route-group-title:focus-visible \{[^}]*color: var\(--primary-text\)[^}]*outline: 2px solid/s);
 		expect(css).toMatch(/\.navigator-import-export-pane \{[^}]*flex-direction: column[^}]*gap: 8px/s);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-content \{[^}]*max-width: 100%[^}]*overflow-x: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-sidebar \{[^}]*box-sizing: border-box[^}]*max-width: 100%[^}]*overflow: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*max-width: 100%[^}]*flex-direction: row[^}]*overflow-x: auto/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-workspace,[^{]*\.navigator-pane-host \{[^}]*box-sizing: border-box[^}]*max-width: 100%/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-pane-host > \.keyboardShortcutsPrompt \.shortcutDescText,[^{]*\.shortcutDetail \{[^}]*overflow: visible[^}]*white-space: normal[^}]*overflow-wrap: anywhere/);
-		expect(css).not.toMatch(/box-shadow|linear-gradient|radial-gradient/);
+		expect(css).not.toMatch(/linear-gradient|radial-gradient/);
+		expect(Array.from(css.matchAll(/box-shadow:\s*([^;]+);/g), (match) => match[1].trim())).toEqual([
+			"none",
+			"none",
+			"none",
+		]);
 		expect(css).toMatch(/\.navigator-pane-host \{[^}]*min-height: 0[^}]*overflow: hidden/s);
 	});
 
@@ -1320,6 +1351,9 @@ describe("navigator shell", () => {
 		expect(slider).toContain("public refreshLayout(): void");
 		expect(theme).not.toContain("pmdHueNum");
 		expect(miscCSS).not.toContain(".pmdHueNum");
+		expect(miscCSS).toMatch(/\.prompt\.themePrompt \.pmdControlGroup \{[^}]*gap: 12px[^}]*padding: 12px[^}]*border: 2px solid var\(--ui-widget-background\)/s);
+		expect(miscCSS).toMatch(/\.prompt\.themePrompt \.pmdRealtimeRow,[^{]*\.pmdEffectiveRow \{[^}]*justify-content: space-between[^}]*gap: 12px/s);
+		expect(miscCSS).toMatch(/\.prompt\.themePrompt \.pmdControlGroup > \.selectRow \{[^}]*grid-template-columns: minmax\(110px, 0\.35fr\) minmax\(0, 1fr\)[^}]*height: auto/s);
 		expect(theme).not.toContain("Hue: ${");
 		expect(rawTheme).toContain('class: "ctCssEditor"');
 		expect(rawTheme).toContain("HTMLTextAreaElement");
@@ -1438,7 +1472,8 @@ describe("navigator shell", () => {
 		const disabled = shell.container.querySelector<HTMLButtonElement>(".navigator-route[disabled]");
 		if (inactive === null || disabled === null) throw new Error("missing real route button state");
 		expect(inactive.classList.contains("pmd-hover")).toBeTrue();
-		expect(disabled.classList.contains("pmd-hover")).toBeTrue();
+		expect(disabled.classList.contains("pmd-hover")).toBeFalse();
+		expect(disabled.classList.contains("pmd-focus")).toBeFalse();
 		const injected = document.head.querySelector<HTMLStyleElement>('style[data-jb-style="pmd-interactions"]');
 		expect(injected?.textContent ?? "").toContain(".pmd-hover:hover");
 		expect(getComputedStyle(inactive).backgroundColor).toBe("rgb(17, 34, 51)");
@@ -1464,13 +1499,14 @@ describe("navigator shell", () => {
 		expect(disabledStyle.borderWidth).toBe("2px");
 		expect(disabledStyle.borderColor).toBe("rgb(116, 92, 52)");
 		expect(disabledStyle.outlineColor).toBe("transparent");
+		expect(disabledStyle.boxShadow).toBe("none");
 		expect(disabledStyle.boxSizing).toBe(inactiveStyle.boxSizing);
 		expect(disabledStyle.padding).toBe(inactiveStyle.padding);
 		expect(disabledStyle.cursor).toBe("not-allowed");
 		const css = buildNavigatorCSS();
 		expect(css).toMatch(/\.navigator-route\.selectableRow:not\(\[disabled\]\):hover \{[^}]*outline-color: var\(--hout, var\(--primary-text\)\)/s);
 		expect(css).toMatch(/\.navigator-route\.selectableRow\.active:not\(\[disabled\]\):hover \{[^}]*outline-color: var\(--editor-background\)/s);
-		expect(css).toMatch(/\.navigator-route\.selectableRow\[disabled\],[\s\S]*\[disabled\]:hover \{[^}]*opacity: 1[^}]*background: transparent[^}]*color: var\(--tab-inactive-fg\)[^}]*border-style: solid[^}]*border-width: 2px[^}]*border-color: var\(--tab-inactive-fg\)[^}]*outline-color: transparent[^}]*cursor: not-allowed/s);
+		expect(css).toMatch(/\.navigator-route\.selectableRow\[disabled\],[\s\S]*\[disabled\]:hover \{[^}]*opacity: 1[^}]*background: transparent[^}]*color: var\(--tab-inactive-fg\)[^}]*border-style: solid[^}]*border-width: 2px[^}]*border-color: var\(--tab-inactive-fg\)[^}]*outline-color: transparent[^}]*box-shadow: none[^}]*cursor: not-allowed/s);
 		// happy-dom does not expose forced pseudo-state. Selector specificity is the honest hover contract here.
 		expect(css).toContain(".beepboxEditor .navigator-route.selectableRow[disabled]:hover");
 	});

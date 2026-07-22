@@ -3,6 +3,7 @@
 import type { Instrument } from "../../synth";
 import { getInstrumentCapabilities } from "../../synth/socket/capability-lookup";
 import type { InstrumentCapabilities } from "../../synth/socket/capability-schema";
+import { effectsIncludeNoteFilter } from "../../synth/synth-config";
 import { commandRegistry } from "./command-registry";
 import type { PaneRoute } from "./contracts";
 import { canonicalPaneId } from "./route-identity";
@@ -15,6 +16,7 @@ export interface NavigatorCatalogRoute {
 	readonly category?: string;
 	readonly capability?: NavigatorRouteCapability;
 	readonly availability?: (instrument: Instrument) => boolean;
+	readonly unavailableMessage?: string;
 }
 
 export type NavigatorCatalogItem =
@@ -31,18 +33,24 @@ const route = (
 	title: string,
 	capability?: NavigatorRouteCapability,
 	availability?: (instrument: Instrument) => boolean,
+	unavailableMessage?: string,
 ): NavigatorCatalogRoute => ({
 	id,
 	title,
 	...(capability === undefined ? {} : { capability }),
 	...(availability === undefined ? {} : { availability }),
+	...(unavailableMessage === undefined ? {} : { unavailableMessage }),
 });
 const routeItem = (
 	id: string,
 	title: string,
 	capability?: NavigatorRouteCapability,
 	availability?: (instrument: Instrument) => boolean,
-): NavigatorCatalogItem => ({ kind: "route", route: route(id, title, capability, availability) });
+	unavailableMessage?: string,
+): NavigatorCatalogItem => ({
+	kind: "route",
+	route: route(id, title, capability, availability, unavailableMessage),
+});
 const capability =
 	(name: NavigatorRouteCapability) =>
 	(instrument: Instrument): boolean =>
@@ -110,13 +118,19 @@ export const navigatorRouteCatalog: readonly NavigatorCatalogGroup[] = Object.fr
 				"customNoteFilterSettings",
 				"Custom note filter settings",
 				"hasNoteFilter",
-				capability("hasNoteFilter"),
+				(instrument) =>
+					capability("hasNoteFilter")(instrument) &&
+					effectsIncludeNoteFilter(instrument.effects),
+				"Custom note filter settings requires the note filter effect to be enabled.",
 			),
 			routeItem(
 				"visualLoopControls",
 				"Visual Loop Controls",
 				"hasLoopControls",
-				capability("hasLoopControls"),
+				(instrument) =>
+					capability("hasLoopControls")(instrument) &&
+					instrument.isUsingAdvancedLoopControls,
+				"Visual Loop Controls requires Loop Controls to be enabled.",
 			),
 			routeItem("drumsetSettings", "Drumset settings", "isDrumset", capability("isDrumset")),
 		],
@@ -167,7 +181,9 @@ export function getNavigatorRouteAvailability(
 	if (metadata.availability(instrument)) return { available: true };
 	return {
 		available: false,
-		error: `${metadata.title} is unavailable for the focused instrument.`,
+		error:
+			metadata.unavailableMessage ??
+			`${metadata.title} is unavailable for the focused instrument.`,
 	};
 }
 

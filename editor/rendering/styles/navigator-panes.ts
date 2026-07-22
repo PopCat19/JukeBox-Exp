@@ -86,7 +86,6 @@ export function buildNavigatorPanesCSS(): string {
 }
 .beepboxEditor :is(.navigator-pane-host, .navigator-detached-content) > .shortenerConfigPrompt.navigator-native-pane {
 	box-sizing: border-box;
-	padding-top: var(--padding-12) !important;
 	overflow-y: auto;
 }
 .beepboxEditor :is(.navigator-pane-host, .navigator-detached-content) > .shortenerConfigPrompt.navigator-native-pane > * {

@@ -10,6 +10,7 @@
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../shared/color-config";
 import { events } from "../shared/events";
+import { isPlayerThemeSyncMessage } from "../shared/player-theme-sync";
 import { spectrumCanvas } from "../shared/spectrum";
 import { buildDesignTokensCSS } from "../shared/styles/design-tokens";
 import { injectGlobalStyles } from "../shared/styles/inject";
@@ -339,6 +340,34 @@ export function buildPlayerCSS(): string {
 
 export function injectPlayerStyles(): void {
 	injectGlobalStyles(document, "player-main", buildPlayerCSS());
+}
+
+export function applyPlayerThemeSyncMessage(value: unknown): boolean {
+	if (!isPlayerThemeSyncMessage(value)) return false;
+	if (value.theme === ColorConfig.PMD_THEME) {
+		ColorConfig.setPMDState(
+			value.pmdControlHue,
+			value.pmdEffectiveHue,
+			false,
+			ColorConfig.PMD_THEME,
+		);
+	} else {
+		ColorConfig.setTheme(value.theme);
+	}
+	return true;
+}
+
+export function bindParentThemeSync(ownerWindow: Window = window): () => void {
+	if (ownerWindow.parent === ownerWindow) return () => undefined;
+	const onMessage = (event: MessageEvent): void => {
+		if (event.source !== ownerWindow.parent || event.origin !== ownerWindow.location.origin)
+			return;
+		applyPlayerThemeSyncMessage(event.data);
+	};
+	ownerWindow.addEventListener("message", onMessage);
+	return () => {
+		ownerWindow.removeEventListener("message", onMessage);
+	};
 }
 
 export function buildPlayerUI(): PlayerUI {

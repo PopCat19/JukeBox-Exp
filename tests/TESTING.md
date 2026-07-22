@@ -155,7 +155,7 @@ All 12 types verified via encode→decode→type-preservation.
 
 | Source | Test file | Scope |
 |--------|-----------|-------|
-| `player/player-ui.ts` | `tests/player-ui-styles.test.ts` | buildPlayerCSS selector contract, scoped class wiring, player body-root append contract |
+| `player/player-ui.ts`, `player/main.ts`, `shared/player-theme-sync.ts` | `tests/player-ui-styles.test.ts` | Player CSS/DOM contracts and validated live parent-theme synchronization |
 
 ### website/
 

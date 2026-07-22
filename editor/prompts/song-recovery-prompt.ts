@@ -9,6 +9,9 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
+import { ColorConfig } from "../../shared/color-config";
+import { events } from "../../shared/events";
+import { createPlayerThemeSyncMessage } from "../../shared/player-theme-sync";
 import { SongDataError } from "../../synth";
 import { ChangeSong } from "../changes";
 import {
@@ -27,6 +30,10 @@ const { button, div, h2, p, select, option, iframe } = HTML;
 
 export class SongRecoveryPrompt extends BasePrompt {
 	private readonly _songContainer: HTMLDivElement = div();
+	private readonly _players = new Set<HTMLIFrameElement>();
+	private readonly _syncPlayerThemes = (): void => {
+		for (const player of this._players) this._syncPlayerTheme(player);
+	};
 
 	public readonly container: HTMLDivElement = div(
 		{ class: "prompt songRecoveryPrompt fill-y" },
@@ -70,6 +77,8 @@ export class SongRecoveryPrompt extends BasePrompt {
 
 			const player: HTMLIFrameElement = iframe({ class: "recoveryPlayer" });
 			player.src = `player/index.html#song=${window.localStorage.getItem(versionToKey(song.versions[0]))}`;
+			this._players.add(player);
+			player.addEventListener("load", this._syncLoadedPlayerTheme);
 			const restoreButton: HTMLButtonElement = button({ type: "button" }, "Restore");
 			const container: HTMLDivElement = div(
 				{ class: "recoveryRow recoveryPreviewRow" },
@@ -101,6 +110,8 @@ export class SongRecoveryPrompt extends BasePrompt {
 				player.contentWindow!.dispatchEvent(new Event("hashchange"));
 			});
 		}
+
+		events.listen("themeChange", this._syncPlayerThemes);
 
 		for (const record of quarantinedSongs) {
 			const retryButton: HTMLButtonElement = button({ type: "button" }, "Retry");
@@ -135,6 +146,35 @@ export class SongRecoveryPrompt extends BasePrompt {
 				row.remove();
 			});
 		}
+	}
+
+	private readonly _syncLoadedPlayerTheme = (event: Event): void => {
+		if (event.currentTarget instanceof HTMLIFrameElement) {
+			this._syncPlayerTheme(event.currentTarget);
+		}
+	};
+
+	private _syncPlayerTheme(player: HTMLIFrameElement): void {
+		const target = player.contentWindow;
+		if (target === null) return;
+		const targetOrigin = window.location.origin === "null" ? "*" : window.location.origin;
+		target.postMessage(
+			createPlayerThemeSyncMessage(
+				ColorConfig.currentTheme,
+				ColorConfig.pmdHue,
+				ColorConfig.pmdEffectiveHue,
+			),
+			targetOrigin,
+		);
+	}
+
+	public override cleanUp(): void {
+		events.unlisten("themeChange", this._syncPlayerThemes);
+		for (const player of this._players) {
+			player.removeEventListener("load", this._syncLoadedPlayerTheme);
+		}
+		this._players.clear();
+		super.cleanUp();
 	}
 
 	protected override _saveChanges(): void {

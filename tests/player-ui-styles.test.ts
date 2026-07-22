@@ -8,7 +8,14 @@
 
 import { Window } from "happy-dom";
 import { describe, expect, test } from "bun:test";
-import { buildPlayerCSS, buildPlayerUI, injectPlayerStyles } from "../player/player-ui";
+import { ColorConfig } from "../shared/color-config";
+import { createPlayerThemeSyncMessage } from "../shared/player-theme-sync";
+import {
+	applyPlayerThemeSyncMessage,
+	buildPlayerCSS,
+	buildPlayerUI,
+	injectPlayerStyles,
+} from "../player/player-ui";
 
 function cssRule(css: string, selector: string): string {
 	const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -272,6 +279,32 @@ describe("buildPlayerCSS", () => {
 			}
 			expect(document.querySelectorAll(".pm-player").length).toBe(2);
 		});
+	});
+
+	test("accepts live PMD theme messages and rejects malformed payloads", () => {
+		withFreshDom(() => {
+			const originalTheme = ColorConfig.currentTheme;
+			const originalControlHue = ColorConfig.pmdHue;
+			const originalEffectiveHue = ColorConfig.pmdEffectiveHue;
+			try {
+				expect(applyPlayerThemeSyncMessage({ type: "wrong" })).toBeFalse();
+				expect(
+					applyPlayerThemeSyncMessage(
+						createPlayerThemeSyncMessage(ColorConfig.PMD_THEME, -45, 123),
+					),
+				).toBeTrue();
+				expect(ColorConfig.currentTheme).toBe(ColorConfig.PMD_THEME);
+				expect(ColorConfig.pmdHue).toBe(-45);
+				expect(ColorConfig.pmdEffectiveHue).toBe(123);
+			} finally {
+				ColorConfig.setPMDState(originalControlHue, originalEffectiveHue, false, originalTheme);
+			}
+		});
+	});
+
+	test("player entry point binds parent theme synchronization", async () => {
+		const source = await Bun.file("player/main.ts").text();
+		expect(source).toContain("bindParentThemeSync();");
 	});
 
 	test("repeated style injection dedupes to a single player-main slot", () => {
