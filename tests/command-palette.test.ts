@@ -124,6 +124,7 @@ function keyboardHarness(KeyboardHandlerClass: KeyboardHandlerConstructor, promp
 		closePrompt: () => effects.push("close"),
 		openCommandPalette: () => effects.push("palette"),
 		openShortcuts: () => effects.push("shortcuts"),
+		showNavigatorRouteHints: () => effects.push("route-hints"),
 		setCtrlHeld: () => {},
 		setShiftHeld: () => {},
 		songTitleInputBox: input,
@@ -232,6 +233,60 @@ describe("command palette", () => {
 		ordinary.handler.handleKeyDown(keyboardEvent("/", 191, undefined, { ctrlKey: true }));
 		expect(ordinary.effects).toEqual(["palette"]);
 	});
+
+	test("Ctrl+X opens route hints without stealing editable Cut or note cut", async () => {
+		const { KeyboardHandler } = await import("../editor/core/keyboard-handler");
+		const global = keyboardHarness(KeyboardHandler);
+		let noteCuts = 0;
+		(global.doc.selection as unknown as { cutNotes: () => void }).cutNotes = () => noteCuts++;
+		const hintKey = keyboardEvent("x", 88, undefined, { ctrlKey: true });
+		global.handler.handleKeyDown(hintKey);
+		expect(global.effects).toEqual(["route-hints"]);
+		expect(hintKey.defaultPrevented).toBeTrue();
+		expect(noteCuts).toBe(0);
+
+		const editableTargets: HTMLElement[] = [
+			document.createElement("input"),
+			document.createElement("textarea"),
+			document.createElement("select"),
+		];
+		const editableParent = document.createElement("div");
+		editableParent.contentEditable = "true";
+		const editableChild = document.createElement("span");
+		editableParent.append(editableChild);
+		editableTargets.push(editableChild);
+		for (const target of editableTargets) {
+			const editable = keyboardHarness(KeyboardHandler);
+			const cut = keyboardEvent("x", 88, target, { ctrlKey: true });
+			editable.handler.handleKeyDown(cut);
+			expect(editable.effects).toEqual([]);
+			expect(cut.defaultPrevented).toBeFalse();
+		}
+
+		for (const options of [
+			{ metaKey: true },
+			{ ctrlKey: true, shiftKey: true },
+			{ ctrlKey: true, altKey: true },
+		]) {
+			const modified = keyboardHarness(KeyboardHandler);
+			let modifiedCuts = 0;
+			(modified.doc.selection as unknown as { cutNotes: () => void }).cutNotes = () =>
+				modifiedCuts++;
+			const modifiedKey = keyboardEvent("x", 88, undefined, options);
+			modified.handler.handleKeyDown(modifiedKey);
+			expect(modified.effects).not.toContain("route-hints");
+			expect(modifiedCuts).toBe(0);
+			expect(modifiedKey.defaultPrevented).toBeFalse();
+		}
+
+		const notes = keyboardHarness(KeyboardHandler);
+		let bareCuts = 0;
+		(notes.doc.selection as unknown as { cutNotes: () => void }).cutNotes = () => bareCuts++;
+		notes.handler.handleKeyDown(keyboardEvent("x", 88));
+		expect(bareCuts).toBe(1);
+		expect(notes.effects).toEqual([]);
+	});
+
 	test("renders only input, compact results, hint, and error", () => {
 		const { palette } = setup();
 		expect(Array.from(palette.container.children, (child) => child.className)).toEqual([

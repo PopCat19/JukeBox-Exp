@@ -1262,7 +1262,7 @@ describe("navigator shell", () => {
 		const sharedCSS = buildSharedUICSS();
 		expect(sharedCSS).toMatch(/\.selectableRow \{[^}]*padding: var\(--padding-6\) var\(--padding-12\)[^}]*outline: 2px solid transparent[^}]*outline-offset: -2px[^}]*box-shadow: none[^}]*background: var\(--prompt-list-item-bg\)[^}]*font-size: 12px/s);
 		expect(css).toMatch(/\.navigator-route\.selectableRow\.active \{[^}]*background: var\(--cta-bg\)[^}]*color: var\(--cta-fg\)[^}]*outline-color: transparent/s);
-		expect(css).toMatch(/\.navigator-route \{[^}]*text-overflow: ellipsis[^}]*white-space: nowrap/s);
+		expect(css).toMatch(/\.navigator-route-label \{[^}]*text-overflow: ellipsis[^}]*white-space: nowrap/s);
 		expect(css).toContain("@media (max-width: 639px)");
 		expect(css).not.toContain("navigator-route-split");
 		expect(css).not.toContain("navigator-route-tab");

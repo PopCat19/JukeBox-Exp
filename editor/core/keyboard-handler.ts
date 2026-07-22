@@ -73,6 +73,15 @@ export function resolveSlashShortcut(options: {
 	return options.shiftKey ? "shortcuts" : "palette";
 }
 
+export function isEditableCutTarget(target: EventTarget | null): boolean {
+	if (!(target instanceof Element)) return false;
+	return (
+		target.closest(
+			'input, textarea, select, [contenteditable]:not([contenteditable="false"])',
+		) !== null
+	);
+}
+
 export interface KeyboardHandlerHost {
 	doc: SongDocument;
 	patternEditor: PatternEditor;
@@ -117,6 +126,7 @@ export interface KeyboardHandlerHost {
 	openPresetSelector(): void;
 	openShortcuts(): void;
 	openCommandPalette(): void;
+	showNavigatorRouteHints(): void;
 	copyInstrument(): void;
 	pasteInstrument(): void;
 	randomPreset(): void;
@@ -144,6 +154,27 @@ export class KeyboardHandler {
 
 	constructor(private _host: KeyboardHandlerHost) {}
 
+	public handleNavigatorHintShortcut(event: KeyboardEvent): boolean {
+		const isCtrlX =
+			event.key.toLocaleLowerCase() === "x" &&
+			event.ctrlKey &&
+			!event.metaKey &&
+			!event.altKey &&
+			!event.shiftKey;
+		if (
+			!isCtrlX ||
+			event.defaultPrevented ||
+			event.isComposing ||
+			isEditableCutTarget(event.target)
+		) {
+			return false;
+		}
+		event.preventDefault();
+		event.stopPropagation();
+		this._host.showNavigatorRouteHints();
+		return true;
+	}
+
 	public handleKeyDown = (event: KeyboardEvent): void => {
 		if (inspectorActive()) {
 			event.preventDefault();
@@ -156,6 +187,8 @@ export class KeyboardHandler {
 
 		host.setCtrlHeld(event.ctrlKey);
 		host.setShiftHeld(event.shiftKey);
+
+		if (this.handleNavigatorHintShortcut(event)) return;
 
 		if (host.prompt) {
 			log.log("keydown with prompt open", {
@@ -437,7 +470,13 @@ export class KeyboardHandler {
 				event.preventDefault();
 				break;
 			case 88: // x
-				if (canPlayNotes) break;
+				if (
+					canPlayNotes ||
+					event.metaKey ||
+					event.altKey ||
+					(event.ctrlKey && event.shiftKey)
+				)
+					break;
 				doc.selection.cutNotes();
 				event.preventDefault();
 				break;

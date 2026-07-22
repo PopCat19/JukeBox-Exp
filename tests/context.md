@@ -18,6 +18,7 @@ Purpose: bun:test test files covering editor, synth, and shared modules.
 - `filtering.test.ts`, Unit tests for digital filter coefficient computation and frequency response
 - `input-inventory.test.ts`, Unit tests for input binding inventory and concern modules
 - `navigator-contracts.test.ts`, Behavioral tests for canonical identity, native extraction, attached theme preview/cancellation, detached theme sync, shell layout, cleanup, ownership, and host transfer
+- `navigator-route-hints.test.ts`, Pure base-26 route codes plus hidden, attached, detached, filtering, activation, accessibility, and cleanup behavior
 - `import-prompt-external-delivery.test.ts`, ImportPrompt external file validation, transport restoration, completion ordering, and operation-generation races
 - `instrument-import-completion.test.ts`, Instrument import completion through bound Navigator close authority
 - `visual-prompt-dirty-rollback.test.ts`, Visual prompt dirty denial and confirmed preview rollback

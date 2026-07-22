@@ -94,12 +94,62 @@ export function buildNavigatorCSS(): string {
 .beepboxEditor .navigator-route-group-content { display: flex; flex-direction: column; gap: 4px; }
 .beepboxEditor .navigator-route-group-content[hidden] { display: none; }
 .beepboxEditor .navigator-route {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 	min-width: 0;
 	overflow: hidden;
 	text-align: left;
+	white-space: nowrap;
+}
+.beepboxEditor .navigator-route-label {
+	min-width: 0;
+	flex: 1 1 auto;
+	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+.beepboxEditor .navigator-route-hint-help,
+.beepboxEditor .navigator-route-hint-status {
+	display: none;
+	margin: 0;
+	color: var(--secondary-text);
+	font-size: 10px;
+	font-weight: 500;
+}
+.beepboxEditor .navigator-route-hint-mode .navigator-route-hint-help,
+.beepboxEditor .navigator-route-hint-mode .navigator-route-hint-status { display: block; }
+.beepboxEditor .navigator-route-hint-pill {
+	display: none;
+	box-sizing: border-box;
+	flex: 0 0 auto;
+	min-width: 2.5em;
+	padding: 2px 5px;
+	color: var(--secondary-text);
+	font-family: var(--font-family-mono);
+	font-size: 10px;
+	font-weight: 600;
+	line-height: 1;
+	text-align: center;
+	text-transform: uppercase;
+	background: var(--ui-widget-background);
+	border: 1px solid var(--secondary-text);
+	border-radius: var(--border-radius-medium);
+}
+.beepboxEditor .navigator-route-hint-mode .navigator-route-hint-pill:not([hidden]) {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+.beepboxEditor .navigator-route-hint-mode .navigator-route-hint-pill.navigator-route-hint-prefix {
+	color: var(--primary-text);
+	border-color: var(--primary-text);
+}
+.beepboxEditor .navigator-route-hint-transient .navigator-content {
+	grid-template-columns: minmax(224px, 320px);
+	justify-content: center;
+}
+.beepboxEditor .navigator-route-hint-transient .navigator-workspace { display: none; }
 .beepboxEditor .navigator-route.selectableRow:not(.active):not([disabled]) {
 	background: var(--ui-widget-background);
 	color: var(--primary-text);

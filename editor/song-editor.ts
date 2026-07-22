@@ -2235,9 +2235,7 @@ export class SongEditor
 			this.popoutCurrentPrompt();
 		},
 		() => void this._closeNavigatorMode(),
-		(scope) => {
-			void this._applicationRouter.routePrompt(scope);
-		},
+		(scope) => this._applicationRouter.routePrompt(scope),
 		undefined,
 		() => this.doc.getCurrentInstrumentObj(),
 		(section) =>
@@ -3120,6 +3118,9 @@ export class SongEditor
 	}
 	public openCommandPalette(): void {
 		this._commandPalette.open();
+	}
+	public showNavigatorRouteHints(): void {
+		this._navigatorShell.showRouteHints();
 	}
 	public copyInstrument(): void {
 		this._dispatch.copyInstrument();
@@ -4081,6 +4082,7 @@ export class SongEditor
 	// Skips if focus is on an input, textarea, select, button, or contenteditable element.
 	private _handleGlobalKeyDown(event: KeyboardEvent): void {
 		if (event.isComposing) return; // Skip during IME composition
+		if (this._keyboardHandler.handleNavigatorHintShortcut(event)) return;
 
 		// If mainLayer has focus, its own handler already processes keys.
 		if (this.mainLayer.contains(document.activeElement)) return;

@@ -52,6 +52,7 @@ export default tseslint.config(
             "tests/visual-prompt-dirty-rollback.test.ts",
             "tests/action-button.test.ts",
             "tests/navigator-contracts.test.ts",
+            "tests/navigator-route-hints.test.ts",
             "tests/navigator-dock.test.ts",
             "tests/stress-pane-lifecycle.test.ts",
             "tests/css-var-contract.test.ts",
