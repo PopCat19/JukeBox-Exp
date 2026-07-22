@@ -11,6 +11,14 @@
 
 import { events } from "./events";
 import { applyPMDTheme } from "./pmd-adapter";
+import {
+	clampPMDManualHue,
+	clockHue,
+	effectivePMDHue,
+	normalizePMDHue,
+	normalizePMDOffset,
+	PMD_MANUAL_HUE_DEFAULT,
+} from "./pmd-hue";
 import { themeCssVarFallbacks } from "./styles/css-var-contract";
 import { injectGlobalStyles } from "./styles/inject";
 import { themes } from "./themes";
@@ -55,12 +63,16 @@ export interface ChannelColors extends BeepBoxOption {
 	readonly primaryNote: string;
 }
 
+function readPersistedPMDRealtimeHue(): boolean {
+	return window.localStorage.getItem("pmdRealtimeHue") === "true";
+}
+
 function readPersistedPMDHue(): number {
+	const realtime = readPersistedPMDRealtimeHue();
 	const stored = window.localStorage.getItem("pmdHue");
-	const hue = Number(stored ?? "345");
-	if (hue === 360) return 0;
-	if (!Number.isInteger(hue) || hue < 0 || hue > 359) return 345;
-	return hue;
+	if (stored === null) return realtime ? 0 : PMD_MANUAL_HUE_DEFAULT;
+	const hue = Number(stored);
+	return realtime ? normalizePMDOffset(hue) : clampPMDManualHue(hue);
 }
 
 export class ColorConfig {
@@ -68,11 +80,19 @@ export class ColorConfig {
 	public static usesColorFormula: boolean = false;
 	public static readonly defaultTheme: string = "pmd-dynamic";
 	public static readonly PMD_THEME: string = "pmd-dynamic";
-	public static pmdHue: number = typeof window !== "undefined" ? readPersistedPMDHue() : 345;
+	public static pmdHue: number =
+		typeof window !== "undefined" ? readPersistedPMDHue() : PMD_MANUAL_HUE_DEFAULT;
 	public static pmdDark: boolean =
 		typeof window !== "undefined"
 			? (window.localStorage.getItem("pmdDark") ?? "1") === "1"
 			: true;
+	public static pmdEffectiveHue: number =
+		typeof window !== "undefined" && readPersistedPMDRealtimeHue()
+			? effectivePMDHue(clockHue(new Date()), ColorConfig.pmdHue)
+			: normalizePMDHue(ColorConfig.pmdHue);
+	public static currentTheme: string = ColorConfig.defaultTheme;
+	private static _renderedPMDHue: number | null = null;
+	private static _renderedPMDDark: boolean | null = null;
 	public static readonly themes: { [name: string]: string } = themes;
 	public static readonly pageMargin: string = "var(--page-margin, black)";
 	public static readonly editorBackground: string = "var(--editor-background, black)";
@@ -1016,11 +1036,18 @@ export class ColorConfig {
 
 	public static setTheme(name: string): void {
 		ColorConfig._ensureInit();
-		if (name === ColorConfig.PMD_THEME) {
-			applyPMDTheme(ColorConfig.pmdHue, ColorConfig.pmdDark);
+		const resolvedName =
+			name === ColorConfig.PMD_THEME || ColorConfig.themes[name] !== undefined
+				? name
+				: ColorConfig.defaultTheme;
+		ColorConfig.currentTheme = resolvedName;
+		if (resolvedName === ColorConfig.PMD_THEME) {
+			applyPMDTheme(ColorConfig.pmdEffectiveHue, ColorConfig.pmdDark);
+			ColorConfig._renderedPMDHue = ColorConfig.pmdEffectiveHue;
+			ColorConfig._renderedPMDDark = ColorConfig.pmdDark;
 			ColorConfig._styleElement.textContent = "";
 		} else {
-			let theme: string = ColorConfig.themes[name];
+			let theme: string = ColorConfig.themes[resolvedName];
 			if (theme === undefined) theme = ColorConfig.defaultTheme;
 			ColorConfig._styleElement.textContent = theme;
 		}
@@ -1730,7 +1757,7 @@ export class ColorConfig {
 		ColorConfig.resetColors();
 
 		// Dispatch theme change event for spectrum and other listeners
-		events.raise("themeChange", name);
+		events.raise("themeChange", resolvedName);
 
 		ColorConfig.usesColorFormula =
 			getComputedStyle(ColorConfig._styleElement)
@@ -2028,37 +2055,43 @@ export class ColorConfig {
 		}
 	}
 
-	public static setPMD(hue: number, isDark: boolean): void {
-		ColorConfig.pmdHue = hue;
+	public static setPMDState(
+		controlHue: number,
+		effectiveHue: number,
+		isDark: boolean,
+		persist: boolean,
+		targetTheme?: string,
+	): boolean {
+		ColorConfig.pmdHue = controlHue;
+		ColorConfig.pmdEffectiveHue = normalizePMDHue(effectiveHue, 0);
 		ColorConfig.pmdDark = isDark;
-		window.localStorage.setItem("pmdHue", String(hue));
-		window.localStorage.setItem("pmdDark", isDark ? "1" : "0");
-		applyPMDTheme(hue, isDark);
+		if (persist) ColorConfig.persistPMD();
+		if (targetTheme !== undefined && targetTheme !== ColorConfig.currentTheme) {
+			ColorConfig.setTheme(targetTheme);
+			return true;
+		}
+		if (ColorConfig.currentTheme !== ColorConfig.PMD_THEME) return false;
+		if (
+			ColorConfig._renderedPMDHue === ColorConfig.pmdEffectiveHue &&
+			ColorConfig._renderedPMDDark === isDark
+		)
+			return false;
+		applyPMDTheme(ColorConfig.pmdEffectiveHue, isDark);
+		ColorConfig._renderedPMDHue = ColorConfig.pmdEffectiveHue;
+		ColorConfig._renderedPMDDark = isDark;
 		events.raise("themeChange", ColorConfig.PMD_THEME);
-
-		// Refresh cached computed values so non-var() consumers pick up new hues
 		ColorConfig.resetColors();
-		ColorConfig.c_invertedText = getComputedStyle(ColorConfig._styleElement).getPropertyValue(
-			"--inverted-text",
-		);
-		ColorConfig.c_trackEditorBgNoiseDim = getComputedStyle(
-			ColorConfig._styleElement,
-		).getPropertyValue("--track-editor-bg-noise-dim");
-		ColorConfig.c_trackEditorBgNoise = getComputedStyle(
-			ColorConfig._styleElement,
-		).getPropertyValue("--track-editor-bg-noise");
-		ColorConfig.c_trackEditorBgModDim = getComputedStyle(
-			ColorConfig._styleElement,
-		).getPropertyValue("--track-editor-bg-mod-dim");
-		ColorConfig.c_trackEditorBgMod = getComputedStyle(
-			ColorConfig._styleElement,
-		).getPropertyValue("--track-editor-bg-mod");
-		ColorConfig.c_trackEditorBgPitchDim = getComputedStyle(
-			ColorConfig._styleElement,
-		).getPropertyValue("--track-editor-bg-pitch-dim");
-		ColorConfig.c_trackEditorBgPitch = getComputedStyle(
-			ColorConfig._styleElement,
-		).getPropertyValue("--track-editor-bg-pitch");
+		return true;
+	}
+
+	public static persistPMD(): void {
+		window.localStorage.setItem("pmdHue", String(ColorConfig.pmdHue));
+		window.localStorage.setItem("pmdDark", ColorConfig.pmdDark ? "1" : "0");
+	}
+
+	public static setPMD(hue: number, isDark: boolean): void {
+		const normalizedHue = normalizePMDHue(hue);
+		ColorConfig.setPMDState(normalizedHue, normalizedHue, isDark, true);
 	}
 
 	public static getComputed(name: string): string {

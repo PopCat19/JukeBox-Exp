@@ -92,6 +92,7 @@ const log = makeLogger("song-editor");
 import { type ModSliderProvider, ModSliderRegistry } from "./core/mod-slider-registry";
 import { ModulatorSetup, type ModulatorSetupHost } from "./core/modulator-setup";
 import { PlayerAnimator } from "./core/player-animator";
+import { getPMDRealtimeHueCoordinator } from "./core/pmd-realtime-hue";
 import type { Preferences } from "./core/preferences";
 import { type PromptEditorRefs, type PromptHost, PromptManager } from "./core/prompt-manager";
 
@@ -3182,6 +3183,7 @@ export class SongEditor
 		this.mainLayer.append(this._commandPalette.container);
 		this._keyboardHandler = new KeyboardHandler(this);
 		this._dispatch = new ChangeDispatcher(this);
+		getPMDRealtimeHueCoordinator(window).ensureEnabled(this.doc.prefs.pmdRealtimeHue);
 
 		// Track the <select> opened by pointer so editor focus can be
 		// restored after the dropdown closes, without stealing focus during

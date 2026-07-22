@@ -10,19 +10,17 @@
 
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ColorConfig } from "../../shared/color-config";
+import { clampPMDManualHue, normalizePMDOffset } from "../../shared/pmd-hue";
+import {
+	getPMDRealtimeHueCoordinator,
+	type PMDRealtimeHueCoordinator,
+	type PMDRealtimeHueState,
+} from "../core/pmd-realtime-hue";
 import type { SongDocument } from "../song-document";
 import { checkboxInput, SliderNumWidget, selectField } from "../ui";
 import { BasePrompt } from "./base-prompt";
 
-const { div, h2, select, option, optgroup, label } = HTML;
-
-function readPersistedPMDHue(): number {
-	const stored = window.localStorage.getItem("pmdHue");
-	const hue = Number(stored ?? "345");
-	if (hue === 360) return 0;
-	if (!Number.isInteger(hue) || hue < 0 || hue > 359) return 345;
-	return hue;
-}
+const { button, div, h2, input, label, option, optgroup, p, select } = HTML;
 
 export class ThemePrompt extends BasePrompt {
 	private readonly _themeSelect: HTMLSelectElement = select(
@@ -112,52 +110,72 @@ export class ThemePrompt extends BasePrompt {
 
 	private _pmdHueWidget!: SliderNumWidget;
 	private readonly _pmdDarkInput: HTMLInputElement = checkboxInput();
+	private readonly _pmdRealtimeInput: HTMLInputElement = checkboxInput();
+	private readonly _pmdEffectiveHue: HTMLInputElement = input({
+		type: "text",
+		readOnly: true,
+		"aria-label": "Effective hue",
+	});
+	private readonly _pmdHueExplanation: HTMLParagraphElement = p({
+		class: "pmdHueExplanation",
+	});
+	private readonly _pmdCoordinator: PMDRealtimeHueCoordinator;
+	private readonly _releasePMDCoordinator: () => void;
 	private _pmdControls!: HTMLDivElement;
 	private _pmdLayoutFrame: number | null = null;
 	private _pmdResizeObserver: ResizeObserver | null = null;
 
 	public readonly container: HTMLDivElement;
-	private readonly lastTheme: string | null;
-	private readonly lastHue: number;
-	private readonly lastDark: boolean;
+	private readonly lastTheme: string;
+	private readonly lastPMDState: PMDRealtimeHueState;
 	private committed = false;
 	private discarded = false;
 
 	constructor(doc: SongDocument) {
 		super(doc);
-		const normalizedHue = readPersistedPMDHue();
-		if (ColorConfig.pmdHue !== normalizedHue) ColorConfig.pmdHue = normalizedHue;
-		if (window.localStorage.getItem("pmdHue") !== String(normalizedHue)) {
-			window.localStorage.setItem("pmdHue", String(normalizedHue));
-		}
-		this.lastTheme = window.localStorage.getItem("colorTheme");
-		this.lastHue = normalizedHue;
-		this.lastDark = ColorConfig.pmdDark;
+		this._pmdCoordinator = getPMDRealtimeHueCoordinator(window);
+		this.lastTheme = ColorConfig.currentTheme;
+		this.lastPMDState = this._pmdCoordinator.capture();
+		this._releasePMDCoordinator = this._pmdCoordinator.attach(this._onPMDUpdate);
 		this._pmdHueWidget = new SliderNumWidget(
 			doc,
 			null,
-			0,
-			359,
+			this._pmdCoordinator.enabled ? -180 : 0,
+			this._pmdCoordinator.enabled ? 180 : 359,
 			ColorConfig.pmdHue,
-			"Hue",
+			this._pmdCoordinator.enabled ? "Clock offset" : "Hue",
 			() => {},
 			{ undo: false, inputStep: "1" },
 		);
 		const hueSlider = this._pmdHueWidget.slider;
 		hueSlider.container.tabIndex = 0;
 		hueSlider.container.setAttribute("role", "slider");
-		hueSlider.container.setAttribute("aria-label", "Hue");
-		hueSlider.container.setAttribute("aria-valuemin", "0");
-		hueSlider.container.setAttribute("aria-valuemax", "359");
+		this._syncPMDControlUI();
 		hueSlider.container.setAttribute("aria-valuenow", String(ColorConfig.pmdHue));
 		hueSlider.container.addEventListener("keydown", this._onPMDHueKeyDown);
 		this._pmdDarkInput.checked = ColorConfig.pmdDark;
+		this._pmdRealtimeInput.checked = this._pmdCoordinator.enabled;
+		const copyEffectiveHue = button(
+			{ type: "button", "aria-label": "Copy effective hue" },
+			"Copy",
+		);
+		copyEffectiveHue.addEventListener("click", () => {
+			void navigator.clipboard?.writeText(this._pmdEffectiveHue.value);
+		});
 		this._pmdControls = div(
 			{ class: "pmdControls" },
 			div(
 				{ class: "pmdControlGroup" },
 				label({ class: "pmdDarkRow" }, "Dark", this._pmdDarkInput),
+				label({ class: "pmdRealtimeRow" }, "Use local clock", this._pmdRealtimeInput),
 				this._pmdHueWidget.row,
+				this._pmdHueExplanation,
+				label(
+					{ class: "pmdEffectiveRow" },
+					"Effective hue",
+					this._pmdEffectiveHue,
+					copyEffectiveHue,
+				),
 			),
 		);
 		this.container = div(
@@ -169,9 +187,7 @@ export class ThemePrompt extends BasePrompt {
 			this._cancelButton,
 		);
 		this.buildTitlebar();
-		if (this.lastTheme != null) {
-			this._themeSelect.value = this.lastTheme;
-		}
+		this._themeSelect.value = this.lastTheme;
 		this._themeSelect.addEventListener("change", () => {
 			this._updatePMDVisibility();
 			this._previewTheme();
@@ -180,8 +196,11 @@ export class ThemePrompt extends BasePrompt {
 		this._pmdHueWidget.inputBox.addEventListener("input", this._onPMDNumberInput);
 		this._pmdHueWidget.inputBox.addEventListener("change", this._onPMDNumberChange);
 		this._pmdDarkInput.addEventListener("change", this._onPMDDarkChange);
+		this._pmdRealtimeInput.addEventListener("change", this._onPMDRealtimeChange);
 		if (typeof ResizeObserver !== "undefined") {
-			this._pmdResizeObserver = new ResizeObserver(() => hueSlider.refreshLayout());
+			this._pmdResizeObserver = new ResizeObserver(() => {
+				hueSlider.refreshLayout();
+			});
 			this._pmdResizeObserver.observe(hueSlider.container);
 		}
 		this._updatePMDVisibility();
@@ -202,17 +221,43 @@ export class ThemePrompt extends BasePrompt {
 	private _readHue(value: string): number | null {
 		const hue = Number(value);
 		if (value.trim() === "" || !Number.isFinite(hue)) return null;
-		return Math.max(0, Math.min(359, Math.round(hue)));
+		return this._pmdCoordinator.enabled ? normalizePMDOffset(hue) : clampPMDManualHue(hue);
+	}
+
+	private _syncPMDControlUI(preserveActiveInput = true): void {
+		const realtime = this._pmdCoordinator.enabled;
+		const min = realtime ? -180 : 0;
+		const max = realtime ? 180 : 359;
+		const labelText = realtime ? "Clock offset" : "Hue";
+		const activeValue =
+			preserveActiveInput && document.activeElement === this._pmdHueWidget.inputBox
+				? this._pmdHueWidget.inputBox.value
+				: null;
+		this._pmdHueWidget.setRangeAndLabel(min, max, labelText);
+		this._pmdHueWidget.updateValue(ColorConfig.pmdHue);
+		if (activeValue !== null) this._pmdHueWidget.inputBox.value = activeValue;
+		this._pmdDarkInput.checked = ColorConfig.pmdDark;
+		this._pmdRealtimeInput.checked = realtime;
+		this._pmdHueExplanation.textContent = realtime
+			? "Clock offset is added to local 24-hour time."
+			: "Hue is fixed until changed.";
+		const slider = this._pmdHueWidget.slider.container;
+		slider.setAttribute("aria-label", labelText);
+		slider.setAttribute("aria-valuemin", String(min));
+		slider.setAttribute("aria-valuemax", String(max));
+		slider.setAttribute("aria-valuenow", String(ColorConfig.pmdHue));
+		this._pmdEffectiveHue.value = String(this._pmdCoordinator.effectiveHue);
 	}
 
 	private _applyPMD(hue: number): void {
-		this._pmdHueWidget.updateValue(hue);
-		this._pmdHueWidget.slider.container.setAttribute("aria-valuenow", String(hue));
-		if (ColorConfig.pmdHue === hue && ColorConfig.pmdDark === this._pmdDarkInput.checked)
-			return;
-		ColorConfig.setPMD(hue, this._pmdDarkInput.checked);
-		this._doc.notifier.changed();
+		this._pmdCoordinator.preview(hue, this._pmdDarkInput.checked);
+		this._syncPMDControlUI(false);
 	}
+
+	private _onPMDUpdate = (update: { readonly rendered: boolean }): void => {
+		if (this._pmdHueWidget !== undefined) this._syncPMDControlUI();
+		if (update.rendered) this._doc.notifier.changed();
+	};
 
 	private _onPMDSliderInput = (): void => {
 		const hue = this._readHue(this._pmdHueWidget.slider.input.value);
@@ -233,15 +278,24 @@ export class ThemePrompt extends BasePrompt {
 		this._applyPMD(ColorConfig.pmdHue);
 	};
 
+	private _onPMDRealtimeChange = (): void => {
+		this._pmdCoordinator.setEnabled(this._pmdRealtimeInput.checked);
+		this._syncPMDControlUI();
+	};
+
 	private _onPMDHueKeyDown = (event: KeyboardEvent): void => {
 		let hue = this._readHue(this._pmdHueWidget.slider.input.value) ?? 0;
 		if (event.key === "ArrowLeft" || event.key === "ArrowDown") hue--;
 		else if (event.key === "ArrowRight" || event.key === "ArrowUp") hue++;
-		else if (event.key === "Home") hue = 0;
-		else if (event.key === "End") hue = 359;
+		else if (event.key === "Home") hue = this._pmdCoordinator.enabled ? -180 : 0;
+		else if (event.key === "End") hue = this._pmdCoordinator.enabled ? 180 : 359;
 		else return;
 		event.preventDefault();
-		this._applyPMD(Math.max(0, Math.min(359, hue)));
+		this._applyPMD(
+			this._pmdCoordinator.enabled
+				? Math.max(-180, Math.min(180, hue))
+				: Math.max(0, Math.min(359, hue)),
+		);
 	};
 
 	protected override _close = (): void => {
@@ -255,17 +309,14 @@ export class ThemePrompt extends BasePrompt {
 		this._pmdResizeObserver?.disconnect();
 		this._pmdResizeObserver = null;
 		this._pmdHueWidget.slider.container.removeEventListener("keydown", this._onPMDHueKeyDown);
+		this._releasePMDCoordinator();
 		super.cleanUp();
 	}
 
 	public override discard(): void {
 		if (this.committed || this.discarded) return;
 		this.discarded = true;
-		if (this.lastTheme != null) window.localStorage.setItem("colorTheme", this.lastTheme);
-		else window.localStorage.removeItem("colorTheme");
-		ColorConfig.setPMD(this.lastHue, this.lastDark);
-		ColorConfig.setTheme(this.lastTheme ?? ColorConfig.defaultTheme);
-		this._doc.notifier.changed();
+		this._pmdCoordinator.restore(this.lastPMDState, this.lastTheme);
 	}
 
 	public requestPaneLeave(): boolean {
@@ -280,6 +331,8 @@ export class ThemePrompt extends BasePrompt {
 		this.committed = true;
 		window.localStorage.setItem("colorTheme", this._themeSelect.value);
 		this._doc.prefs.colorTheme = this._themeSelect.value;
+		this._doc.prefs.pmdRealtimeHue = this._pmdCoordinator.enabled;
+		this._pmdCoordinator.persist();
 		this._finishClose();
 	};
 
@@ -296,9 +349,10 @@ export class ThemePrompt extends BasePrompt {
 
 	private _isDirty(): boolean {
 		return (
-			this._themeSelect.value !== (this.lastTheme ?? ColorConfig.defaultTheme) ||
-			ColorConfig.pmdHue !== this.lastHue ||
-			ColorConfig.pmdDark !== this.lastDark
+			this._themeSelect.value !== this.lastTheme ||
+			ColorConfig.pmdHue !== this.lastPMDState.controlHue ||
+			ColorConfig.pmdDark !== this.lastPMDState.dark ||
+			this._pmdCoordinator.enabled !== this.lastPMDState.enabled
 		);
 	}
 

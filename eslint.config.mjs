@@ -59,6 +59,7 @@ export default tseslint.config(
             "tests/input-wheel-support.test.ts",
             "tests/loop-editor-contract.test.ts",
             "tests/limiter-prompt.test.ts",
+            "tests/pmd-hue.test.ts",
             "tests/lint-baseline.test.ts",
             "tests/song-document-contract.test.ts",
             "tests/song-data-recovery.test.ts",

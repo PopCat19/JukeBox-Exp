@@ -312,6 +312,14 @@ export class Slider {
 		this._syncVisual();
 	}
 
+	public setRange(min: number, max: number): void {
+		this._min = min;
+		this._max = max;
+		this.input.min = String(min);
+		this.input.max = String(max);
+		this._syncVisual();
+	}
+
 	public refreshLayout(): void {
 		this._syncVisual();
 	}

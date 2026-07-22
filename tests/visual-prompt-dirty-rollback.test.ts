@@ -2,8 +2,12 @@
 //
 // Purpose: Verifies visual prompts deny dirty exits and restore preview state.
 
-import { describe, expect, spyOn, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
+import {
+	getPMDRealtimeHueCoordinator,
+	type PMDRealtimeHueState,
+} from "../editor/core/pmd-realtime-hue";
 import { CustomThemePrompt } from "../editor/prompts/custom-theme-prompt";
 import { PalettePrompt } from "../editor/prompts/palette-prompt";
 import { ThemePrompt } from "../editor/prompts/theme-prompt";
@@ -18,10 +22,39 @@ function visualDoc(): SongDocument {
 	return {
 		colorTheme: "forest",
 		notifier: { changed: () => {} },
-		prefs: { colorTheme: "forest", save: () => {} },
+		prefs: { colorTheme: "forest", pmdRealtimeHue: false, save: () => {} },
+		record: () => {},
 		lastChangeWas: () => false,
 	} as unknown as SongDocument;
 }
+
+interface GlobalSnapshot {
+	readonly pmd: PMDRealtimeHueState;
+	readonly storage: Map<string, string>;
+	readonly theme: string;
+}
+
+const coordinator = getPMDRealtimeHueCoordinator(window);
+let globalSnapshot: GlobalSnapshot;
+
+beforeEach(() => {
+	globalSnapshot = {
+		pmd: coordinator.capture(),
+		storage: new Map(Array.from({ length: localStorage.length }, (_, index) => {
+			const key = localStorage.key(index)!;
+			return [key, localStorage.getItem(key)!] as const;
+		})),
+		theme: ColorConfig.currentTheme,
+	};
+	coordinator.apply({ controlHue: 345, dark: true, effectiveHue: 345, enabled: false });
+	localStorage.clear();
+});
+
+afterEach(() => {
+	coordinator.restore(globalSnapshot.pmd, globalSnapshot.theme);
+	localStorage.clear();
+	globalSnapshot.storage.forEach((value, key) => { localStorage.setItem(key, value); });
+});
 
 describe("visual prompt dirty rollback", () => {
 	test("ThemePrompt denies discard, then restores theme and persisted PMD hue", () => {
@@ -46,6 +79,10 @@ describe("visual prompt dirty rollback", () => {
 		visualHue.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
 		expect(hueNumber.value).toBe("211");
 		expect(ColorConfig.pmdHue).toBe(211);
+		hueNumber.value = "999";
+		hueNumber.dispatchEvent(new Event("input"));
+		expect(hueNumber.value).toBe("359");
+		expect(ColorConfig.pmdHue).toBe(359);
 		hueNumber.value = "358";
 		hueNumber.dispatchEvent(new Event("input"));
 		hueNumber.dispatchEvent(new Event("change"));
@@ -101,30 +138,87 @@ describe("visual prompt dirty rollback", () => {
 		}
 	});
 
-	test("ThemePrompt normalizes persisted hue before widget and ARIA snapshots", () => {
-		const cases = [
-			["360", 0],
-			["-1", 345],
-			["720", 345],
-			["NaN", 345],
-		] as const;
-		for (const [stored, expected] of cases) {
-			localStorage.setItem("pmdHue", stored);
-			ColorConfig.pmdHue = Number(stored);
-			const prompt = new ThemePrompt(visualDoc());
-			const hue = prompt.container.querySelector<HTMLInputElement>(
-				"input[data-dev-component='SliderNumWidget']",
-			)!;
-			const visualHue = prompt.container.querySelector<HTMLElement>("[role='slider']")!;
-			expect(ColorConfig.pmdHue).toBe(expected);
-			expect(localStorage.getItem("pmdHue")).toBe(String(expected));
-			expect(hue.value).toBe(String(expected));
-			expect(visualHue.getAttribute("aria-valuenow")).toBe(String(expected));
-			prompt.cleanUp();
-		}
+	test("ThemePrompt syncs absolute and signed UI without clobbering active edits", () => {
+		localStorage.setItem("enableScrollStep", "true");
+		ColorConfig.setTheme(ColorConfig.PMD_THEME);
+		ColorConfig.setPMDState(20, 20, true, false);
+		const doc = visualDoc();
+		let historyWrites = 0;
+		doc.record = () => { historyWrites++; };
+		const prompt = new ThemePrompt(doc);
+		document.body.append(prompt.container);
+		const range = prompt.container.querySelector<HTMLInputElement>("input[type='range']")!;
+		const number = prompt.container.querySelector<HTMLInputElement>(
+			"input[data-dev-component='SliderNumWidget']",
+		)!;
+		const slider = prompt.container.querySelector<HTMLElement>("[role='slider']")!;
+		const checkboxes = prompt.container.querySelectorAll<HTMLInputElement>(
+			"input[type='checkbox']",
+		);
+		const dark = checkboxes[0];
+		const realtime = checkboxes[1];
+		const effective = prompt.container.querySelector<HTMLInputElement>(
+			"input[aria-label='Effective hue']",
+		)!;
+		number.focus();
+		number.value = "17";
+		coordinator.setEnabled(true);
+		expect(number.value).toBe("17");
+		expect(realtime.checked).toBeTrue();
+		expect(number.min).toBe("-180");
+		expect(number.max).toBe("180");
+		expect(prompt.container.querySelector(".tip")?.textContent).toBe("Clock offset:");
+		expect(slider.getAttribute("aria-label")).toBe("Clock offset");
+		expect(slider.getAttribute("aria-valuemin")).toBe("-180");
+		expect(slider.getAttribute("aria-valuemax")).toBe("180");
+		expect(slider.getAttribute("aria-valuenow")).toBe(String(ColorConfig.pmdHue));
+		expect(range.value).toBe(String(ColorConfig.pmdHue));
+		expect(effective.value).toBe(String(coordinator.effectiveHue));
+		coordinator.preview(ColorConfig.pmdHue, false);
+		expect(dark.checked).toBeFalse();
+		number.blur();
+		number.focus();
+		number.value = "179";
+		const wheel = new WheelEvent("wheel", { deltaY: -1, cancelable: true });
+		number.dispatchEvent(wheel);
+		expect(number.value).toBe("180");
+		expect(ColorConfig.pmdHue).toBe(180);
+		number.blur();
+		coordinator.setEnabled(false);
+		expect(realtime.checked).toBeFalse();
+		expect(number.min).toBe("0");
+		expect(number.max).toBe("359");
+		expect(number.value).toBe(String(ColorConfig.pmdHue));
+		expect(prompt.container.querySelector(".tip")?.textContent).toBe("Hue:");
+		expect(slider.getAttribute("aria-label")).toBe("Hue");
+		expect(historyWrites).toBe(0);
+		prompt.discard();
+		prompt.cleanUp();
+		prompt.container.remove();
 	});
 
-	test("ThemePrompt persists committed widget and dark-toggle previews", () => {
+	test("ThemePrompt reads global state and never persists open or preview", () => {
+		localStorage.setItem("pmdHue", "999");
+		ColorConfig.setPMDState(77, 77, true, false);
+		const persist = spyOn(coordinator, "persist");
+		const prompt = new ThemePrompt(visualDoc());
+		const hue = prompt.container.querySelector<HTMLInputElement>(
+			"input[data-dev-component='SliderNumWidget']",
+		)!;
+		const visualHue = prompt.container.querySelector<HTMLElement>("[role='slider']")!;
+		hue.value = "80";
+		hue.dispatchEvent(new Event("input"));
+		expect(ColorConfig.pmdHue).toBe(80);
+		expect(localStorage.getItem("pmdHue")).toBe("999");
+		expect(hue.value).toBe("80");
+		expect(visualHue.getAttribute("aria-valuenow")).toBe("80");
+		expect(persist).toHaveBeenCalledTimes(0);
+		prompt.discard();
+		prompt.cleanUp();
+		persist.mockRestore();
+	});
+
+	test("ThemePrompt persists committed widget and dark-toggle previews once", () => {
 		localStorage.setItem("colorTheme", ColorConfig.PMD_THEME);
 		ColorConfig.setTheme(ColorConfig.PMD_THEME);
 		ColorConfig.setPMD(12, true);
@@ -132,6 +226,7 @@ describe("visual prompt dirty rollback", () => {
 		const doc = visualDoc();
 		doc.notifier.changed = () => notifications++;
 		const prompt = new ThemePrompt(doc);
+		const persist = spyOn(coordinator, "persist");
 		const hue = prompt.container.querySelector<HTMLInputElement>(
 			"input[data-dev-component='SliderNumWidget']",
 		)!;
@@ -146,10 +241,12 @@ describe("visual prompt dirty rollback", () => {
 		expect(ColorConfig.pmdDark).toBeFalse();
 		expect(localStorage.getItem("pmdHue")).toBe("99");
 		expect(localStorage.getItem("pmdDark")).toBe("0");
+		expect(persist).toHaveBeenCalledTimes(1);
 		expect(notifications).toBe(2);
 		prompt.discard();
 		expect(ColorConfig.pmdHue).toBe(99);
 		prompt.cleanUp();
+		persist.mockRestore();
 	});
 
 	test("PalettePrompt restores the pre-open preview CSS after confirmed discard", () => {
@@ -235,7 +332,7 @@ describe("visual prompt dirty rollback", () => {
 
 		let themeChanges = 0;
 		const onThemeChange = (): void => { themeChanges++; };
-		const pmdWrites = spyOn(ColorConfig, "setPMD");
+		const pmdWrites = spyOn(ColorConfig, "setPMDState");
 		const themeWrites = spyOn(ColorConfig, "setTheme");
 		events.listen("themeChange", onThemeChange);
 		notifications = 0;
@@ -245,7 +342,7 @@ describe("visual prompt dirty rollback", () => {
 			expect(closes).toBe(1);
 			expect(pmdWrites).toHaveBeenCalledTimes(1);
 			expect(themeWrites).toHaveBeenCalledTimes(1);
-			expect(themeChanges).toBe(2);
+			expect(themeChanges).toBe(1);
 			expect(notifications).toBe(1);
 			expect(localStorage.getItem("colorTheme")).toBe("forest");
 		} finally {

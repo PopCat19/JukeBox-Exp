@@ -32,6 +32,7 @@ export class SliderNumWidget {
 	public readonly slider: Slider;
 	public readonly inputBox: HTMLInputElement;
 	public readonly row: HTMLDivElement;
+	private readonly _label: HTMLSpanElement;
 
 	constructor(
 		doc: SongDocument,
@@ -61,6 +62,7 @@ export class SliderNumWidget {
 			this.inputBox,
 			options?.dropdown,
 		);
+		this._label = this.row.querySelector(".tip") as HTMLSpanElement;
 
 		// Auto-wire input box change dispatch.
 		if (getChange && options?.getInstrumentValue) {
@@ -73,6 +75,13 @@ export class SliderNumWidget {
 				if (ch) doc.record(ch);
 			});
 		}
+	}
+
+	public setRangeAndLabel(min: number, max: number, label: string): void {
+		this.slider.setRange(min, max);
+		this.inputBox.min = String(min);
+		this.inputBox.max = String(max);
+		this._label.textContent = `${label}:`;
 	}
 
 	/** Sync both the slider visual and the input box text to a new value. */

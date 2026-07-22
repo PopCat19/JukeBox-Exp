@@ -100,7 +100,8 @@ All 12 types verified via encode→decode→type-preservation.
 |--------|-----------|-------|
 | `editor/input/inventory.ts` | `tests/input-inventory.test.ts` | InputBinding, inputBindings |
 | `editor/core/application-router.ts`, `editor/song-editor.ts` | `tests/application-router.test.ts` | Global funnel convergence, unavailable and denied route results, synchronous guards, production wiring, immutable context, ordered import file delivery |
-| `editor/core/preferences.ts` | `tests/navigator-contracts.test.ts` | Typed per-section Navigator collapse persistence and legacy boolean migration |
+| `editor/core/preferences.ts` | `tests/navigator-contracts.test.ts`, `tests/pmd-hue.test.ts` | Navigator collapse persistence, PMD realtime default/persistence, and legacy migration |
+| `editor/core/pmd-realtime-hue.ts` | `tests/pmd-hue.test.ts` | Page-global singleton scheduling, document/window wake refresh, atomic restore, transitions, persistence, and cleanup |
 | `editor/navigator/command-registry.ts` | `tests/command-registry.test.ts` | Stable metadata, fuzzy ranking, Navigator routing, argument validation, and one-based bar conversion |
 | `editor/prompts/import-prompt.ts` | `tests/import-prompt-external-delivery.test.ts` | External file validation, transport restoration, completion ordering, cleanup invalidation, and latest-operation generation safety |
 | `editor/prompts/instrument-import-prompt.ts` | `tests/instrument-import-completion.test.ts` | Successful import completion through bound Navigator close authority |
@@ -164,6 +165,7 @@ All 12 types verified via encode→decode→type-preservation.
 
 | Source | Test file | Scope |
 |--------|-----------|-------|
+| `shared/pmd-hue.ts` | `tests/pmd-hue.test.ts` | Local clock mapping, arithmetic modulo, storage clamping, signed offsets, and next-minute delay |
 | `shared/color-utils.ts` | `tests/shared-utilities.test.ts` | parseCssColor, hslToRgb, oklchToHex, formatColorForTab, hexToRgb, rgbToHex, etc. |
 | `shared/pmd/color.ts` | `tests/shared-utilities.test.ts` | safeOklchToRgb, oklchToRgb |
 | `shared/color-config.ts` | `tests/shared-utilities.test.ts` | colorConfig (indirect through color utils) |

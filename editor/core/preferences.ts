@@ -85,6 +85,7 @@ const prefSchema: PrefEntry[] = [
 	{ key: "showSpectrumParticles", default: false },
 	{ key: "enableScrollStep", default: false },
 	{ key: "doubleClickSliderReset", default: false },
+	{ key: "pmdRealtimeHue", default: false },
 	{ key: "rollNoveltyPresets", default: false },
 	// --- Strings ---
 	{ key: "keyboardLayout", default: "pianoTransposingC" },
@@ -177,6 +178,7 @@ export class Preferences {
 	public loopEnabled: boolean = true;
 	public enableScrollStep: boolean = false;
 	public doubleClickSliderReset: boolean = false;
+	public pmdRealtimeHue: boolean = false;
 	// jukebox
 	public rollNoveltyPresets: boolean = false;
 	/** @deprecated No longer used. Tags handled by instrument-browser-prompt. */
