@@ -372,7 +372,7 @@ function removePreviewCss(): void {
 
 const ROW_STYLE =
 	"display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--border-radius-medium);";
-const SWATCH_STYLE = `width: 22px; height: 22px; border-radius: var(--border-radius-medium); border: 1px solid var(--ui-widget-background); flex-shrink: 0; cursor: pointer;`;
+const SWATCH_STYLE = `width: 22px; height: 22px; border-radius: var(--border-radius-medium); flex-shrink: 0; cursor: pointer;`;
 const LABEL_STYLE =
 	"width: 130px; flex-shrink: 0; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--primary-text, #ccc); text-align: left;";
 const INPUT_STYLE =

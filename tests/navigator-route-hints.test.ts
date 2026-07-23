@@ -337,7 +337,8 @@ describe("Navigator route hint shell", () => {
 		const css = buildNavigatorCSS();
 		expect(css).toContain(".navigator-route-hint-pill");
 		expect(css).toMatch(/\.navigator-route-hint-pill \{[^}]*color: var\(--secondary-text\)[^}]*font-family: var\(--font-family-mono\)[^}]*background: var\(--ui-widget-background\)/s);
-		expect(css).not.toMatch(/\.navigator-route-hint-pill \{[^}]*(?:box-shadow|linear-gradient|radial-gradient)/s);
+		expect(css).not.toMatch(/\.navigator-route-hint-pill \{[^}]*(?:\tborder:|\tborder-color:|box-shadow|linear-gradient|radial-gradient)/s);
+		expect(css).not.toMatch(/\.navigator-route-hint-pill\.navigator-route-hint-prefix \{[^}]*border-color:/s);
 		const shell = new NavigatorShell("Navigator", undefined, undefined, undefined, routes(1));
 		const pill = shell.container.querySelector(".navigator-route-hint-pill");
 		expect(pill?.classList.contains("pmd-status-badge")).toBeTrue();

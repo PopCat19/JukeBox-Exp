@@ -139,7 +139,6 @@ export function buildNavigatorCSS(): string {
 	text-align: center;
 	text-transform: uppercase;
 	background: var(--ui-widget-background);
-	border: 1px solid var(--secondary-text);
 	border-radius: var(--border-radius-medium);
 }
 .beepboxEditor .navigator-route-hint-mode .navigator-route-hint-pill:not([hidden]) {
@@ -149,7 +148,6 @@ export function buildNavigatorCSS(): string {
 }
 .beepboxEditor .navigator-route-hint-mode .navigator-route-hint-pill.navigator-route-hint-prefix {
 	color: var(--primary-text);
-	border-color: var(--primary-text);
 }
 .beepboxEditor .navigator-route-hint-transient .navigator-content {
 	grid-template-columns: minmax(224px, 320px);

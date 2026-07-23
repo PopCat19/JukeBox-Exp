@@ -34,7 +34,6 @@ export function buildPromptMiscCSS(): string {
 	box-sizing: border-box;
 	margin: 8px 0;
 	padding: 8px;
-	border: 1px solid var(--ui-widget-background);
 	border-radius: var(--border-radius-medium);
 	background: color-mix(in srgb, var(--ui-widget-background), transparent 55%);
 }

@@ -250,6 +250,8 @@ describe("visual prompt dirty rollback", () => {
 		localStorage.setItem("customColors", ":root { --page-margin: #111; }");
 		injectGlobalStyles(document, "palette-preview", ":root { --before-open: #abc; }");
 		const prompt = new PalettePrompt(visualDoc());
+		const swatch = prompt.container.querySelector<HTMLElement>("div[tabindex='-1'][style*='width: 22px']")!;
+		expect(swatch.style.border).toBe("");
 		const color = prompt.container.querySelector<HTMLInputElement>("input[type='text']")!;
 		color.value = "#abcdef";
 		color.dispatchEvent(new Event("change"));

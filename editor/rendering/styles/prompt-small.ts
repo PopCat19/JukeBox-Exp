@@ -129,7 +129,6 @@ export function buildPromptSmallCSS(): string {
 	position: relative;
 	width: 100%;
 	margin: 0 auto 8px;
-	outline: 1px solid var(--ui-widget-background);
 }
 
 .beepboxEditor .visualLoopControlsPrompt .loopControlsCanvas,
@@ -421,7 +420,6 @@ export function buildPromptSmallCSS(): string {
 	margin-bottom: 0.5em;
 	margin-left: auto;
 	margin-right: auto;
-	outline: 1px solid var(--ui-widget-background);
 	box-sizing: border-box;
 	width: 100%;
 }

@@ -1299,6 +1299,8 @@ describe("navigator shell", () => {
 		expect(css).toMatch(/\.navigator-import-export-pane \{[^}]*flex-direction: column[^}]*gap: 8px/s);
 		expect(css).not.toMatch(/\.navigator-import-export-surface \{[^}]*border-bottom:/s);
 		expect(buildCleanChannelCSS()).not.toMatch(/\.(?:ccpDetailSummary|ccpTableLabel|cleanChannelPrompt th) \{[^}]*border-bottom:/s);
+		expect(buildPromptMiscCSS()).not.toMatch(/\.recoveryRow \{[^}]*border:/s);
+		expect(buildPromptSmallCSS()).not.toMatch(/\.(?:loopControlsWaveform|loopControlsCanvas) \{[^}]*outline: 1px/s);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-content \{[^}]*max-width: 100%[^}]*overflow-x: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-sidebar \{[^}]*box-sizing: border-box[^}]*max-width: 100%[^}]*overflow: hidden/);
 		expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*\.navigator-route-list \{[^}]*max-width: 100%[^}]*flex-direction: row[^}]*overflow-x: auto/);
