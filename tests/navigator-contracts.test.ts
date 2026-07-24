@@ -29,6 +29,9 @@ import { buildPromptShellCSS } from "../editor/rendering/styles/prompt-shell";
 import { buildPromptSmallCSS } from "../editor/rendering/styles/prompt-small";
 import { buildCleanChannelCSS } from "../editor/rendering/styles/prompt-clean-channel";
 import { buildSampleBrowserCSS } from "../editor/rendering/styles/prompt-sample-browser";
+import { contributorCategoriesB } from "../editor/config/preset_category/contributors-b";
+import { mixedCommunityCategories } from "../editor/config/preset_category/community-mixed";
+import { fullTagList, DELETED_TAGS, DELETED_CATEGORY_NAMES } from "../editor/config/editor-config";
 import { AddSamplesPrompt } from "../editor/prompts/add-samples-prompt";
 import { CleanChannelPrompt } from "../editor/prompts/clean-channel-prompt";
 import { ExportPrompt, getExportPaneAuthority } from "../editor/prompts/export-prompt";
@@ -3232,5 +3235,32 @@ describe("flattened Navigator routes", () => {
 		).not.toBeNull();
 		expect(detached.querySelector("[data-navigator-scope='exportInstrument']") !== null).toBeTrue();
 		expect((shell.container.querySelector(".navigator-detach-button") as HTMLButtonElement).disabled).toBeFalse();
+	});
+});
+
+function hasDeletedTag(tags: string[], deleted: readonly string[]): boolean {
+	return tags.some((t) => deleted.includes(t));
+}
+
+describe("preset category deferred deletions", () => {
+	test("DELETED_TAGS must not appear in fullTagList", () => {
+		for (const tag of DELETED_TAGS) {
+			expect(fullTagList.includes(tag)).toBeFalse();
+		}
+	});
+	test("DELETED_CATEGORY_NAMES must not appear in contributorCategoriesB", () => {
+		for (const name of DELETED_CATEGORY_NAMES) {
+			expect(contributorCategoriesB.some((c) => c.name === name)).toBeFalse();
+		}
+	});
+	test("DELETED_TAGS must not appear in any preset tags", () => {
+		const allCategories = [...contributorCategoriesB, ...mixedCommunityCategories];
+		for (const cat of allCategories) {
+			for (const preset of cat.presets) {
+				if ("tags" in preset) {
+					expect(hasDeletedTag((preset as { tags: string[] }).tags, DELETED_TAGS)).toBeFalse();
+				}
+			}
+		}
 	});
 });

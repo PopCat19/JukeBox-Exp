@@ -15,6 +15,13 @@ import { type Preset, type PresetCategory, presetCategoriesData } from "./preset
 export type { Preset, PresetCategory } from "./preset_category";
 
 // Tags curated by the JukeBox community (https://github.com/JohnnesN/JukeBox)
+// Tags removed by deliberate deletion — re-adding them is blocked.
+// Add removed tags here so enforcement tests catch reintroduction.
+export const DELETED_TAGS: readonly string[] = ["synthetic"];
+
+// Category names removed by deliberate deletion — re-adding them is blocked.
+export const DELETED_CATEGORY_NAMES: readonly string[] = ["Synthetic's Presets"];
+
 export const fullTagList: string[] = [
 	// synth type
 	"chip",
@@ -92,7 +99,6 @@ export const fullTagList: string[] = [
 	"eggfry",
 	"august",
 	"treethletress",
-	"synthetic",
 	"sup3r",
 	"rblx_inst",
 	"jayden256",
